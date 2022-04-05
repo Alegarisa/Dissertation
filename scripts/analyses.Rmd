@@ -1,0 +1,31 @@
+---
+title: "analyses"
+author: "Alejandra Garcia Isaza"
+date: "4/5/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(rio)
+library(here)
+library(tidyverse)
+library(haven)
+library(janitor)
+library(knitr)
+library(surveytoolbox)
+library(sjPlot)
+library(kableExtra)
+library(psych)
+library(sjmisc)
+```
+
+# Loading the dataset
+```{r}
+d <- read_sav(here("data", "parent_hv1_youth_w1.sav"))
+
+```
+
+
+
