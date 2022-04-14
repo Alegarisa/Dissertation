@@ -150,4 +150,26 @@ d3 <- d2 %>%
 - Measurement error: variables with reliabilities > .70 (which computation?)
 - Correlation matrix: sizable number of correlations should exceed ±.30 
 
+# dataset with only EFA variables 
+```{r}
+efa_vars <- d3 %>%
+  select(-school_id, -condition, -family_id, -participant_id, -q36_hv1, -q173_3_p1)
+```
+
+```{r}
+# Structure at home
+scale_1 <- efa_vars %>%
+  select(q23_p1:q30_p1)
+
+round(cor(scale_1, method = "pearson", use = "complete.obs"), digits = 2)
+
+plot(scale_1) # trying to find a way to visualize several plots at a time
+
+# Not sure how to visualize ordinal scales
+ggplot(scale_1, aes(q23_p1)) +
+geom_histogram(alpha = 0.7)
+
+ggplot(scale_1, aes(q23_p1, q24_p1)) +
+geom_point()
+```
 
