@@ -24,7 +24,6 @@ library(sjmisc)
 # Loading the dataset
 ```{r}
 d <- read_sav(here("data", "parent_hv1_youth_w1.sav"))
-
 ```
 
 # only analysis variables
@@ -84,30 +83,52 @@ q173_3_p1
 d1 <- d %>%
   select(school_id, condition, family_id, participant_id, q23_p1:q30_p1, q31_p1:q40_p1, q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1, q54_p1:q57_p1, q64_p1:q67_p1, q68_p1:q81_p1, q82_p1:q98_p1, q105_p1:q110_p1, q128_p1:q131_p1, q133_p1, q134_p1, q136_p1, q137_p1, q139_p1, q140_p1, q143_p1, q144_p1, q18_p1, q19_p1, q41_p1, q43_p1, q50_p1, q62_p1, q44_p1, q58_p1, q63_p1, q126_p1, q36_hv1, q173_3_p1, q83_y1:q91_y1) # double check this, evaluate missing data 
 ```
+# descriptives check 
+```{r}
+describe(d1)
+
+# using describe function I identified that missing values in the dataset were -99, 99, 77
+```
 
 
-# recoding missing variuables as N/A
+# recoding missing variables as N/A
 ```{r include=FALSE}
 # recoding missing values as N/A with function
 
 # vector with missing values in dataset
-missing_vals <- c(77, 88, 99, -99)
+missing_vals <- c(77, 99, -99)
 
 # function that returns true if values in vector are equal to missing_vals. The function takes a vector x, and specified values of missing data
-recode_missing <- function(x, missing_vals = c(77, 88, 99, -99)) {
+recode_missing <- function(x, missing_vals = c(77, 99, -99)) {
   test <- x %in% missing_vals
   ifelse(test, NA, x)
 }
 
 # function that recodes missing values to NA. The function takes a dataframe with variables with missing data, and specified values of missing data
-recode_missing_df <- function(df, missing_vals = c(77, 88, 99, -99)) {
+recode_missing_df <- function(df, missing_vals = c(77, 99, -99)) {
   modify(df, ~recode_missing(.x, missing_vals)) # here uses the function created above
 }
+
+d2 <- recode_missing_df(d1) # the function strips out variable labels
+```
+# descriptives check #2
+```{r}
+describe(d2)
+
+# using describe function I identified that some variables had a lot of missing information:
+# q65_p1 = 89/94 responses ("En esta escuela,siento que hay por lo menos un maestro quien está interesado en conocerme")
+# q173_3_p1 = 86/94 responses ("¿Qué tan cómodo/ase siente hablando inglés en la ESCUELA de su joven") --> moderator
+
+(sum(is.na(d2))/prod(dim(d2)))*100 # 0.8450984 (this is less than 1% of the data, should I do something about it?)
+
+# Nico's explanation:
+#test <- describe(d2)
+#(sum(94-test$n))/(94*107)
 ```
 
 # Data prep: reverse scoring negatively worded items
 ```{r}
-d2 <- d1 %>%
+d3 <- d2 %>%
   mutate(q82_p1 = likert_reverse(q82_p1, top = 4, bottom = 1),
          q83_p1 = likert_reverse(q83_p1, top = 4, bottom = 1),
          q131_p1 = likert_reverse(q131_p1, top = 4, bottom = 1),
@@ -115,7 +136,7 @@ d2 <- d1 %>%
          q136_p1 = likert_reverse(q136_p1, top = 4, bottom = 1),
          q84_y1 = likert_reverse(q84_y1, top = 5, bottom = 1),
          q86_y1 = likert_reverse(q86_y1, top = 5, bottom = 1),
-         q87_y1 = likert_reverse(q87_y1, top = 5, bottom = 1))
+         q87_y1 = likert_reverse(q87_y1, top = 5, bottom = 1)) # 
 ```
 
 
@@ -128,3 +149,5 @@ d2 <- d1 %>%
 - Outliers
 - Measurement error: variables with reliabilities > .70 (which computation?)
 - Correlation matrix: sizable number of correlations should exceed ±.30 
+
+
