@@ -19,6 +19,8 @@ library(sjPlot)
 library(kableExtra)
 library(psych)
 library(sjmisc)
+
+theme_set(theme_minimal())
 ```
 
 # Loading the dataset
@@ -161,15 +163,57 @@ efa_vars <- d3 %>%
 scale_1 <- efa_vars %>%
   select(q23_p1:q30_p1)
 
-round(cor(scale_1, method = "pearson", use = "complete.obs"), digits = 2)
+round(cor(scale_1, method = "pearson", use = "complete.obs"), digits = 2) # pearson corr
 
+```
+
+```{r}
+poly_scale_1 <- polychoric(scale_1)
+# 
+# poly_scale_1 <- data.frame(polychoric(scale_1)) # need to create a datafranme with correlation matrix to use it in scree function 
+# 
+# dim(poly_scale_1)
+
+
+```
+
+```{r}
+poly_scale_1_df <- data.frame(poly_scale_1$rho)
+```
+```{r}
+
+# not sure of the difference between these two
+scree(poly_scale_1_df,factors=TRUE,pc=TRUE,main="Scree plot",hline=NULL,add=FALSE)
+
+scree(poly_scale_1_df,factors=FALSE,pc=TRUE,main="Scree plot",hline=NULL,add=FALSE)
+
+scree(poly_scale_1_df,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+VSS.scree(poly_scale_1_df, main = "scree plot")
+```
+
+```{r}
+
+```
+
+
+# trying to visualize
+```{r}
 plot(scale_1) # trying to find a way to visualize several plots at a time
 
 # Not sure how to visualize ordinal scales
-ggplot(scale_1, aes(q23_p1)) +
-geom_histogram(alpha = 0.7)
+# ggplot(scale_1, aes(q23_p1)) +
+# geom_histogram(alpha = 0.7) # histograms only for continuous vars
 
-ggplot(scale_1, aes(q23_p1, q24_p1)) +
-geom_point()
+ggplot(scale_1, aes(q23_p1)) +
+geom_bar() # to visualize univariate discrete
 ```
+
+```{r}
+ ggplot(scale_1, aes(q23_p1, q24_p1)) +
+  geom_count() +
+  geom_jitter(h = 2, w = 2)
+```
+
+
 
