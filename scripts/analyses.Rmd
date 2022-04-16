@@ -192,11 +192,6 @@ scree(poly_scale_1_df,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FAL
 VSS.scree(poly_scale_1_df, main = "scree plot")
 ```
 
-```{r}
-
-```
-
-
 # trying to visualize
 ```{r}
 plot(scale_1) # trying to find a way to visualize several plots at a time
