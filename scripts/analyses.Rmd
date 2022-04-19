@@ -85,11 +85,10 @@ q173_3_p1
 d1 <- d %>%
   select(school_id, condition, family_id, participant_id, q23_p1:q30_p1, q31_p1:q40_p1, q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1, q54_p1:q57_p1, q64_p1:q67_p1, q68_p1:q81_p1, q82_p1:q98_p1, q105_p1:q110_p1, q128_p1:q131_p1, q133_p1, q134_p1, q136_p1, q137_p1, q139_p1, q140_p1, q143_p1, q144_p1, q18_p1, q19_p1, q41_p1, q43_p1, q50_p1, q62_p1, q44_p1, q58_p1, q63_p1, q126_p1, q36_hv1, q173_3_p1, q83_y1:q91_y1) # double check this, evaluate missing data 
 ```
+
 # descriptives check 
 ```{r}
-describe(d1)
-
-# using describe function I identified that missing values in the dataset were -99, 99, 77
+describe(d1)# using describe function I identified that missing values in the dataset were -99, 99, 77
 ```
 
 
@@ -113,16 +112,15 @@ recode_missing_df <- function(df, missing_vals = c(77, 99, -99)) {
 
 d2 <- recode_missing_df(d1) # the function strips out variable labels
 ```
-# descriptives check #2
+
+# descriptives check #2 -- Evaluating missingness 
 ```{r}
 describe(d2)
-
 # using describe function I identified that some variables had a lot of missing information:
 # q65_p1 = 89/94 responses ("En esta escuela,siento que hay por lo menos un maestro quien está interesado en conocerme")
 # q173_3_p1 = 86/94 responses ("¿Qué tan cómodo/ase siente hablando inglés en la ESCUELA de su joven") --> moderator
 
 (sum(is.na(d2))/prod(dim(d2)))*100 # 0.8450984 (this is less than 1% of the data, should I do something about it?)
-
 # Nico's explanation:
 #test <- describe(d2)
 #(sum(94-test$n))/(94*107)
@@ -138,9 +136,16 @@ d3 <- d2 %>%
          q136_p1 = likert_reverse(q136_p1, top = 4, bottom = 1),
          q84_y1 = likert_reverse(q84_y1, top = 5, bottom = 1),
          q86_y1 = likert_reverse(q86_y1, top = 5, bottom = 1),
-         q87_y1 = likert_reverse(q87_y1, top = 5, bottom = 1)) # 
+         q87_y1 = likert_reverse(q87_y1, top = 5, bottom = 1))
 ```
 
+# dataset with only EFA variables 
+```{r}
+efa_vars <- d3 %>%
+  select(-school_id, -condition, -family_id, -participant_id, -q36_hv1, -q173_3_p1)
+
+describe(efa_vars)
+```
 
 # checking assumptions for pearson correlation model
 "Departures from normality and linearity are important only because they affect the Pearson product-moment correlation coefficients (r) among measured variables used for computation of EFA results, which, in turn, “can result in misleading EFA findings” (Reise, Waller, & Comrey, 2000, p. 289). Therefore, it is important to investigate and report the distributional properties of the data that might affect the Pearson correlations (Goodwin & Leech, 2006)." (Watkins, 2018, p. 223). 
@@ -152,36 +157,79 @@ d3 <- d2 %>%
 - Measurement error: variables with reliabilities > .70 (which computation?)
 - Correlation matrix: sizable number of correlations should exceed ±.30 
 
-# dataset with only EFA variables 
+## using pearson correlation 
+# skew & kurtosis: inside the range of -2 to 2 (-2, -1, 0, 1, 2)
+# then, look at those variables that appear to be problematic
+# then look the bar graph for those problematic variables
+# run EFA with them, run without them -- sensitivity analysis -- (if still indicates the same # of factors, decide if leaving or keeping)
+
 ```{r}
-efa_vars <- d3 %>%
-  select(-school_id, -condition, -family_id, -participant_id, -q36_hv1, -q173_3_p1)
+# q74_p1 -- "En los últimos tres meses, ¿con qué frecuencia usted ha tenido una conversación con su joven sobre cómo va en sus clases."
+# 1 = Nunca, 2 = Raramente, 3 = A veces, 4 = A menudo. 
+# skew: -2.99	
+# kurtosis: 10.57
+
+efa_vars$q74_p1 # checking that no weird number is there
+
+ggplot(efa_vars, aes(q74_p1)) +
+geom_bar()
 ```
 
+# checking for out of range kurtosis & skew variables
+```{r}
+efa_vars_desc <- data.frame(describe(efa_vars))
+
+efa_vars_desc %>%
+  filter(kurtosis < -2 | kurtosis > 2)
+
+efa_vars_desc %>%
+  filter(skew < -2 | skew > 2) # these are included above
+```
+
+# inspecting normality
+```{r}
+ggplot(scale_1, aes(q23_p1)) +
+geom_bar() # to visualize univariate discrete
+
+# check for normality looking at bar plots (101 vars that will go in EFA) -- find a function to do this
+```
+
+# inspecting linearity (well, trying)
+```{r}
+ ggplot(scale_1, aes(q23_p1, q24_p1)) +
+  geom_count() +
+  geom_jitter(h = 2, w = 2)
+```
+
+# issue of sparseness
+```{r}
+#contingency tables? 
+```
+
+
+--------------------------
+## EFA decisions 
+--------------------------
 ```{r}
 # Structure at home
 scale_1 <- efa_vars %>%
   select(q23_p1:q30_p1)
 
 round(cor(scale_1, method = "pearson", use = "complete.obs"), digits = 2) # pearson corr
-
 ```
 
 ```{r}
 poly_scale_1 <- polychoric(scale_1)
-# 
-# poly_scale_1 <- data.frame(polychoric(scale_1)) # need to create a datafranme with correlation matrix to use it in scree function 
-# 
-# dim(poly_scale_1)
 
+poly_scale_1
 
+poly_scale_1$rho # what is RHO? -- guess that this is the poly correlation
+poly_scale_1$tau # what is TAU? -- not sure, don't seem to be factor loadings
+
+poly_scale_1_df <- data.frame(poly_scale_1$rho) # need to create a datafranme with correlation matrix to use it in scree function 
 ```
 
 ```{r}
-poly_scale_1_df <- data.frame(poly_scale_1$rho)
-```
-```{r}
-
 # not sure of the difference between these two
 scree(poly_scale_1_df,factors=TRUE,pc=TRUE,main="Scree plot",hline=NULL,add=FALSE)
 
@@ -192,23 +240,15 @@ scree(poly_scale_1_df,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FAL
 VSS.scree(poly_scale_1_df, main = "scree plot")
 ```
 
-# trying to visualize
+# how to ask for estimation method ULS or ML?
 ```{r}
-plot(scale_1) # trying to find a way to visualize several plots at a time
-
-# Not sure how to visualize ordinal scales
-# ggplot(scale_1, aes(q23_p1)) +
-# geom_histogram(alpha = 0.7) # histograms only for continuous vars
-
-ggplot(scale_1, aes(q23_p1)) +
-geom_bar() # to visualize univariate discrete
+# this is the default copied from psych package documentation 
+# fa(r, nfactors=1, n.obs = NA, n.iter=1, rotate = "oblimin", scores = "regression", residuals=FALSE, SMC=TRUE, covar=FALSE, missing=FALSE, impute="median", min.err = 0.001, max.iter = 50, symmetric=TRUE, warnings=TRUE, fm="minres",
+# alpha=.1, p=.05, oblique.scores=FALSE, np.obs=NULL,use="pairwise", cor="cor", correct=.5, weight=NULL, n.rotations=1, hyper=.15,...)
 ```
 
 ```{r}
- ggplot(scale_1, aes(q23_p1, q24_p1)) +
-  geom_count() +
-  geom_jitter(h = 2, w = 2)
+fa(poly_scale_1_df,  n.obs = NA, rotate = "none", fm = "minres")
 ```
 
-
-
+next step: read the psych documentation pages 133 and on. 
