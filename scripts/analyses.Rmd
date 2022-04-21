@@ -188,15 +188,28 @@ efa_vars_desc %>%
 
 # inspecting normality
 ```{r}
-ggplot(scale_1, aes(q23_p1)) +
+ggplot(efa_vars, aes(q23_p1)) +
 geom_bar() # to visualize univariate discrete
 
 # check for normality looking at bar plots (101 vars that will go in EFA) -- find a function to do this
 ```
 
+#trying a function to visualize all variables
+```{r}
+# bar_plots <- function(d, v) {
+#   plot <- ggplot(d, aes(v)) +
+# geom_bar()
+#   return(plot)
+# }
+
+# need to figure out the way to apply the function to each column (fun prog week 3 and above prob some help)
+
+```
+
+
 # inspecting linearity (well, trying)
 ```{r}
- ggplot(scale_1, aes(q23_p1, q24_p1)) +
+ ggplot(efa_vars, aes(q23_p1, q24_p1)) +
   geom_count() +
   geom_jitter(h = 2, w = 2)
 ```
@@ -219,36 +232,52 @@ round(cor(scale_1, method = "pearson", use = "complete.obs"), digits = 2) # pear
 ```
 
 ```{r}
-poly_scale_1 <- polychoric(scale_1)
+poly_scale_1 <- polychoric(scale_1) # applying poly function to scale 1
 
-poly_scale_1
+poly_scale_1 # RHO is the polychoric matrix, TAU is the "items difficulties" (?)
 
-poly_scale_1$rho # what is RHO? -- guess that this is the poly correlation
-poly_scale_1$tau # what is TAU? -- not sure, don't seem to be factor loadings
-
-poly_scale_1_df <- data.frame(poly_scale_1$rho) # need to create a datafranme with correlation matrix to use it in scree function 
+poly_scale_1_mat <- data.frame(poly_scale_1$rho) # need to create a datafranme with correlation matrix to use it in scree function 
 ```
 
 ```{r}
-# not sure of the difference between these two
-scree(poly_scale_1_df,factors=TRUE,pc=TRUE,main="Scree plot",hline=NULL,add=FALSE)
+scree(poly_scale_1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
-scree(poly_scale_1_df,factors=FALSE,pc=TRUE,main="Scree plot",hline=NULL,add=FALSE)
-
-scree(poly_scale_1_df,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
-
-VSS.scree(poly_scale_1_df, main = "scree plot")
 ```
 
-# how to ask for estimation method ULS or ML?
+# how to ask for estimation method ULS or ML --- answer: fm = "uls"
 ```{r}
-# this is the default copied from psych package documentation 
-# fa(r, nfactors=1, n.obs = NA, n.iter=1, rotate = "oblimin", scores = "regression", residuals=FALSE, SMC=TRUE, covar=FALSE, missing=FALSE, impute="median", min.err = 0.001, max.iter = 50, symmetric=TRUE, warnings=TRUE, fm="minres",
-# alpha=.1, p=.05, oblique.scores=FALSE, np.obs=NULL,use="pairwise", cor="cor", correct=.5, weight=NULL, n.rotations=1, hyper=.15,...)
+# this is the code copied from psych package documentation 
+fa(poly_scale_1_mat, nfactors=1, n.obs = NA, n.iter=1, rotate = "oblimin", scores = "regression", residuals=FALSE, SMC=TRUE, covar=FALSE, missing=FALSE, impute="median", min.err = 0.001, max.iter = 50, symmetric=TRUE, warnings=TRUE, fm="uls", alpha=.1, p=.05, oblique.scores=FALSE, np.obs=NULL,use="pairwise", cor="poly", correct=.5, weight=NULL, n.rotations=1, hyper=.15)
+```
+
+
+
+# need to check if adding cor = "poly" is duplicative if the polychoric correlation matrix is provided instead of the dataframe with the items. Test both and see if results differ. 
+```{r}
+fa(poly_scale_1_mat, n.obs = NA, rotate = "none", fm = "uls")
+
 ```
 
 ```{r}
-fa(poly_scale_1_df,  n.obs = NA, rotate = "none", fm = "minres")
+fa(poly_scale_1_mat, nfactors = 1, n.obs = NA, n.iter = 1, rotate = "none", fm = "uls", cor = "poly", SMC=TRUE)
+
 ```
 
-next step: read the psych documentation pages 133 and on. 
+Psych package info:
+" For those who like SPSS type output, the measure of factoring adequacy known as the Kaiser-Meyer-Olkin KMO test may be found from the correlation matrix or data matrix using the KMO function. Similarly, the Bartlett’s test of Sphericity may be found using the cortest.bartlett function"
+
+
+Model fit indices:
+
+"RMSEA is an absolute fit index, in that it assesses how far a hypothesized model is from a perfect model. On the contrary, CFI and TLI are incremental fit indices that compare the fit of a hypothesized model with that of a baseline model (i.e., a model with the worst fit)" (Xia & Yang, p. 309)
+
+Hu and Bentler (1999) suggested relatively good model–data fit:
+RMSEA smaller than .06 
+CFI and TLI larger than .95 
+
+But these estimates are for continuous data, using normal-theory maximum likelihood (ML). 
+
+Conclusion from (Xia & Yang, p. 421)
+"Given that the DWLS and ULS fit indices tend to show a better model–data fit evaluation than do ML fit indices when the same misspecified model is analyzed, we argue that surpassing a set of cutoff values should not serve as the only justification for the acceptance of a model. It would be more appropriate to consider RMSEA, CFI, and TLI as diagnostic tools for model improvement." 
+
+Q: Are model fit indices used in EFA? 
