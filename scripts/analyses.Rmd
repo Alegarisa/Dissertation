@@ -19,6 +19,7 @@ library(sjPlot)
 library(kableExtra)
 library(psych)
 library(sjmisc)
+library(MVN)
 
 theme_set(theme_minimal())
 ```
@@ -139,6 +140,12 @@ d3 <- d2 %>%
          q87_y1 = likert_reverse(q87_y1, top = 5, bottom = 1))
 ```
 
+```{r}
+d3 %>%
+  haven::write_sav(here("data", "d3.sav"))
+```
+
+
 # dataset with only EFA variables 
 ```{r}
 efa_vars <- d3 %>%
@@ -195,15 +202,20 @@ geom_bar() # to visualize univariate discrete
 ```
 
 #trying a function to visualize all variables
+
+code taken from: https://stackoverflow.com/questions/52822840/ggplot2-create-a-barplot-for-every-column-of-a-dataframe 
 ```{r}
-# bar_plots <- function(d, v) {
-#   plot <- ggplot(d, aes(v)) +
-# geom_bar()
-#   return(plot)
-# }
 
-# need to figure out the way to apply the function to each column (fun prog week 3 and above prob some help)
+plots <- split.default(efa_vars, names(efa_vars)) %>% 
+  map(., setNames, nm = "var") %>% 
+  map(., rownames_to_column) %>%
+  imap(., ~ {
+    ggplot(.x, aes(var)) + 
+      geom_bar() +
+      labs(title = .y)
+    })
 
+plots
 ```
 
 
@@ -213,6 +225,12 @@ geom_bar() # to visualize univariate discrete
   geom_count() +
   geom_jitter(h = 2, w = 2)
 ```
+
+```{r}
+mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # none of the variables meet the nornmality assumption based on Anderson-Darling test
+```
+
+
 
 # issue of sparseness
 ```{r}
@@ -281,3 +299,11 @@ Conclusion from (Xia & Yang, p. 421)
 "Given that the DWLS and ULS fit indices tend to show a better model–data fit evaluation than do ML fit indices when the same misspecified model is analyzed, we argue that surpassing a set of cutoff values should not serve as the only justification for the acceptance of a model. It would be more appropriate to consider RMSEA, CFI, and TLI as diagnostic tools for model improvement." 
 
 Q: Are model fit indices used in EFA? 
+
+MVN package
+anderson-darlin test for normality
+
+polychoric may be robust to non-normality
+
+reliability --- alpha 
+test to look at input hsquared
