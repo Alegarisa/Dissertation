@@ -170,17 +170,7 @@ describe(efa_vars)
 # then look the bar graph for those problematic variables
 # run EFA with them, run without them -- sensitivity analysis -- (if still indicates the same # of factors, decide if leaving or keeping)
 
-```{r}
-# q74_p1 -- "En los últimos tres meses, ¿con qué frecuencia usted ha tenido una conversación con su joven sobre cómo va en sus clases."
-# 1 = Nunca, 2 = Raramente, 3 = A veces, 4 = A menudo. 
-# skew: -2.99	
-# kurtosis: 10.57
-
-efa_vars$q74_p1 # checking that no weird number is there
-
-ggplot(efa_vars, aes(q74_p1)) +
-geom_bar()
-```
+## Inspecting normality
 
 # checking for out of range kurtosis & skew variables
 ```{r}
@@ -193,19 +183,17 @@ efa_vars_desc %>%
   filter(skew < -2 | skew > 2) # these are included above
 ```
 
-# inspecting normality
-```{r}
-ggplot(efa_vars, aes(q23_p1)) +
-geom_bar() # to visualize univariate discrete
+q74_p1 -- "En los últimos tres meses, ¿con qué frecuencia usted ha tenido una conversación con su joven sobre cómo va en sus clases."
+1 = Nunca, 2 = Raramente, 3 = A veces, 4 = A menudo.
+skew: -2.99
+kurtosis: 10.57
 
-# check for normality looking at bar plots (101 vars that will go in EFA) -- find a function to do this
-```
 
-#trying a function to visualize all variables
+# function to visualize all variables in the dataset
 
 code taken from: https://stackoverflow.com/questions/52822840/ggplot2-create-a-barplot-for-every-column-of-a-dataframe 
-```{r}
 
+```{r}
 plots <- split.default(efa_vars, names(efa_vars)) %>% 
   map(., setNames, nm = "var") %>% 
   map(., rownames_to_column) %>%
@@ -214,8 +202,6 @@ plots <- split.default(efa_vars, names(efa_vars)) %>%
       geom_bar() +
       labs(title = .y)
     })
-
-plots
 ```
 
 
@@ -224,9 +210,22 @@ plots
  ggplot(efa_vars, aes(q23_p1, q24_p1)) +
   geom_count() +
   geom_jitter(h = 2, w = 2)
+
+# plots2 <- split.default(scale_1, names(scale_1)) %>% 
+#   map(., setNames, nm = "var") %>% 
+#   map(., rownames_to_column) %>%
+#   imap(., ~ {
+#     ggplot(.x, aes(rowname, var)) + 
+#       geom_count() + 
+#       coord_flip() +
+#       labs(title = .y)
+#     }) # this is one is not clear
 ```
 
 ```{r}
+scale_1 <- efa_vars %>%
+  select(q23_p1:q30_p1)
+
 mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # none of the variables meet the nornmality assumption based on Anderson-Darling test
 ```
 
@@ -298,12 +297,12 @@ But these estimates are for continuous data, using normal-theory maximum likelih
 Conclusion from (Xia & Yang, p. 421)
 "Given that the DWLS and ULS fit indices tend to show a better model–data fit evaluation than do ML fit indices when the same misspecified model is analyzed, we argue that surpassing a set of cutoff values should not serve as the only justification for the acceptance of a model. It would be more appropriate to consider RMSEA, CFI, and TLI as diagnostic tools for model improvement." 
 
-Q: Are model fit indices used in EFA? 
+---- Qs ----
+Q: Are model fit indices used in EFA? Still not super clear. DD said will send some info.
 
-MVN package
-anderson-darlin test for normality
+reliability --- alpha -- can be done with ordinal scales?
 
-polychoric may be robust to non-normality
+DD: polychoric may be robust to non-normality
 
-reliability --- alpha 
+
 test to look at input hsquared
