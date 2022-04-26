@@ -222,13 +222,18 @@ plots <- split.default(efa_vars, names(efa_vars)) %>%
 #     }) # this is one is not clear
 ```
 
+# Multivariate and univariate normality tests or all variables
+```{r}
+mvn(efa_vars, subset = NULL, mvnTest = "hz", univariateTest = "AD") # none of the variables meet the nornmality assumption based on Anderson-Darling test
+```
+
+# Multivariate and univariate normality tests for first scale: structure at home
 ```{r}
 scale_1 <- efa_vars %>%
   select(q23_p1:q30_p1)
 
-mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # none of the variables meet the nornmality assumption based on Anderson-Darling test
+mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # univariate plots can be outputted when analyzing scales
 ```
-
 
 
 # issue of sparseness
@@ -245,41 +250,128 @@ mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlo
 scale_1 <- efa_vars %>%
   select(q23_p1:q30_p1)
 
-round(cor(scale_1, method = "pearson", use = "complete.obs"), digits = 2) # pearson corr
+# scree plot
+scree(scale_1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # using the dataframe instead of the poly corr matrix gives more info, but the numbers are the same
 ```
 
 ```{r}
-poly_scale_1 <- polychoric(scale_1) # applying poly function to scale 1
+# Structure at home
+scale_1 <- efa_vars %>%
+  select(q23_p1:q30_p1)
 
-poly_scale_1 # RHO is the polychoric matrix, TAU is the "items difficulties" (?)
+# Poly corr matrix
+poly_scale_1 <- polychoric(scale_1)
+poly_scale_1_mat <- data.frame(poly_scale_1$rho)
 
-poly_scale_1_mat <- data.frame(poly_scale_1$rho) # need to create a datafranme with correlation matrix to use it in scree function 
-```
-
-```{r}
+# scree plot
 scree(poly_scale_1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
-```
-
-# how to ask for estimation method ULS or ML --- answer: fm = "uls"
-```{r}
-# this is the code copied from psych package documentation 
-fa(poly_scale_1_mat, nfactors=1, n.obs = NA, n.iter=1, rotate = "oblimin", scores = "regression", residuals=FALSE, SMC=TRUE, covar=FALSE, missing=FALSE, impute="median", min.err = 0.001, max.iter = 50, symmetric=TRUE, warnings=TRUE, fm="uls", alpha=.1, p=.05, oblique.scores=FALSE, np.obs=NULL,use="pairwise", cor="poly", correct=.5, weight=NULL, n.rotations=1, hyper=.15)
-```
-
-
-
-# need to check if adding cor = "poly" is duplicative if the polychoric correlation matrix is provided instead of the dataframe with the items. Test both and see if results differ. 
-```{r}
-fa(poly_scale_1_mat, n.obs = NA, rotate = "none", fm = "uls")
-
+# EFA
+fa(poly_scale_1_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
-fa(poly_scale_1_mat, nfactors = 1, n.obs = NA, n.iter = 1, rotate = "none", fm = "uls", cor = "poly", SMC=TRUE)
+# School-based involvement
+scale_2 <- efa_vars %>%
+  select(q31_p1:q40_p1)
 
+# Poly corr matrix
+poly_scale_2 <- polychoric(scale_2)
+poly_scale_2_mat <- data.frame(poly_scale_2$rho)
+
+# scree plot
+scree(poly_scale_2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(poly_scale_2_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
+```{r}
+# Parent Belongingness in School
+scale_3 <- efa_vars %>%
+  select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1)
+
+# Poly corr matrix
+poly_scale_3 <- polychoric(scale_3)
+poly_scale_3_mat <- data.frame(poly_scale_3$rho)
+
+# scree plot
+scree(poly_scale_3_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(poly_scale_3_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
+
+
+
+
+
+
+
+```{r}
+# Homework Involvement
+scale_7 <- efa_vars %>%
+  select(q82_p1:q98_p1)
+
+# Poly corr matrix
+poly_scale_7 <- polychoric(scale_7)
+poly_scale_7_mat <- data.frame(poly_scale_7$rho)
+
+# scree plot
+scree(poly_scale_7_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(poly_scale_7_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- Parent Endorsement of School (4)
+select(q54_p1:q57_p1)
+
+- Parent-Teacher Relationship (4) 
+select(q64_p1:q67_p1)
+
+- Parent-Child Conversations About School (14)
+select(q68_p1:q81_p1)
+
+- Homework Involvement (17)
+select(q82_p1:q98_p1)
+
+- Parent’s Value and Support of Education (6)
+select(q105_p1:q110_p1)
+
+- Appropriate Discipline (7)
+select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1)
+
+- Monitoring (5)
+select(q137_p1, q139_p1, q140_p1, q143_p1, q144_p1)
+
+- Family-School Communication (6)
+select(q18_p1, q19_p1, q41_p1, q43_p1, q50_p1, q62_p1)
+
+- Problem Solving with Educators (4)
+select(q44_p1, q58_p1, q63_p1, q126_p1)
+
+
+
+
+---------------------------------------------
 Psych package info:
 " For those who like SPSS type output, the measure of factoring adequacy known as the Kaiser-Meyer-Olkin KMO test may be found from the correlation matrix or data matrix using the KMO function. Similarly, the Bartlett’s test of Sphericity may be found using the cortest.bartlett function"
 
