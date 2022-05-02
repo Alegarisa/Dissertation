@@ -18,7 +18,7 @@ poly_scale_1 <- polychoric(scale_1) # applying poly function to scale 1
 
 poly_scale_1 # RHO is the polychoric matrix, TAU is the "items difficulties" (?)
 
-poly_scale_1_mat <- data.frame(poly_scale_1$rho) # need to create a dataframe with correlation matrix to use it in scree function 
+poly_scale_1_mat <- data.frame(poly_scale_1$rho) # needed to create a dataframe with correlation matrix to use it in scree function 
 
 scree(poly_scale_1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
@@ -33,5 +33,16 @@ fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 
 fa(poly_scale_1_mat, n.obs = NA, rotate = "none", fm = "uls")
 
-# conclusion: using the raw data frame with cor = "poly" appears to be the same as using the poly corr matrix without the cor = "poly", thus, using just the data frame with the scale variables
+# conclusion: using the raw data frame with cor = "poly" appears to be the same as using the poly corr matrix without the cor = "poly".
 
+#####
+# Structure at home
+scale_1 <- efa_vars %>%
+select(q23_p1:q30_p1)
+
+# scree plot
+scree(scale_1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # using the dataframe instead of the poly corr matrix gives more info, but the numbers are the same
+###

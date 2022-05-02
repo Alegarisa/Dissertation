@@ -141,8 +141,8 @@ d3 <- d2 %>%
 ```
 
 ```{r}
-d3 %>%
-  haven::write_sav(here("data", "d3.sav"))
+# d3 %>%
+#   haven::write_sav(here("data", "d3.sav"))
 ```
 
 
@@ -246,19 +246,7 @@ mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlo
 ## EFA decisions 
 --------------------------
 ```{r}
-# Structure at home
-scale_1 <- efa_vars %>%
-  select(q23_p1:q30_p1)
-
-# scree plot
-scree(scale_1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
-
-# EFA
-fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # using the dataframe instead of the poly corr matrix gives more info, but the numbers are the same
-```
-
-```{r}
-# Structure at home
+# Structure at home (8)
 scale_1 <- efa_vars %>%
   select(q23_p1:q30_p1)
 
@@ -274,7 +262,7 @@ fa(poly_scale_1_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
-# School-based involvement
+# School-based involvement (10)
 scale_2 <- efa_vars %>%
   select(q31_p1:q40_p1)
 
@@ -290,7 +278,7 @@ fa(poly_scale_2_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
-# Parent Belongingness in School
+# Parent Belongingness in School (7)
 scale_3 <- efa_vars %>%
   select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1)
 
@@ -305,11 +293,53 @@ scree(poly_scale_3_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 fa(poly_scale_3_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
+```{r}
+# Parent Endorsement of School (4)
+scale_4 <- efa_vars %>%
+  select(q54_p1:q57_p1)
 
+# Poly corr matrix
+poly_scale_4 <- polychoric(scale_4)
+poly_scale_4_mat <- data.frame(poly_scale_4$rho)
 
+# scree plot
+scree(poly_scale_4_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
+# EFA
+fa(poly_scale_4_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
+```{r}
+# Parent-Teacher Relationship (4) 
+scale_5 <- efa_vars %>%
+  select(q64_p1:q67_p1)
 
+# Poly corr matrix
+poly_scale_5 <- polychoric(scale_5)
+poly_scale_5_mat <- data.frame(poly_scale_5$rho)
+
+# scree plot
+scree(poly_scale_5_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(poly_scale_5_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
+
+```{r}
+#Parent-Child Conversations About School (14)
+scale_6 <- efa_vars %>%
+  select(q68_p1:q81_p1)
+
+# Poly corr matrix
+poly_scale_6 <- polychoric(scale_6)
+poly_scale_6_mat <- data.frame(poly_scale_6$rho)
+
+# scree plot
+scree(poly_scale_6_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(poly_scale_6_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
 ```{r}
 # Homework Involvement
@@ -327,49 +357,115 @@ scree(poly_scale_7_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 fa(poly_scale_7_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
+```{r}
+#Parent’s Value and Support of Education (6)
+scale_8 <- efa_vars %>%
+  select(q105_p1:q110_p1)
 
+# Poly corr matrix
+poly_scale_8 <- polychoric(scale_8)
+poly_scale_8_mat <- data.frame(poly_scale_8$rho)
 
+# scree plot
+scree(poly_scale_8_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
+# EFA
+fa(poly_scale_8_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
+```{r}
+#Appropriate Discipline (7)
+scale_9 <- efa_vars %>%
+  select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1)
 
+# Poly corr matrix
+poly_scale_9 <- polychoric(scale_9)
+poly_scale_9_mat <- data.frame(poly_scale_9$rho)
 
+# scree plot
+scree(poly_scale_9_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
+# EFA
+fa(poly_scale_9_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
+```{r}
+#Monitoring (5)
+scale_10 <- efa_vars %>%
+  select(q137_p1, q139_p1, q140_p1, q143_p1, q144_p1)
 
+# Poly corr matrix
+poly_scale_10 <- polychoric(scale_10)
+poly_scale_10_mat <- data.frame(poly_scale_10$rho)
 
+# scree plot
+scree(poly_scale_10_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
+# EFA
+fa(poly_scale_10_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
+```{r}
+#Family-School Communication (6)
+scale_11 <- efa_vars %>%
+  select(q18_p1, q19_p1, q41_p1, q43_p1, q50_p1, q62_p1)
 
+# Poly corr matrix
+poly_scale_11 <- polychoric(scale_11)
+poly_scale_11_mat <- data.frame(poly_scale_11$rho)
 
-- Parent Endorsement of School (4)
-select(q54_p1:q57_p1)
+# scree plot
+scree(poly_scale_11_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
-- Parent-Teacher Relationship (4) 
-select(q64_p1:q67_p1)
+# EFA
+fa(poly_scale_11_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
-- Parent-Child Conversations About School (14)
-select(q68_p1:q81_p1)
+```{r}
+#Problem Solving with Educators (4)
+scale_12 <- efa_vars %>%
+  select(q44_p1, q58_p1, q63_p1, q126_p1)
 
-<!-- - Homework Involvement (17) -->
-<!-- select(q82_p1:q98_p1) -->
+# Poly corr matrix
+poly_scale_12 <- polychoric(scale_12)
+poly_scale_12_mat <- data.frame(poly_scale_12$rho)
 
-- Parent’s Value and Support of Education (6)
-select(q105_p1:q110_p1)
+# scree plot
+scree(poly_scale_12_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
-- Appropriate Discipline (7)
-select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1)
+# EFA
+fa(poly_scale_12_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
-- Monitoring (5)
-select(q137_p1, q139_p1, q140_p1, q143_p1, q144_p1)
+```{r}
+#Students’ School Engagement (9)
+scale_13 <- efa_vars %>%
+  select(q83_y1:q91_y1)
 
-- Family-School Communication (6)
-select(q18_p1, q19_p1, q41_p1, q43_p1, q50_p1, q62_p1)
+# Poly corr matrix
+poly_scale_13 <- polychoric(scale_13)
+poly_scale_13_mat <- data.frame(poly_scale_13$rho)
 
-- Problem Solving with Educators (4)
-select(q44_p1, q58_p1, q63_p1, q126_p1)
+# scree plot
+scree(poly_scale_13_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
+# EFA
+fa(poly_scale_13_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
+Determining the number of factors in EFA:
 
+"A number of analytical processes have been used to determine
+the number of factors to retain from a list of items, and it is
+beyond the scope of this paper to describe all of them. For
+scale development, commonly available methods to determine
+the number of factors to retain include a scree plot (85), the
+variance explained by the factor model, and the pattern of factor
+loadings (2). Where feasible, researchers could also assess the
+optimal number of factors to be drawn fromthe list of items using
+either parallel analysis (86), minimum average partial procedure
+(87), or the Hull method (88, 89)." (Boateng et al., 2018)
 
+DD also suggested parallewl analysis... Maybe use it when in doubt? For HW involvement? 
 
 ---------------------------------------------
 Psych package info:
