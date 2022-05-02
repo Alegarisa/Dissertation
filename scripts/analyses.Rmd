@@ -350,8 +350,8 @@ select(q64_p1:q67_p1)
 - Parent-Child Conversations About School (14)
 select(q68_p1:q81_p1)
 
-- Homework Involvement (17)
-select(q82_p1:q98_p1)
+<!-- - Homework Involvement (17) -->
+<!-- select(q82_p1:q98_p1) -->
 
 - Parent’s Value and Support of Education (6)
 select(q105_p1:q110_p1)
