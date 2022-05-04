@@ -258,7 +258,7 @@ poly_scale_1_mat <- data.frame(poly_scale_1$rho)
 scree(poly_scale_1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_1_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(poly_scale_1_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly", sort = TRUE)
 ```
 
 ```{r}
