@@ -235,6 +235,13 @@ scale_1 <- efa_vars %>%
 mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # univariate plots can be outputted when analyzing scales
 ```
 
+```{r}
+# School-based involvement (10)
+scale_2 <- efa_vars %>%
+  select(q31_p1:q40_p1)
+
+mvn(scale_2, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # univariate plots can be outputted when analyzing scales
+```
 
 # issue of sparseness
 ```{r}
@@ -258,7 +265,13 @@ poly_scale_1_mat <- data.frame(poly_scale_1$rho)
 scree(poly_scale_1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_1_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly", sort = TRUE)
+fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly", sort = TRUE)
+
+#When using the scale, not the poly corr matrix:
+#Tucker Lewis Index of factoring reliability =  0.426
+#RMSEA index =  0.319  and the 90 % CI are  0.282 0.36
+#BIC =  120.07
+#i think it's not worth it making model improvements 
 ```
 
 ```{r}
@@ -271,10 +284,13 @@ poly_scale_2 <- polychoric(scale_2)
 poly_scale_2_mat <- data.frame(poly_scale_2$rho)
 
 # scree plot
-scree(poly_scale_2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+scree(poly_scale_2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE) # a little ambiguous
 
 # EFA
-fa(poly_scale_2_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+# 2 factors
+fa(scale_2, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
 ```
 
 ```{r}
@@ -459,11 +475,7 @@ the number of factors to retain from a list of items, and it is
 beyond the scope of this paper to describe all of them. For
 scale development, commonly available methods to determine
 the number of factors to retain include a scree plot (85), the
-variance explained by the factor model, and the pattern of factor
-loadings (2). Where feasible, researchers could also assess the
-optimal number of factors to be drawn fromthe list of items using
-either parallel analysis (86), minimum average partial procedure
-(87), or the Hull method (88, 89)." (Boateng et al., 2018)
+variance explained by the factor model, and the pattern of factor loadings (2). Where feasible, researchers could also assess the optimal number of factors to be drawn fromthe list of items using either parallel analysis (86), minimum average partial procedure (87), or the Hull method (88, 89)." (Boateng et al., 2018)
 
 DD also suggested parallewl analysis... Maybe use it when in doubt? For HW involvement? 
 
