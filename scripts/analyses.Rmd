@@ -222,17 +222,18 @@ plots <- split.default(efa_vars, names(efa_vars)) %>%
 #     }) # this is one is not clear
 ```
 
-# Multivariate and univariate normality tests or all variables
+# Multivariate and univariate normality tests on all variables
 ```{r}
 mvn(efa_vars, subset = NULL, mvnTest = "hz", univariateTest = "AD") # none of the variables meet the nornmality assumption based on Anderson-Darling test
 ```
 
-# Multivariate and univariate normality tests for first scale: structure at home
+# Multivariate and univariate normality tests by scale: 
 ```{r}
+#Structure at home (8)
 scale_1 <- efa_vars %>%
   select(q23_p1:q30_p1)
 
-mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # univariate plots can be outputted when analyzing scales
+mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") 
 ```
 
 ```{r}
@@ -240,8 +241,55 @@ mvn(scale_1, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlo
 scale_2 <- efa_vars %>%
   select(q31_p1:q40_p1)
 
-mvn(scale_2, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # univariate plots can be outputted when analyzing scales
+mvn(scale_2, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") 
+
+describe(scale_2)
 ```
+
+```{r}
+# Parent Belongingness in School (7)
+scale_3 <- efa_vars %>%
+  select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1)
+
+mvn(scale_3, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram") # descriptives here only include 87 cases
+
+describe(scale_3) # descrptives here do show cases per item
+```
+
+```{r}
+# to explore the mvn & describe difference in inclusion of cases
+scale_3$q47_p1
+scale_3$q48_p1
+scale_3$q51_p1
+scale_3$q52_p1
+scale_3$q53_p1
+scale_3$q59_p1
+scale_3$q60_p1
+```
+
+```{r}
+# Parent Endorsement of School (4)
+scale_4 <- efa_vars %>%
+  select(q54_p1:q57_p1)
+
+mvn(scale_4, subset = NULL, mvnTest = "hz", univariateTest = "AD", univariatePlot = "histogram")
+
+describe(scale_4)
+```
+
+```{r}
+plots <- split.default(scale_4, names(scale_4)) %>% 
+  map(., setNames, nm = "var") %>% 
+  map(., rownames_to_column) %>%
+  imap(., ~ {
+    ggplot(.x, aes(var)) + 
+      geom_bar() +
+      labs(title = .y)
+    })
+
+plots
+```
+
 
 # issue of sparseness
 ```{r}
@@ -266,12 +314,6 @@ scree(poly_scale_1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA
 fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly", sort = TRUE)
-
-#When using the scale, not the poly corr matrix:
-#Tucker Lewis Index of factoring reliability =  0.426
-#RMSEA index =  0.319  and the 90 % CI are  0.282 0.36
-#BIC =  120.07
-#i think it's not worth it making model improvements 
 ```
 
 ```{r}
@@ -291,7 +333,14 @@ fa(scale_2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 
 # 2 factors
 fa(scale_2, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
+
+# PARALLEL ANALYSIS
+fa.parallel(scale_2, n.obs=NULL, fm="uls", fa="both", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # suggests 3 factors, but a warning about ultra heywood case
+
+# 3 factors
+fa(scale_2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
 ```
+
 
 ```{r}
 # Parent Belongingness in School (7)
@@ -306,7 +355,7 @@ poly_scale_3_mat <- data.frame(poly_scale_3$rho)
 scree(poly_scale_3_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_3_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
@@ -321,8 +370,42 @@ poly_scale_4_mat <- data.frame(poly_scale_4$rho)
 # scree plot
 scree(poly_scale_4_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
-# EFA
-fa(poly_scale_4_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+# EFA 
+fa(scale_4, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+### ----------------- ###
+
+# EFA without q54_p1 = bec. it had a case with a value of 1 (outlier?)
+scale_4.1 <- efa_vars %>%
+  select(q55_p1, q56_p1, q57_p1)
+
+fa(scale_4.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+scree(scale_4.1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA without q55_p1 = bec it had a negative u2 and a factor loading of 1
+scale_4.2 <- efa_vars %>%
+  select(q54_p1, q56_p1, q57_p1)
+
+fa(scale_4.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+scree(scale_4.2,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA without q56_p1 = just to check what happens
+scale_4.3 <- efa_vars %>%
+  select(q54_p1, q55_p1, q57_p1)
+
+fa(scale_4.3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+scree(scale_4.3,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+```
+
+```{r}
+# to identify the extra heywood case
+scale_4$q54_p1
+scale_4$q55_p1
+scale_4$q56_p1
+scale_4$q57_p1
 ```
 
 ```{r}
