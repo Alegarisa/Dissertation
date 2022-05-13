@@ -335,7 +335,8 @@ fa(scale_2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 fa(scale_2, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
 
 # PARALLEL ANALYSIS
-fa.parallel(scale_2, n.obs=NULL, fm="uls", fa="both", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # suggests 3 factors, but a warning about ultra heywood case
+fa.parallel(scale_2, n.obs=NULL, fm="uls", fa="both", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5)
+# suggests 3 factors, but a warning about ultra heywood case
 
 # 3 factors
 fa(scale_2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
@@ -357,7 +358,7 @@ scree(poly_scale_3_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 # EFA
 fa(scale_3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
-
+#ultra-Heywood case
 ```{r}
 # Parent Endorsement of School (4)
 scale_4 <- efa_vars %>%
@@ -372,8 +373,18 @@ scree(poly_scale_4_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA 
 fa(scale_4, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
-### ----------------- ###
+```{r}
+# to identify the ultra heywood case
+scale_4$q54_p1
+scale_4$q55_p1
+scale_4$q56_p1
+scale_4$q57_p1
+```
+
+```{r}
+### -----Parent Endorsement of School (4)----- ###
 
 # EFA without q54_p1 = bec. it had a case with a value of 1 (outlier?)
 scale_4.1 <- efa_vars %>%
@@ -400,14 +411,10 @@ fa(scale_4.3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 scree(scale_4.3,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 ```
 
-```{r}
-# to identify the extra heywood case
-scale_4$q54_p1
-scale_4$q55_p1
-scale_4$q56_p1
-scale_4$q57_p1
-```
+#ultra-Heywood case
 
+see univariate and check what is the percenatge of responses in each case to provide argumnet that variables are not "varying"
+think in discussion which had a really strong factor solution with large variance explained and will i recommend dropping or imporving the measures 
 ```{r}
 # Parent-Teacher Relationship (4) 
 scale_5 <- efa_vars %>%
@@ -421,8 +428,71 @@ poly_scale_5_mat <- data.frame(poly_scale_5$rho)
 scree(poly_scale_5_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_5_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_5, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
+
+```{r}
+# to identify the ultra heywood case
+scale_5$q64_p1
+scale_5$q65_p1
+scale_5$q66_p1
+scale_5$q67_p1
+```
+
+```{r}
+### -----Parent-Teacher Relationship (4) ----- ###
+
+# EFA without q66_p1 = bec it had a negative u2 and a factor loading of 1
+scale_4.1 <- efa_vars %>%
+  select(q64_p1, q65_p1, q67_p1)
+
+fa(scale_4.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+scree(scale_4.1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA without q67_p1 = bec it had a factor loading of 0.99
+scale_4.2 <- efa_vars %>%
+  select(q64_p1, q65_p1, q66_p1)
+
+fa(scale_4.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+scree(scale_4.2,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+```
+
+# testing combining 2 scales #
+```{r}
+scale_test <- efa_vars %>%
+  select(q54_p1:q57_p1, q64_p1:q67_p1)
+
+# Poly corr matrix
+poly_scale_test <- polychoric(scale_test)
+poly_scale_test_mat <- data.frame(poly_scale_test$rho)
+
+# scree plot
+scree(poly_scale_test_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA 
+fa(scale_test, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # still heywood case
+
+##
+
+scale_test.1 <- efa_vars %>%
+  select(q54_p1, q56_p1, q57_p1, q64_p1:q67_p1)
+
+# Poly corr matrix
+poly_scale_test.1 <- polychoric(scale_test.1)
+poly_scale_test.1_mat <- data.frame(poly_scale_test.1$rho)
+
+# scree plot
+scree(poly_scale_test_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA 
+fa(scale_test.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # heywood case went away, but "matrix not positive definite"
+
+```
+
+
+
 
 ```{r}
 #Parent-Child Conversations About School (14)
@@ -437,7 +507,7 @@ poly_scale_6_mat <- data.frame(poly_scale_6$rho)
 scree(poly_scale_6_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_6_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_6, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
@@ -453,9 +523,11 @@ poly_scale_7_mat <- data.frame(poly_scale_7$rho)
 scree(poly_scale_7_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_7_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_7, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
+#matrix not positive definitive (?)
 
+maybe that yes is positive, but it was hoping back and forth during iterations. 
 ```{r}
 #Parent’s Value and Support of Education (6)
 scale_8 <- efa_vars %>%
@@ -469,9 +541,9 @@ poly_scale_8_mat <- data.frame(poly_scale_8$rho)
 scree(poly_scale_8_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_8_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_8, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
-
+#ultra-Heywood case
 ```{r}
 #Appropriate Discipline (7)
 scale_9 <- efa_vars %>%
@@ -485,7 +557,7 @@ poly_scale_9_mat <- data.frame(poly_scale_9$rho)
 scree(poly_scale_9_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_9_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_9, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
@@ -501,7 +573,7 @@ poly_scale_10_mat <- data.frame(poly_scale_10$rho)
 scree(poly_scale_10_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_10_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_10, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
@@ -517,7 +589,7 @@ poly_scale_11_mat <- data.frame(poly_scale_11$rho)
 scree(poly_scale_11_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_11_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_11, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
@@ -533,7 +605,7 @@ poly_scale_12_mat <- data.frame(poly_scale_12$rho)
 scree(poly_scale_12_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_12_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_12, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
@@ -549,7 +621,7 @@ poly_scale_13_mat <- data.frame(poly_scale_13$rho)
 scree(poly_scale_13_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # EFA
-fa(poly_scale_13_mat, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_13, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 Determining the number of factors in EFA:
 
@@ -589,3 +661,6 @@ DD: polychoric may be robust to non-normality
 
 
 test to look at input hsquared
+
+
+for heywood cases, say that porb measures are suspect and may need to be imporved
