@@ -1,5 +1,20 @@
 # Notes that I didn't want to simply delete
 
+# inspecting linearity (well, trying)
+ggplot(efa_vars, aes(q23_p1, q24_p1)) +
+  geom_count() +
+  geom_jitter(h = 2, w = 2)
+
+# plots2 <- split.default(scale_1, names(scale_1)) %>% 
+#   map(., setNames, nm = "var") %>% 
+#   map(., rownames_to_column) %>%
+#   imap(., ~ {
+#     ggplot(.x, aes(rowname, var)) + 
+#       geom_count() + 
+#       coord_flip() +
+#       labs(title = .y)
+#     }) # this is one is not clear
+
 --------------------------
   ## EFA decisions 
 --------------------------
@@ -46,3 +61,31 @@ scree(scale_1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 # EFA
 fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # using the dataframe instead of the poly corr matrix gives more info, but the numbers are the same
 ###
+
+### -----Parent Endorsement of School (4)----- ###
+
+# EFA without q54_p1 = bec. it had a case with a value of 1 (outlier?)
+scale_4.1 <- efa_vars %>%
+  select(q55_p1, q56_p1, q57_p1)
+
+fa(scale_4.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+scree(scale_4.1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA without q55_p1 = bec it had a negative u2 and a factor loading of 1
+scale_4.2 <- efa_vars %>%
+  select(q54_p1, q56_p1, q57_p1)
+
+fa(scale_4.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+scree(scale_4.2,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA without q56_p1 = just to check what happens
+scale_4.3 <- efa_vars %>%
+  select(q54_p1, q55_p1, q57_p1)
+
+fa(scale_4.3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+scree(scale_4.3,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+### ---------------------------------------------- ###
