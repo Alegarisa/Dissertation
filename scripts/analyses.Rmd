@@ -325,8 +325,14 @@ fa(scale_2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "p
 
 ```{r}
 # Parent Belongingness in School (7)
+
+#original porposal:
 scale_3 <- efa_vars %>%
   select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1)
+
+#alternative proposal:
+scale_3 <- efa_vars %>%
+  select(q47_p1, q48_p1, q51_p1, q53_p1)
 
 # Poly corr matrix
 poly_scale_3 <- polychoric(scale_3)
@@ -338,6 +344,7 @@ scree(poly_scale_3_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 # EFA
 fa(scale_3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
+
 #ultra-Heywood case
 ```{r}
 # Parent Endorsement of School (4)
@@ -420,6 +427,35 @@ fa(scale_4.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 scree(scale_4.2,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 ```
 
+Endorsement:
+
+Como madre/padre en esta escuela, estoy segura/o de que…
+
+54. … esta escuela es un buen lugar para mi joven. 
+56. … la gente en la escuela de mi joven es confiable.
+57. … la escuela de mi joven hace un buen trabajo preparando a      los jóvenes para sus futuros.
+
+59. … los maestros de mi joven se preocupan por ella/el.
+60. … maestros y administradores trabajan juntos para crear un ambiente seguro y acogedor para todos.
+
+52. …feliz de que mi joven asista a esta escuela.
+
+<<<<<<
+55. … el personal de la escuela de mi joven está haciendo     cosas buenas por ella/el.
+>>>>>>
+
+
+En esta escuela, siento que hay por lo menos un maestro…
+64. … que se preocupa por mi joven.
+65. … quien está interesado en conocerme.
+
+<<<<<<<<<<
+66. … con quien me siento/a cómodo/a hablando sobre mi joven.
+67. … de quien puedo hacer preguntas o hacer sugerencias sobre mi joven.
+>>>>>>>>>>>>
+
+
+
 # testing combining 2 scales #
 ```{r}
 scale_test <- efa_vars %>%
@@ -434,6 +470,21 @@ scree(poly_scale_test_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add
 
 # EFA 
 fa(scale_test, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # heywood case WENT AWAY but a warning that factor scores are prob incorrect
+
+##############################
+scale_test2 <- efa_vars %>%
+  select(q52_p1, q54_p1, q55_p1, q56_p1, q57_p1, q59_p1, q60_p1)
+
+# Poly corr matrix
+poly_scale_test2 <- polychoric(scale_test2)
+poly_scale_test2_mat <- data.frame(poly_scale_test2$rho)
+
+# scree plot
+scree(poly_scale_test2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA 
+fa(scale_test2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # no heywood case, but matrix not positve definitive 
+
 
 ##############################
 # scale_test.1<- efa_vars %>%
@@ -561,8 +612,14 @@ fa(scale_10, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 
 ```{r}
 #Family-School Communication (6)
+
+#original proposed scale
 scale_11 <- efa_vars %>%
   select(q18_p1, q19_p1, q41_p1, q43_p1, q50_p1, q62_p1)
+
+#alternative scale (fam-school comm + par-teach rel)
+scale_11 <- efa_vars %>%
+  select(q41_p1, q43_p1, q50_p1, q62_p1, q64_p1, q65_p1, q66_p1, q67_p1) # matrix not positive definitive, but can use items 66 & 67
 
 # Poly corr matrix
 poly_scale_11 <- polychoric(scale_11)
