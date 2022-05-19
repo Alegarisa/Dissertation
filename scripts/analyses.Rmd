@@ -527,7 +527,27 @@ scree(poly_scale_6_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA
 fa(scale_6, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+# PARALLEL ANALYSIS
+fa.parallel(scale_6, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parrallel analysis suggest 3 factors
+
+# 2 factors
+fa(scale_6, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
 ```
+```{r}
+#Realiability: Parent-Child Conversations About School (14)
+scale_6.fa_1 <- efa_vars %>%
+  select(q68_p1:q71_p1, q74_p1, q76_p1:q79_p1)
+
+alpha(scale_6.fa_1) # 0.87
+
+scale_6.fa_2 <- efa_vars %>%
+  select(q73_p1, q75_p1, q80_p1, q81_p1)
+
+alpha(scale_6.fa_2) # 0.79
+```
+
+
 
 ```{r}
 # Homework Involvement (17)
@@ -550,6 +570,12 @@ fa.parallel(scale_7, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel A
 
 # 2 factors
 fa(scale_7, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
+
+scale_7.1 <- efa_vars %>%
+  select(q84_p1:q98_p1)
+
+# 2 factors
+fa(scale_7.1, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
 ```
 
 
