@@ -313,12 +313,12 @@ alpha(scale_7.1_fa_1) # 0.78
 scale_7.1_fa_2 <- efa_vars %>%
   select(q84_p1, q85_p1, q93_p1, q95_p1)
 
-alpha(scale_7.1_fa_2) # 0.69 (0.77 if removing 95)
+alpha(scale_7.1_fa_2) # 0.70 (0.77 if removing 95)
 
 scale_7.1_fa_3 <- efa_vars %>%
-  select(q90_p1, q91_p1, q98_p1) # 0.59
+  select(q90_p1, q91_p1, q98_p1) 
 
-alpha(scale_7.1_fa_3)
+alpha(scale_7.1_fa_3) # 0.59
 ```
 
 # Monitoring (5)
@@ -337,6 +337,13 @@ scree(poly_scale_10_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=F
 # EFA
 fa(scale_10, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
+
+```{r}
+#Realiability: Monitoring (5)
+
+alpha(scale_10) # 0.62
+```
+
 
 # Appropriate Discipline (7) <<<<< ultra-Heywood case>>>>>>>
 ```{r}
@@ -378,6 +385,13 @@ scree(poly_scale_1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly", sort = TRUE)
 ```
 
+
+```{r}
+#Realiability: Structure at home (8)
+
+alpha(scale_1) # 0.82
+```
+
 # Parent-Child Conversations About School (14)
 ```{r}
 #Parent-Child Conversations About School (14)
@@ -400,25 +414,37 @@ fa(scale_6, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 fa.parallel(scale_6, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parrallel analysis suggest 3 factors
 
 # 3 factors
-fa(scale_6, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
+fa(scale_6, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # item 74 cross loaded in factor 1 and 2
+
+scale_6.1 <- efa_vars %>%
+  select(q68_p1:q73_p1, q75_p1:q81_p1)
+
+# 3 factors
+fa(scale_6.1, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # item 72 cross loaded in factor 2 and 3
+
+scale_6.2 <- efa_vars %>%
+  select(q68_p1:q71_p1, q73_p1, q75_p1:q81_p1)
+
+# 3 factors
+fa(scale_6.2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") 
 ```
 
 ```{r}
 #Reliability: Parent-Child Conversations About School (14)
-scale_6.fa_1 <- efa_vars %>%
+scale_6.fa_3 <- efa_vars %>%
   select(q68_p1:q71_p1)
 
-alpha(scale_6.fa_1) # 0.80
+alpha(scale_6.fa_3) # 0.80
 
 scale_6.fa_2 <- efa_vars %>%
-  select(q72_p1, q73_p1, q75_p1, q80_p1, q81_p1)
+  select(q73_p1, q75_p1, q80_p1, q81_p1)
 
-alpha(scale_6.fa_2) # 0.79
+alpha(scale_6.fa_2) # 0.78
 
-scale_6.fa_3 <- efa_vars %>%
+scale_6.fa_1 <- efa_vars %>%
   select(q76_p1:q79_p1) 
 
-alpha(scale_6.fa_3) # 0.85
+alpha(scale_6.fa_1) # 0.85
 ```
 
 # School-based involvement (10)
@@ -436,36 +462,46 @@ scree(poly_scale_2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA
 fa(scale_2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
-# PARALLEL ANALYSIS
+```{r}
+# PARALLEL ANALYSIS School-based involvement 
 fa.parallel(scale_2, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5)
 # suggests 3 factors, but a warning about ultra heywood case
 
-# 2 factors
-fa(scale_2, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
-
 # 3 factors
-fa(scale_2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
+fa(scale_2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # factor 3 barely above eigenvalue >1 and crossloading items
 
-# if q35_p1 is considered to cross-load
-# scale_2.1 <- efa_vars %>%
-#   select(q31_p1:q34_p1, q36_p1:q40_p1)
-# 
-# # 2 factors
-# fa(scale_2.1, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
+# 2 factors
+fa(scale_2, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # q35_p1 cross-loaded
+
+
+scale_2.1 <- efa_vars %>%
+  select(q31_p1:q34_p1, q36_p1:q40_p1)
+
+# 2 factors
+fa(scale_2.1, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
 ```
+
+```{r}
+#Realiability: School-based involvement 
+scale_2.1_fa_1 <- efa_vars %>%
+  select(q31_p1:q34_p1)
+
+alpha(scale_2.1_fa_1) # 0.85
+
+scale_2.1_fa_2 <- efa_vars %>%
+  select(q36_p1:q40_p1)
+
+alpha(scale_2.1_fa_2) # 0.82
+```
+
 
 # Parent Belongingness in School (7)
 ```{r}
 # Parent Belongingness in School (7)
-
-#original porposal:
 scale_3 <- efa_vars %>%
   select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1)
-
-#alternative proposal:
-scale_3 <- efa_vars %>%
-  select(q47_p1, q48_p1, q51_p1, q53_p1)
 
 # Poly corr matrix
 poly_scale_3 <- polychoric(scale_3)
@@ -476,7 +512,36 @@ scree(poly_scale_3_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA
 fa(scale_3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+fa.parallel(scale_3, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parrallel analysis suggest 2 factors
+
+# 2 FACTORS
+fa(scale_3, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # one factor with 2 items and one item is crossloading
+
+alpha(scale_3) #0.82
 ```
+
+```{r}
+#alternative proposal Parent Belongingness in School (4)(makes more sense conceptually):
+scale_3.1 <- efa_vars %>%
+  select(q47_p1, q48_p1, q51_p1, q53_p1)
+
+# Poly corr matrix
+poly_scale_3.1 <- polychoric(scale_3.1)
+poly_scale_3.1_mat <- data.frame(poly_scale_3.1$rho)
+
+# scree plot
+scree(poly_scale_3.1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(scale_3.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
+
+```{r}
+#reliability parent Belongingness in School (4)
+alpha(scale_3.1) # 0.64
+```
+
 
 # Parent Endorsement of School (4) <<< ultra-Heywood case>>>
 ```{r}
@@ -493,6 +558,27 @@ scree(poly_scale_4_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA 
 fa(scale_4, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
+
+```{r}
+#alternative proposal Parent endorsement of School (7)(makes more sense face value):
+scale_4.1 <- efa_vars %>%
+  select(q52_p1, q54_p1:q57_p1, q59_p1, q60_p1)
+
+# Poly corr matrix
+poly_scale_4.1 <- polychoric(scale_4.1)
+poly_scale_4.1_mat <- data.frame(poly_scale_4.1$rho)
+
+# scree plot
+scree(poly_scale_4.1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(scale_4.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # no heywood, but now says matrix non-positive defintive which I guess is improvement (?)
+
+fa.parallel(scale_4.1, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parrallel analysis suggest 2 factors
+
+# 2 factors
+fa(scale_4.1, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # 
 ```
 
 see univariate and check what is the percenatge of responses in each case to provide argumnet that variables are not "varying"
@@ -746,6 +832,13 @@ But these estimates are for continuous data, using normal-theory maximum likelih
 
 Conclusion from (Xia & Yang, p. 421)
 "Given that the DWLS and ULS fit indices tend to show a better model–data fit evaluation than do ML fit indices when the same misspecified model is analyzed, we argue that surpassing a set of cutoff values should not serve as the only justification for the acceptance of a model. It would be more appropriate to consider RMSEA, CFI, and TLI as diagnostic tools for model improvement." 
+
+-----
+alpha internal consistencies benchmarks
+.00 to .69 = Poor reliability  
+.70 to .79 = Fair reliability  
+.80 to .89 = Good reliability  
+.90 to .99 = Excellent/Strong reliability  
 
 ---- Qs ----
 Q: Are model fit indices used in EFA? Still not super clear. DD said will send some info.
