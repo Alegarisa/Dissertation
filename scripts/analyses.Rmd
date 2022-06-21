@@ -304,7 +304,7 @@ fa(scale_7.1, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = 
 ```
 
 ```{r}
-#Realiability: Homework Involvement (17)
+#Reliability: Homework Involvement (17)
 scale_7.1_fa_1 <- efa_vars %>%
   select(q86_p1:q89_p1, q94_p1, q96_p1, q97_p1)
 
@@ -339,7 +339,7 @@ fa(scale_10, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
 ```{r}
-#Realiability: Monitoring (5)
+#Reliability: Monitoring (5)
 
 alpha(scale_10) # 0.62
 ```
@@ -360,13 +360,35 @@ scree(poly_scale_9_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA
 fa(scale_9, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
-
-
-# scale_9.1 <- efa_vars %>%
-#   select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1)
-# 
-# fa(scale_9.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
+
+HERE, COMPLETE THIS DESCRIPTION BEFORE MOVING ON TO RELATIONSHIPS
+
+```{r}
+# iteration 1
+scale_9.1 <- efa_vars %>%
+  select(q129_p1:q131_p1, q133_p1, q134_p1, q136_p1)
+
+fa(scale_9.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # item 129 now appears as heywood
+
+# iteration 2
+scale_9.2 <- efa_vars %>%
+  select(q130_p1, q131_p1, q133_p1, q134_p1, q136_p1)
+
+fa(scale_9.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # no more heywood
+
+poly_scale_9.2 <- polychoric(scale_9.2)
+poly_scale_9.2_mat <- data.frame(poly_scale_9.2$rho)
+
+# scree plot
+scree(poly_scale_9.2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# PARALLEL ANALYSIS - Appropriate discipline (7)
+# fa.parallel(scale_9.2, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5)
+
+```
+
+
 
 # Structure at home (8)
 ```{r}
@@ -387,7 +409,7 @@ fa(scale_1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly", sort = TRUE)
 
 
 ```{r}
-#Realiability: Structure at home (8)
+#Reliability: Structure at home (8)
 
 alpha(scale_1) # 0.82
 ```
@@ -416,31 +438,37 @@ fa.parallel(scale_6, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel A
 # 3 factors
 fa(scale_6, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # item 74 cross loaded in factor 1 and 2
 
+# iteration 1
 scale_6.1 <- efa_vars %>%
   select(q68_p1:q73_p1, q75_p1:q81_p1)
 
-# 3 factors
+# 3 factors - # iteration 1
 fa(scale_6.1, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # item 72 cross loaded in factor 2 and 3
 
+# iteration 2
 scale_6.2 <- efa_vars %>%
   select(q68_p1:q71_p1, q73_p1, q75_p1:q81_p1)
 
-# 3 factors
+# 3 factors - # iteration 2
 fa(scale_6.2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") 
 ```
 
 ```{r}
 #Reliability: Parent-Child Conversations About School (14)
+
+#factor 3
 scale_6.fa_3 <- efa_vars %>%
   select(q68_p1:q71_p1)
 
-alpha(scale_6.fa_3) # 0.80
+alpha(scale_6.fa_3) # 0.81
 
+#factor 2
 scale_6.fa_2 <- efa_vars %>%
   select(q73_p1, q75_p1, q80_p1, q81_p1)
 
 alpha(scale_6.fa_2) # 0.78
 
+#factor 1
 scale_6.fa_1 <- efa_vars %>%
   select(q76_p1:q79_p1) 
 
@@ -484,7 +512,7 @@ fa(scale_2.1, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = 
 ```
 
 ```{r}
-#Realiability: School-based involvement 
+#Reliability: School-based involvement 
 scale_2.1_fa_1 <- efa_vars %>%
   select(q31_p1:q34_p1)
 
