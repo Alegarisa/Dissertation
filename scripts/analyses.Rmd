@@ -344,7 +344,6 @@ fa(scale_10, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 alpha(scale_10) # 0.62
 ```
 
-
 # Appropriate Discipline (7) <<<<< ultra-Heywood case>>>>>>>
 ```{r}
 #Appropriate Discipline (7)
@@ -362,9 +361,9 @@ scree(poly_scale_9_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 fa(scale_9, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
-HERE, COMPLETE THIS DESCRIPTION BEFORE MOVING ON TO RELATIONSHIPS
-
 ```{r}
+# Appropriate Discipline EFA iterations 
+
 # iteration 1
 scale_9.1 <- efa_vars %>%
   select(q129_p1:q131_p1, q133_p1, q134_p1, q136_p1)
@@ -384,10 +383,62 @@ poly_scale_9.2_mat <- data.frame(poly_scale_9.2$rho)
 scree(poly_scale_9.2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 # PARALLEL ANALYSIS - Appropriate discipline (7)
-# fa.parallel(scale_9.2, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5)
+fa.parallel(scale_9.2, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5)
 
+# 2 factors (JUST TO CHECK)
+# fa(scale_9.2, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # first factor made of just one item and heywood case
+
+# iteration 3
+scale_9.3 <- efa_vars %>%
+  select(q131_p1, q133_p1, q136_p1)
+
+fa(scale_9.3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
 
+```{r}
+# Appropriate Discipline reliability 
+scale_9.3 <- efa_vars %>%
+  select(q131_p1, q133_p1, q136_p1)
+
+alpha(scale_9.3) # 0.50 NOT GOOD
+
+# just to check alpha with the 5 items:
+scale_9.2 <- efa_vars %>%
+  select(q130_p1, q131_p1, q133_p1, q134_p1, q136_p1)
+
+alpha(scale_9.2) # 0.41 even worse! 
+```
+
+```{r}
+#Appropriate Discipline univariate analysis
+
+d2 %>% #before reverse scoring
+  select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1) %>%
+  mutate(q128_p1 = as.factor(q128_p1),
+         q129_p1 = as.factor(q129_p1),
+         q130_p1 = as.factor(q130_p1),
+         q131_p1 = as.factor(q131_p1),# no one fully endorsed yelling
+         q133_p1 = as.factor(q133_p1),# 4 endorsed quiting 
+         q134_p1 = as.factor(q134_p1),#8 endorsed not following
+         q136_p1 = as.factor(q136_p1)) %>%
+  summary()
+```
+
+```{r}
+#Appropriate Discipline univariate analysis
+
+efa_vars %>% #after reverse scoring
+  select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1) %>%
+  mutate(q128_p1 = as.factor(q128_p1),
+         q129_p1 = as.factor(q129_p1),
+         q130_p1 = as.factor(q130_p1),
+         q131_p1 = as.factor(q131_p1),
+         q133_p1 = as.factor(q133_p1),
+         q134_p1 = as.factor(q134_p1),
+         q136_p1 = as.factor(q136_p1)) %>%
+  summary()
+
+```
 
 
 # Structure at home (8)
@@ -523,7 +574,7 @@ scale_2.1_fa_2 <- efa_vars %>%
 
 alpha(scale_2.1_fa_2) # 0.82
 ```
-
+##### Relational approach #####
 
 # Parent Belongingness in School (7)
 ```{r}
