@@ -89,3 +89,66 @@ fa(scale_4.3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 scree(scale_4.3,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
 
 ### ---------------------------------------------- ###
+### testing combining scales
+### 
+scale_test <- efa_vars %>%
+  select(q54_p1, q56_p1, q57_p1, q64_p1, q65_p1)
+
+# Poly corr matrix
+poly_scale_test <- polychoric(scale_test)
+poly_scale_test_mat <- data.frame(poly_scale_test$rho)
+
+# scree plot
+scree(poly_scale_test_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA 
+fa(scale_test, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # heywood case WENT AWAY but a warning that factor scores are prob incorrect
+
+alpha(scale_test) #.82
+
+##############################
+scale_test2 <- efa_vars %>%
+  select(q52_p1, q54_p1, q55_p1, q56_p1, q57_p1, q59_p1, q60_p1)
+
+# Poly corr matrix
+poly_scale_test2 <- polychoric(scale_test2)
+poly_scale_test2_mat <- data.frame(poly_scale_test2$rho)
+
+# scree plot
+scree(poly_scale_test2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA 
+fa(scale_test2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # no heywood case, but matrix not positve definitive 
+
+alpha(scale_test2) # .93
+
+##############################
+# scale_test.1<- efa_vars %>%
+#   select(q54_p1, q56_p1, q57_p1, q59_p1, q60_p1, q64_p1, q65_p1)
+# 
+# # Poly corr matrix
+# poly_scale_test.1 <- polychoric(scale_test.1)
+# poly_scale_test.1_mat <- data.frame(poly_scale_test.1$rho)
+# 
+# # scree plot
+# scree(poly_scale_test.1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+# 
+# # EFA 
+# fa(scale_test.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # heywood case q59_p1
+
+
+############################## using the juntos section
+# scale_test.2 <- efa_vars %>%
+#   select(q54_p1:q57_p1, q58_p1, q59_p1, q60_p1, q62_p1, q63_p1)
+# 
+# fa(scale_test.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # not a good approach either
+
+###############
+#alternative scale (fam-school comm + par-teach rel)
+scale_11 <- efa_vars %>%
+  select(q41_p1, q43_p1, q50_p1, q62_p1, q64_p1, q65_p1, q66_p1, q67_p1) # matrix not positive definitive, but can use items 66 & 67
+
+####
+####
+####
+### ---------------------------------------------- ###
