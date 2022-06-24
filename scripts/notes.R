@@ -148,6 +148,25 @@ alpha(scale_test2) # .93
 scale_11 <- efa_vars %>%
   select(q41_p1, q43_p1, q50_p1, q62_p1, q64_p1, q65_p1, q66_p1, q67_p1) # matrix not positive definitive, but can use items 66 & 67
 
+###############
+#alternative proposal Parent endorsement of School (7)(makes more sense face value):
+scale_4.1 <- efa_vars %>%
+  select(q52_p1, q54_p1:q57_p1, q59_p1, q60_p1)
+
+# Poly corr matrix
+poly_scale_4.1 <- polychoric(scale_4.1)
+poly_scale_4.1_mat <- data.frame(poly_scale_4.1$rho)
+
+# scree plot
+scree(poly_scale_4.1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(scale_4.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # no heywood, but now says matrix non-positive defintive which I guess is improvement (?)
+
+fa.parallel(scale_4.1, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parrallel analysis suggest 2 factors
+
+# 2 factors
+fa(scale_4.1, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # 
 ####
 ####
 ####

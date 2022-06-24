@@ -42,7 +42,7 @@ select(q23_p1:q30_p1)
 select(q31_p1:q40_p1)
 
 - Parent Belongingness in School (7)
-select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1)
+select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1) # moved items 59 & 60 to other scale
 
 - Parent Endorsement of School (4)
 select(q54_p1:q57_p1)
@@ -578,11 +578,11 @@ alpha(scale_2.1_fa_2) # 0.82
 
 ##### Relational approach #####
 
-# Parent Belongingness in School (7)
+# Parent Belongingness in School (5)
 ```{r}
-# Parent Belongingness in School (7)
+# Parent Belongingness in School (5)
 scale_3 <- efa_vars %>%
-  select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q59_p1, q60_p1)
+  select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1)
 
 # Poly corr matrix
 poly_scale_3 <- polychoric(scale_3)
@@ -593,40 +593,13 @@ scree(poly_scale_3_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA
 fa(scale_3, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
-
-alpha(scale_3) #0.82
 ```
 
-
-```{r}
-fa.parallel(scale_3, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parallel analysis suggest 3 factors
-
-# 2 FACTORS
-fa(scale_3, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # one factor with 2 items bc one item is crossloading
-```
-
-
-```{r}
-#alternative proposal Parent Belongingness in School (4)(makes more sense conceptually):
-scale_3.1 <- efa_vars %>%
-  select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1)
-
-# Poly corr matrix
-poly_scale_3.1 <- polychoric(scale_3.1)
-poly_scale_3.1_mat <- data.frame(poly_scale_3.1$rho)
-
-# scree plot
-scree(poly_scale_3.1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
-
-# EFA
-fa(scale_3.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
-```
 
 ```{r}
 #reliability parent Belongingness in School (5)
-alpha(scale_3.1) # 0.72
+alpha(scale_3) # 0.72
 ```
-
 
 # Parent Endorsement of School (4) <<< ultra-Heywood case>>>
 ```{r}
@@ -643,42 +616,8 @@ scree(poly_scale_4_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA 
 fa(scale_4, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
-```
 
-```{r}
-#alternative proposal Parent endorsement of School (7)(makes more sense face value):
-scale_4.1 <- efa_vars %>%
-  select(q52_p1, q54_p1:q57_p1, q59_p1, q60_p1)
-
-# Poly corr matrix
-poly_scale_4.1 <- polychoric(scale_4.1)
-poly_scale_4.1_mat <- data.frame(poly_scale_4.1$rho)
-
-# scree plot
-scree(poly_scale_4.1_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
-
-# EFA
-fa(scale_4.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # no heywood, but now says matrix non-positive defintive which I guess is improvement (?)
-
-fa.parallel(scale_4.1, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parrallel analysis suggest 2 factors
-
-# 2 factors
-fa(scale_4.1, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # 
-```
-
-see univariate and check what is the percenatge of responses in each case to provide argumnet that variables are not "varying"
-think in discussion which had a really strong factor solution with large variance explained and will i recommend dropping or imporving the measures 
-
-"This outcome highlights the general concern of sparseness, or the tendency of highly skewed items to produce observed bivariate distributions with cell frequencies equaling zero or close to zero,especially with relatively small overall sample size. Sparseness can cause biased polychoric correlation estimates, which in turn leads to inaccurate factor
-analysis results" (Flora et al. 2012, p. 18)
-
-```{r}
-scale_4 %>%
-  mutate(q54_p1 = as.factor(q54_p1),
-         q55_p1 = as.factor(q55_p1),
-         q56_p1 = as.factor(q56_p1),
-         q57_p1 = as.factor(q57_p1)) %>%
-  summary()
+alpha(scale_4) #.88
 ```
 
 ```{r}
@@ -692,6 +631,7 @@ fa(scale_4.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 
 scree(scale_4.1,factors=TRUE,pc=FALSE,main="Scree plt",hline=NULL,add=FALSE)
 
+alpha(scale_4.1) #.80
 ```
 
 # Parent-Teacher Relationship (4) <<< ultra-Heywood case>>>
@@ -709,26 +649,32 @@ scree(poly_scale_5_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FA
 
 # EFA
 fa(scale_5, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+
+alpha(scale_5) #.87
 ```
 
 ```{r}
 ### -----Parent-Teacher Relationship (4) ----- ###
 
 # EFA without q66_p1 = bec it had a negative u2 and a factor loading of 1
-scale_4.1 <- efa_vars %>%
+scale_5.1 <- efa_vars %>%
   select(q64_p1, q65_p1, q67_p1)
 
-fa(scale_4.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_5.1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # another ultra-heywood, item 67
 
-scree(scale_4.1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+scree(scale_5.1,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+alpha(scale_5.1) #.80
 
 # EFA without q67_p1 = bec it had a factor loading of 0.99
-scale_4.2 <- efa_vars %>%
+scale_5.2 <- efa_vars %>%
   select(q64_p1, q65_p1) # not reasonable a 2 item scale
 
-fa(scale_4.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+fa(scale_5.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 
-scree(scale_4.2,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+scree(scale_5.2,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+alpha(scale_5.2)#.67
 ```
 
 
@@ -1045,6 +991,12 @@ plots <- split.default(scale_4, names(scale_4)) %>%
 
 plots
 ```
+
+see univariate and check what is the percenatge of responses in each case to provide argumnet that variables are not "varying"
+think in discussion which had a really strong factor solution with large variance explained and will i recommend dropping or imporving the measures 
+
+"This outcome highlights the general concern of sparseness, or the tendency of highly skewed items to produce observed bivariate distributions with cell frequencies equaling zero or close to zero,especially with relatively small overall sample size. Sparseness can cause biased polychoric correlation estimates, which in turn leads to inaccurate factor
+analysis results" (Flora et al. 2012, p. 18)
 
 #ultra-Heywood case
 En esta escuela, siento que hay por lo menos un maestro…
