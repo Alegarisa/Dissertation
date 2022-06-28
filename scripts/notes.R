@@ -171,3 +171,107 @@ fa(scale_4.1, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = 
 ####
 ####
 ### ---------------------------------------------- ###
+
+--------------------
+  EFA COMBINING PARENT ENDORSEMENT, PARENT-TEACH REL, AND FAMILY-SCHOOL COMMUNICATION. 
+q54_p1:q57_p1 --> parent endorsement
+q59_p1, q60_p1 --> extra from belong 
+q64_p1:q67_p1 --> parent-teacher rel
+q18_p1, q19_p1, q41_p1, q43_p1, q50_p1, q62_p1 --> communication
+
+```{r}
+test_scale <- efa_vars %>%
+  select(q18_p1, q19_p1, q41_p1, q43_p1, q50_p1, q54_p1, q55_p1, q56_p1, q57_p1, q59_p1, q60_p1, q62_p1, q64_p1, q65_p1, q66_p1, q67_p1)
+
+# Poly corr matrix
+poly_test_scale <- polychoric(test_scale)
+poly_test_scale_mat <- data.frame(poly_test_scale$rho)
+
+# scree plot
+scree(poly_test_scale_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(test_scale, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # says matrix not positive definite
+
+# ITERATION 1
+test_scale1 <- efa_vars %>%
+  select(q41_p1, q43_p1, q50_p1, q54_p1, q55_p1, q56_p1, q57_p1, q59_p1, q60_p1, q62_p1, q64_p1, q65_p1, q66_p1, q67_p1) # removing 18 and 19 because loading less than .30
+
+# EFA ITERATION 1
+fa(test_scale1, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # says matrix not positive definite
+```
+
+```{r}
+fa.parallel(test_scale1, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parallel analysis suggest 3 factors, matrix not positive, ultra heywood detected
+
+# 3 factors
+fa(test_scale1, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # says matrix not positive & ultra heywood: item 66 negative u2
+
+# ITERATION 2
+test_scale2 <- efa_vars %>%
+  select(q41_p1, q43_p1, q50_p1, q54_p1, q55_p1, q56_p1, q57_p1, q59_p1, q60_p1, q62_p1, q64_p1, q65_p1, q67_p1) # removing item 66 with ultra heywood
+
+# 3 factors (without 66) - ITERATION 2
+fa(test_scale2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # now just matrix not positive definite warning; crossloading item 64
+
+# ITERATION 3
+test_scale3 <- efa_vars %>%
+  select(q41_p1, q43_p1, q50_p1, q54_p1, q55_p1, q56_p1, q57_p1, q59_p1, q60_p1, q62_p1, q65_p1, q67_p1) # removing crossloading item 64
+
+# 3 factors (without 64) - # ITERATION 3
+fa(test_scale3, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # now just matrix not positive definite warning; crossloading item 59
+
+# ITERATION 4
+test_scale4 <- efa_vars %>%
+  select(q41_p1, q43_p1, q50_p1, q54_p1, q55_p1, q56_p1, q57_p1, q60_p1, q62_p1, q65_p1, q67_p1) # removing crossloading item 64
+
+# 3 factors (without 59) - # ITERATION 4
+fa(test_scale4, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # now just matrix not positive definite warning
+```
+
+
+```{r}
+#reliabilities on iteration 4
+
+# factor 1 yellow (4 items)
+test_scale4_fa1 <- efa_vars %>%
+  select(q55_p1, q56_p1, q57_p1, q62_p1)
+
+alpha(test_scale4_fa1) #.91
+
+# factor 2 blue (4 items)
+test_scale4_fa2 <- efa_vars %>%
+  select(q43_p1, q50_p1, q54_p1, q60_p1)
+
+alpha(test_scale4_fa2) #.84
+
+# factor 3 green (3 items)
+test_scale4_fa3 <- efa_vars %>%
+  select(q41_p1, q65_p1, q67_p1)
+
+alpha(test_scale4_fa3) #.75
+```
+
+--------------------
+  
+  ----
+  ----
+  EFA COMBINING PARENT ENDORSEMENT & PARENT BELONGING
+q47_p1, q48_p1, q51_p1, q52_p1, q53_p1 --> PARENT BELONGING
+q54_p1:q57_p1 --> parent endorsement
+
+```{r}
+# rel with school
+test_scale_sch <- efa_vars %>%
+  select(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1, q54_p1, q55_p1, q56_p1, q57_p1) # 
+
+# EFA ITERATION 1
+fa(test_scale_sch, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # matrix not positive definite, but looks good
+```
+
+```{r}
+fa.parallel(test_scale_sch, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parallel analysis suggest 2 factors, matrix not positive, ultra heywood detected
+
+# 2 factors
+fa(test_scale_sch, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
+```
