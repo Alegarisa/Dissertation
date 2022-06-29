@@ -89,7 +89,7 @@ d1 <- d %>%
 
 # descriptives check 
 ```{r}
-describe(d1)# using describe function I identified that missing values in the dataset were -99, 99, 77
+# describe(d1)# using describe function I identified that missing values in the dataset were -99, 99, 77
 ```
 
 
@@ -116,12 +116,12 @@ d2 <- recode_missing_df(d1) # the function strips out variable labels
 
 # descriptives check #2 -- Evaluating missingness 
 ```{r}
-describe(d2)
+#describe(d2)
 # using describe function I identified that some variables had a lot of missing information:
 # q65_p1 = 89/94 responses ("En esta escuela,siento que hay por lo menos un maestro quien está interesado en conocerme")
 # q173_3_p1 = 86/94 responses ("¿Qué tan cómodo/ase siente hablando inglés en la ESCUELA de su joven") --> moderator
 
-(sum(is.na(d2))/prod(dim(d2)))*100 # 0.8450984 (this is less than 1% of the data, should I do something about it?)
+#(sum(is.na(d2))/prod(dim(d2)))*100 # 0.8450984 (this is less than 1% of the data, should I do something about it?)
 # Nico's explanation:
 #test <- describe(d2)
 #(sum(94-test$n))/(94*107)
@@ -191,14 +191,14 @@ kurtosis: 10.57
 code taken from: https://stackoverflow.com/questions/52822840/ggplot2-create-a-barplot-for-every-column-of-a-dataframe 
 
 ```{r}
-plots_all <- split.default(efa_vars, names(efa_vars)) %>% 
-  map(., setNames, nm = "var") %>% 
-  map(., rownames_to_column) %>%
-  imap(., ~ {
-    ggplot(.x, aes(var)) + 
-      geom_bar() +
-      labs(title = .y)
-    })
+# plots_all <- split.default(efa_vars, names(efa_vars)) %>% 
+#   map(., setNames, nm = "var") %>% 
+#   map(., rownames_to_column) %>%
+#   imap(., ~ {
+#     ggplot(.x, aes(var)) + 
+#       geom_bar() +
+#       labs(title = .y)
+#     })
 ```
 
 # Multivariate and univariate normality tests on all variables
@@ -412,31 +412,31 @@ alpha(scale_9.2) # 0.41 even worse!
 ```{r}
 #Appropriate Discipline univariate analysis
 
-d2 %>% #before reverse scoring
-  select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1) %>%
-  mutate(q128_p1 = as.factor(q128_p1),
-         q129_p1 = as.factor(q129_p1),
-         q130_p1 = as.factor(q130_p1),
-         q131_p1 = as.factor(q131_p1),# no one fully endorsed yelling
-         q133_p1 = as.factor(q133_p1),# 4 endorsed quiting 
-         q134_p1 = as.factor(q134_p1),#8 endorsed not following
-         q136_p1 = as.factor(q136_p1)) %>%
-  summary()
+# d2 %>% #before reverse scoring
+#   select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1) %>%
+#   mutate(q128_p1 = as.factor(q128_p1),
+#          q129_p1 = as.factor(q129_p1),
+#          q130_p1 = as.factor(q130_p1),
+#          q131_p1 = as.factor(q131_p1),# no one fully endorsed yelling
+#          q133_p1 = as.factor(q133_p1),# 4 endorsed quiting 
+#          q134_p1 = as.factor(q134_p1),#8 endorsed not following
+#          q136_p1 = as.factor(q136_p1)) %>%
+#   summary()
 ```
 
 ```{r}
 #Appropriate Discipline univariate analysis
 
-efa_vars %>% #after reverse scoring
-  select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1) %>%
-  mutate(q128_p1 = as.factor(q128_p1),
-         q129_p1 = as.factor(q129_p1),
-         q130_p1 = as.factor(q130_p1),
-         q131_p1 = as.factor(q131_p1),
-         q133_p1 = as.factor(q133_p1),
-         q134_p1 = as.factor(q134_p1),
-         q136_p1 = as.factor(q136_p1)) %>%
-  summary()
+# efa_vars %>% #after reverse scoring
+#   select(q128_p1:q131_p1, q133_p1, q134_p1, q136_p1) %>%
+#   mutate(q128_p1 = as.factor(q128_p1),
+#          q129_p1 = as.factor(q129_p1),
+#          q130_p1 = as.factor(q130_p1),
+#          q131_p1 = as.factor(q131_p1),
+#          q133_p1 = as.factor(q133_p1),
+#          q134_p1 = as.factor(q134_p1),
+#          q136_p1 = as.factor(q136_p1)) %>%
+#   summary()
 
 ```
 
@@ -622,12 +622,12 @@ alpha(scale_4) #.88
 
 ```{r}
 #univariate response frequencies - Parent Endorsement of School (4)
-scale_4 %>%
-  mutate(q54_p1 = as.factor(q54_p1),
-         q55_p1 = as.factor(q55_p1),
-         q56_p1 = as.factor(q56_p1),
-         q57_p1 = as.factor(q57_p1)) %>%
-  summary()
+# scale_4 %>%
+#   mutate(q54_p1 = as.factor(q54_p1),
+#          q55_p1 = as.factor(q55_p1),
+#          q56_p1 = as.factor(q56_p1),
+#          q57_p1 = as.factor(q57_p1)) %>%
+#   summary()
 ```
 
 
@@ -751,37 +751,44 @@ q44_p1, q58_p1, q63_p1, q126_p1 --> problem solving
 
 ```{r}
 # rel combined
-test_scale_comb <- efa_vars %>%
+scale_comb <- efa_vars %>%
   select(q41_p1, q43_p1, q44_p1, q50_p1, q58_p1, q62_p1, q63_p1, q64_p1, q65_p1, q66_p1, q67_p1, q126_p1) # removing 18 and 19 because loading less than .30
 
+# Poly corr matrix
+poly_scale_comb <- polychoric(scale_comb)
+poly_scale_comb_mat <- data.frame(poly_scale_comb$rho)
+
+# scree plot
+scree(poly_scale_comb_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
 # EFA rel combined
-fa(test_scale_comb, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # matrix not positive definite, but looks good
+fa(scale_comb, n.obs = NA, rotate = "none", fm = "uls", cor = "poly") # matrix not positive definite, but looks good
 ```
 
 
 ```{r}
 # rel combined
-fa.parallel(test_scale_comb, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parallel analysis suggest 3 factors, matrix not positive,  ultra heywood 
+fa.parallel(scale_comb, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parallel analysis suggest 3 factors, matrix not positive,  ultra heywood 
 
 # 3 factors 
-fa(test_scale_comb, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # 66 was Heywood, other 3 items were crossloading
+fa(scale_comb, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # 66 was Heywood, other 3 items were crossloading
 ```
 
 ```{r}
 # rel combined - EFA 2 factors
-fa(test_scale_comb, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
+fa(scale_comb, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
 ```
 
 ```{r}
-test_scale_comb_fa1 <- efa_vars %>%
+scale_comb_fa1 <- efa_vars %>%
   select(q41_p1, q58_p1, q62_p1, q63_p1, q64_p1, q65_p1, q66_p1, q67_p1)
 
-alpha(test_scale_comb_fa1) #.90
+alpha(scale_comb_fa1) #.90
 
-test_scale_comb_fa2 <- efa_vars %>%
+scale_comb_fa2 <- efa_vars %>%
   select(q43_p1, q44_p1, q50_p1, q126_p1)
 
-alpha(test_scale_comb_fa2) #.78
+alpha(scale_comb_fa2) #.78
 ```
 
 
@@ -812,14 +819,14 @@ fa.parallel(scale_8, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel A
 
 alpha(scale_8) # .91
 
-scale_8 %>%
-  mutate(q105_p1 = as.factor(q105_p1),
-         q106_p1 = as.factor(q106_p1),
-         q107_p1 = as.factor(q107_p1),
-         q108_p1 = as.factor(q108_p1),
-         q109_p1 = as.factor(q109_p1),
-         q110_p1 = as.factor(q110_p1)) %>%
-  summary()
+# scale_8 %>%
+#   mutate(q105_p1 = as.factor(q105_p1),
+#          q106_p1 = as.factor(q106_p1),
+#          q107_p1 = as.factor(q107_p1),
+#          q108_p1 = as.factor(q108_p1),
+#          q109_p1 = as.factor(q109_p1),
+#          q110_p1 = as.factor(q110_p1)) %>%
+#   summary()
 ```
 
 ```{r}
