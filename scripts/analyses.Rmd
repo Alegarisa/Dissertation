@@ -859,6 +859,11 @@ scree(poly_scale_13_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=F
 # EFA
 fa(scale_13, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
+```{r}
+fa.parallel(scale_13, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # suggest 1 factors
+
+alpha(scale_13) # .72, if removing item 84 goes up to .80 -- EFA sowed factor loading of 0.07
+```
 
 -------------------------------------------------
 Excerpts
