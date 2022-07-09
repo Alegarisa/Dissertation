@@ -486,21 +486,21 @@ fa(scale_6, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 # PARALLEL ANALYSIS Parent-Child Conversations
 fa.parallel(scale_6, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # parrallel analysis suggest 3 factors
 
-# 3 factors
+# 3 factors - iteration 2
 fa(scale_6, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # item 74 cross loaded in factor 1 and 2
 
-# iteration 1
+# iteration 3
 scale_6.1 <- efa_vars %>%
   select(q68_p1:q73_p1, q75_p1:q81_p1)
 
-# 3 factors - # iteration 1
+# 3 factors - # iteration 3
 fa(scale_6.1, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") # item 72 cross loaded in factor 2 and 3
 
-# iteration 2
+# iteration 4
 scale_6.2 <- efa_vars %>%
   select(q68_p1:q71_p1, q73_p1, q75_p1:q81_p1)
 
-# 3 factors - # iteration 2
+# 3 factors - # iteration 4
 fa(scale_6.2, nfactors = 3, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly") 
 ```
 
@@ -645,6 +645,60 @@ scree(scale_4.1,factors=TRUE,pc=FALSE,main="Scree plt",hline=NULL,add=FALSE)
 alpha(scale_4.1) #.80
 ```
 
+# Parent’s Value and Support of Education (6) <<<#matrix not positive definitive>>>
+```{r}
+#Parent’s Value and Support of Education (6)
+scale_8 <- efa_vars %>%
+  select(q105_p1:q110_p1)
+
+# Poly corr matrix
+poly_scale_8 <- polychoric(scale_8)
+poly_scale_8_mat <- data.frame(poly_scale_8$rho)
+
+# scree plot
+scree(poly_scale_8_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
+# EFA
+fa(scale_8, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
+
+
+```{r}
+#Parent’s Value and Support of Education (6)
+fa.parallel(scale_8, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # suggest 1 factor
+
+```
+
+```{r}
+# RELIABILITY Parent’s Value and Support of Education (6)
+
+alpha(scale_8) # .91
+
+# scale_8 %>%
+#   mutate(q105_p1 = as.factor(q105_p1),
+#          q106_p1 = as.factor(q106_p1),
+#          q107_p1 = as.factor(q107_p1),
+#          q108_p1 = as.factor(q108_p1),
+#          q109_p1 = as.factor(q109_p1),
+#          q110_p1 = as.factor(q110_p1)) %>%
+#   summary()
+```
+
+```{r}
+# Parent’s Value and Support of Education (6)
+# plots3 <- split.default(scale_8, names(scale_8)) %>% 
+#   map(., setNames, nm = "var") %>% 
+#   map(., rownames_to_column) %>%
+#   imap(., ~ {
+#     ggplot(.x, aes(var)) + 
+#       geom_bar() +
+#       labs(title = .y)
+#     })
+# 
+# plots3
+```
+
+
 # Parent-Teacher Relationship (4) <<< ultra-Heywood case>>>
 ```{r}
 # Parent-Teacher Relationship (4) 
@@ -706,6 +760,14 @@ scree(poly_scale_11_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=F
 # EFA
 fa(scale_11, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
+```{r}
+#Family-School Communication (4)
+scale_11.2 <- efa_vars %>%
+  select(q41_p1, q43_p1, q50_p1, q62_p1)
+
+# EFA
+fa(scale_11.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
+```
 
 
 # Problem Solving with Educators (4)
@@ -752,7 +814,10 @@ q44_p1, q58_p1, q63_p1, q126_p1 --> problem solving
 ```{r}
 # rel combined
 scale_comb <- efa_vars %>%
-  select(q41_p1, q43_p1, q44_p1, q50_p1, q58_p1, q62_p1, q63_p1, q64_p1, q65_p1, q66_p1, q67_p1, q126_p1) # removing 18 and 19 because loading less than .30
+  select(q18_p1, q19_p1, q41_p1, q43_p1, q44_p1, q50_p1, q58_p1, q62_p1, q63_p1, q64_p1, q65_p1, q66_p1, q67_p1, q126_p1) # items 18 and 19 loading less than .30
+
+scale_comb <- efa_vars %>%
+  select(q41_p1, q43_p1, q44_p1, q50_p1, q58_p1, q62_p1, q63_p1, q64_p1, q65_p1, q66_p1, q67_p1, q126_p1)
 
 # Poly corr matrix
 poly_scale_comb <- polychoric(scale_comb)
@@ -792,56 +857,7 @@ alpha(scale_comb_fa2) #.78
 ```
 
 
-# Parent’s Value and Support of Education (6) <<<#matrix not positive definitive>>>
-```{r}
-#Parent’s Value and Support of Education (6)
-scale_8 <- efa_vars %>%
-  select(q105_p1:q110_p1)
 
-# Poly corr matrix
-poly_scale_8 <- polychoric(scale_8)
-poly_scale_8_mat <- data.frame(poly_scale_8$rho)
-
-# scree plot
-scree(poly_scale_8_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
-
-# EFA
-fa(scale_8, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
-```
-```{r}
-#Parent’s Value and Support of Education (6)
-fa.parallel(scale_8, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Parallel Analysis Scree Plots", n.iter=20, error.bars=FALSE, se.bars=FALSE, SMC=FALSE, ylabel=NULL, show.legend=TRUE, sim=TRUE, quant=.95, cor="poly", use="pairwise", plot=TRUE, correct=.5) # suggest 1 factor
-
-```
-
-```{r}
-# RELIABILITY Parent’s Value and Support of Education (6)
-
-alpha(scale_8) # .91
-
-# scale_8 %>%
-#   mutate(q105_p1 = as.factor(q105_p1),
-#          q106_p1 = as.factor(q106_p1),
-#          q107_p1 = as.factor(q107_p1),
-#          q108_p1 = as.factor(q108_p1),
-#          q109_p1 = as.factor(q109_p1),
-#          q110_p1 = as.factor(q110_p1)) %>%
-#   summary()
-```
-
-```{r}
-# Parent’s Value and Support of Education (6)
-plots3 <- split.default(scale_8, names(scale_8)) %>% 
-  map(., setNames, nm = "var") %>% 
-  map(., rownames_to_column) %>%
-  imap(., ~ {
-    ggplot(.x, aes(var)) + 
-      geom_bar() +
-      labs(title = .y)
-    })
-
-plots3
-```
 
 # OUTCOME: Students’ School Engagement (9)
 ```{r}
