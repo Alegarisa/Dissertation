@@ -1,0 +1,248 @@
+---
+title: "Regressions"
+author: "Alejandra Garcia Isaza"
+date: '2022-07-12'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(rio)
+library(here)
+library(tidyverse)
+library(haven)
+library(janitor)
+library(knitr)
+library(surveytoolbox)
+library(sjPlot)
+library(kableExtra)
+library(psych)
+library(sjmisc)
+library(MVN)
+
+theme_set(theme_minimal())
+```
+
+
+# Loading the dataset (only analysis vars)
+```{r}
+d <- read_sav(here("data", "d3.sav"))
+
+view_df(d)
+```
+
+
+```{r}
+d
+```
+```{r}
+# engag <- d %>%
+#   select(q83_y1:q91_y1)
+# 
+# alpha(engag) # .72
+# 
+# engag_2 <- d %>%
+#   select(q83_y1, q85_y1:q91_y1)
+# 
+# alpha(engag_2) #.80
+```
+
+# Scale creation (15 predictors, 1 outcome)
+```{r}
+scales <- d %>%
+  rowwise() %>% 
+  mutate(hwi_1 = mean(c(q86_p1, q87_p1, q88_p1, q89_p1, q94_p1, q96_p1, q97_p1), na.rm = TRUE),
+         hwi_2 = mean(c(q84_p1, q85_p1, q93_p1, q95_p1), na.rm = TRUE),
+         hwi_3 = mean(c(q90_p1, q91_p1, q98_p1), na.rm = TRUE),
+         monit = mean(c(q137_p1, q139_p1, q140_p1, q143_p1, q144_p1), na.rm = TRUE),
+         str_home = mean(c(q23_p1, q24_p1, q25_p1, q26_p1, q27_p1, q28_p1, q29_p1, q30_p1), na.rm = TRUE),
+         convos_1 = mean(c(q76_p1, q77_p1, q78_p1, q79_p1), na.rm = TRUE),
+         convos_2 = mean(c(q73_p1, q75_p1, q80_p1, q81_p1), na.rm = TRUE),
+         convos_3 = mean(c(q68_p1, q69_p1, q70_p1, q71_p1), na.rm = TRUE),
+         sbi_1 = mean(c(q31_p1, q32_p1, q33_p1, q34_p1), na.rm = TRUE),
+         sbi_2 = mean(c(q36_p1, q37_p1, q38_p1, q39_p1, q40_p1), na.rm = TRUE),
+         belong = mean(c(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1), na.rm = TRUE),
+         endorse = mean(c(q54_p1, q56_p1, q57_p1), na.rm = TRUE),
+         value_ed = mean(c(q105_p1, q106_p1, q107_p1, q108_p1, q109_p1, q110_p1), na.rm = TRUE),
+         rel_1 = mean(c(q41_p1, q58_p1, q62_p1, q63_p1, q64_p1, q65_p1, q66_p1, q67_p1), na.rm = TRUE),
+         rel_2 = mean(c(q43_p1, q44_p1, q50_p1, q126_p1), na.rm = TRUE),
+         engage = mean(c(q83_y1, q85_y1, q86_y1, q87_y1, q88_y1, q89_y1, q90_y1, q91_y1), na.rm = TRUE))
+
+view_df(scales)
+```
+
+# descriptive stats function
+```{r include=FALSE}
+
+# function that takes a df and returns a df with only the numeric columns
+only_numeric <- function(df) {
+  select_numeric <- dplyr::select_if(df, is.numeric)
+  return(select_numeric)
+}
+
+# a list with the functions we want
+smry <- list(M = function(x) round(mean(x, na.rm = TRUE), 2), 
+             SD = function(x) round(sd(x, na.rm = TRUE), 2),
+             Min = function(x) round(min(x, na.rm = TRUE), 2),
+             Max = function(x) round(max(x, na.rm = TRUE), 2))
+
+# wrapping solution in a function
+descriptives <- function(df) {
+  select_numeric <- only_numeric(df)
+  mean_sd <- map_df(select_numeric, function(col) map_df(smry, ~.x(col)),
+       .id = "column")
+  return(mean_sd)
+}
+```
+
+
+```{r}
+descrips <- scales %>%
+  select(108:123)
+
+descrip_table <- descriptives(descrips) %>%
+  rename(c("Scale" = "column"))
+```
+
+# 1. Academic approach (tutor)
+```{r}
+m_hwi_1 <- lm(engage ~ hwi_1, scales)
+
+summary(m_hwi_1) # p = 0.07
+```
+
+
+# 2. structuring/monitoring approach to HWI
+```{r}
+m_hwi_2 <- lm(engage ~ hwi_2, scales)
+
+summary(m_hwi_2)# p = 0.01
+```
+
+# 3. positive reinforcement to increase HW completion
+```{r}
+m_hwi_3 <- lm(engage ~ hwi_3, scales)
+
+summary(m_hwi_3) # p = 0.03
+```
+
+# 4. monitoring
+```{r}
+m_monit <- lm(engage ~ monit, scales)
+
+summary(m_monit) # p = 0.89
+```
+
+
+# 5. structure at home
+```{r}
+m_str_home <- lm(engage ~ str_home, scales)
+
+summary(m_str_home) # p = 0.04
+```
+
+
+# 6. convos: child beh & school climate
+```{r}
+m_convos_1 <- lm(engage ~ convos_1, scales)
+
+summary(m_convos_1) # p = 0.86
+```
+
+
+# 7. convos: future career planning
+```{r}
+m_convos_2 <- lm(engage ~ convos_2, scales)
+
+summary(m_convos_2) # p = 0.07
+```
+
+
+# 8. convos: child's social involvement
+```{r}
+m_convos_3 <- lm(engage ~ convos_3, scales)
+
+summary(m_convos_3) # p = 0.27
+```
+
+
+# 9. Basic involvement
+```{r}
+m_sbi_1 <- lm(engage ~ sbi_1, scales)
+
+summary(m_sbi_1) # p = 0.05
+```
+
+
+# 10. Resource-intensive involvement
+```{r}
+m_sbi_2 <- lm(engage ~ sbi_2, scales)
+
+summary(m_sbi_2) # p = 0.03
+```
+
+
+# 11. Belongingness
+```{r}
+m_belong <- lm(engage ~ belong, scales)
+
+summary(m_belong) # p = 0.97
+```
+
+
+# 12. Endorsemnt
+```{r}
+m_endorse <- lm(engage ~ endorse, scales)
+
+summary(m_endorse) # p = 0.53
+```
+
+
+# 13. Value & supp of Ed
+```{r}
+m_value_ed <- lm(engage ~ value_ed, scales)
+
+summary(m_value_ed) # p = 0.77
+```
+
+
+# 14. Rel with teachers: comfort, interest, and openness
+```{r}
+m_rel_1 <- lm(engage ~ rel_1, scales)
+
+summary(m_rel_1) # p = 0.19
+```
+
+
+# 15. Rel with school: parent self-efficacy to solve probs with school
+```{r}
+m_rel_2 <- lm(engage ~ rel_2, scales)
+
+summary(m_rel_2) # p = 0.65
+```
+
+## Conclusions:
+
+
+# just for fun: relational aspects predicting parent's self-effi
+```{r}
+m_rel_belong <- lm(rel_2 ~ belong, scales)
+summary(m_rel_belong) # p < 0.001
+
+m_rel_endorse <- lm(rel_2 ~ endorse, scales)
+summary(m_rel_endorse) # p < 0.001
+
+m_rel_value_ed <- lm(rel_2 ~ value_ed, scales)
+summary(m_rel_value_ed) # p < 0.001
+
+m_rel_qual <- lm(rel_2 ~ rel_1, scales)
+summary(m_rel_qual) # p < 0.001
+```
+
+
+
+
+
+
+
