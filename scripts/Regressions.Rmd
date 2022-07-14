@@ -5,6 +5,36 @@ date: '2022-07-12'
 output: html_document
 ---
 
+Diss Research questions:
+
+1. Can both structural and relational components of family-school connections be identified using exploratory factor analysis approaches in the Conexiones parents’ assessment data? --> addressed with Exploratory Factor Analyses, not included here.
+    
+    I identified *15 predictors* in the EFA part of my study. They are different parent engagement practices, some are considered structural     and some are considered relational ("hwi_1"    "hwi_2"    "hwi_3"      "monit"    "str_home" "convos_1" "convos_2" "convos_3" "sbi_1"        "sbi_2"    "belong"  "endorse"  "value_ed" "rel_1"    "rel_2" )
+    
+    The *outcome* is youth engagement (called "engage")
+    
+    The *moderators* are parent's educational level (q36_hv1) and parent's comfort with ENG (q173_3_p1)
+
+2. What specific structural and relational components of family-school connections in the Conexiones parents’ assessment data are significantly and positively associated with positive students’ school engagement? --> to be addressed with simple linear regression models
+
+3. Does parent educational level and comfort with English language moderate the relationship between structural and relational family-school connections components and student’s school engagement? --> to be addressed with moderated multiple regression models
+
+4. What model best predicts positive students’ school engagement, a structural components only model or a combined structural plus relational components model? --> to be addressed with a step-wise multiple linear regression model, with predictor blocks
+
+
+----
+Questions for Jeff:
+----
+
+- Is it okay to treat my predictors and outcome (that really are Likert scales = ordinal variables) as numeric (dbl in R)? I didn't in EFAs because it was against EFA best practices. Not sure about rec. approach. 
+- The moderators are parent's educational level and comfort with ENG. Should I treat these as factors?
+- Should I include covariates in all the regression models (simple, multiple, etc)? 
+- Was correct to conduct 15 separate simple regression models or should have I done it in one call? --> I want to know if the specific var predicts the outcome (RQ1)
+- When conducting simple regression the p. value is the same in two places in the output, but when conducting in moderation, shows different values in the same two places. Why?
+- For moderation need to grand mean center? (If yes, my code to do this on lines 110-137 is not working, any clues why?)
+- Should I run moderation models if the IV and DV are not significantly related in simple linear regression models (models 11-15 below that have relational parent practice
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -36,21 +66,9 @@ view_df(d)
 ```{r}
 d
 ```
-```{r}
-# engag <- d %>%
-#   select(q83_y1:q91_y1)
-# 
-# alpha(engag) # .72
-# 
-# engag_2 <- d %>%
-#   select(q83_y1, q85_y1:q91_y1)
-# 
-# alpha(engag_2) #.80
-```
-
 # Scale creation (15 predictors, 1 outcome)
 ```{r}
-scales <- d %>%
+d_w_scales <- d %>%
   rowwise() %>% 
   mutate(hwi_1 = mean(c(q86_p1, q87_p1, q88_p1, q89_p1, q94_p1, q96_p1, q97_p1), na.rm = TRUE),
          hwi_2 = mean(c(q84_p1, q85_p1, q93_p1, q95_p1), na.rm = TRUE),
@@ -69,7 +87,7 @@ scales <- d %>%
          rel_2 = mean(c(q43_p1, q44_p1, q50_p1, q126_p1), na.rm = TRUE),
          engage = mean(c(q83_y1, q85_y1, q86_y1, q87_y1, q88_y1, q89_y1, q90_y1, q91_y1), na.rm = TRUE))
 
-view_df(scales)
+view_df(d_w_scales)
 ```
 
 # descriptive stats function
@@ -98,149 +116,326 @@ descriptives <- function(df) {
 
 
 ```{r}
-descrips <- scales %>%
+only_scales <- d_w_scales %>%
   select(108:123)
 
-descrip_table <- descriptives(descrips) %>%
+descrip_table <- descriptives(only_scales) %>%
   rename(c("Scale" = "column"))
 ```
 
-# 1. Academic approach (tutor)
-```{r}
-m_hwi_1 <- lm(engage ~ hwi_1, scales)
 
-summary(m_hwi_1) # p = 0.07
+# grand mean center predictors (?)
+```{r}
+d_w_scales_c <- d_w_scales %>%
+mutate(hwi_1_c = hwi_1 - (round(mean(hwi_1, na.rm = TRUE), 2)),
+       hwi_2_c = hwi_2 - mean(hwi_2, na.rm = TRUE),
+       hwi_3_c = hwi_3 - mean(hwi_3, na.rm = TRUE),
+       monit_c = monit - mean(monit, na.rm = TRUE),
+       str_home_c = str_home - mean(str_home, na.rm = TRUE),
+       convos_1_c = convos_1 - mean(convos_1, na.rm = TRUE),
+       convos_2_c = convos_2 - mean(convos_2, na.rm = TRUE),
+       convos_3_c = convos_3 - mean(convos_3, na.rm = TRUE),
+       sbi_1_c = sbi_1 - mean(sbi_1, na.rm = TRUE),
+       sbi_2_c = sbi_2 - mean(sbi_2, na.rm = TRUE),
+       belong_c = belong - mean(belong, na.rm = TRUE),
+       endorse_c = endorse - mean(endorse, na.rm = TRUE),
+       value_ed_c = value_ed - mean(value_ed, na.rm = TRUE),
+       rel_1_c = rel_1 - mean(rel_1, na.rm = TRUE),
+       rel_2_c = rel_2 - mean(rel_2, na.rm = TRUE),
+       ed_level = factor(q36_hv1),
+       eng_comf = factor(q173_3_p1)) # this is not working. it gives me a zero in all the centered vars. Have tried multiple ways of using ()
+
+# summary(d_w_scales)
+
+# first row: 1.857143 - 2.704045 # -0.846902\
+d_w_scales$hwi_1 - round(mean(d_w_scales$hwi_1, na.rm = TRUE), 2) # this works
+
+d_w_scales_c <- d_w_scales %>%
+  mutate(hwi_1_c = hwi_1 - round(mean(hwi_1, na.rm = TRUE), 2)) # this doesn't, first row of hwi_1_c = -0.002857143
 ```
 
 
-# 2. structuring/monitoring approach to HWI
+#correlation matrix 
 ```{r}
-m_hwi_2 <- lm(engage ~ hwi_2, scales)
+library(Hmisc)
+rcorr(as.matrix(only_scales), type = "pearson")
+```
+
+------------------------------
+# RESEARCH QUESTION 2
+------------------------------
+
+# 2.1. Academic approach (tutor)
+```{r}
+m_hwi_1 <- lm(engage ~ hwi_1, d_w_scales)
+
+summary(m_hwi_1) # p = 0.07
+```
+engage predicted by hw1
+
+Intercept: expected value of youth's engagement when the average hW involvement in data set is considered (I think = 2.70)
+
+slope: the effect HW involvement has in youth's engagement = for every one unit increase in HW involvement, youth's engagement increases by 0.15 (but is not significant).
+
+# 2.2. structuring/monitoring approach to HWI
+```{r}
+m_hwi_2 <- lm(engage ~ hwi_2, d_w_scales)
 
 summary(m_hwi_2)# p = 0.01
 ```
 
-# 3. positive reinforcement to increase HW completion
+# 2.3. positive reinforcement to increase HW completion
 ```{r}
-m_hwi_3 <- lm(engage ~ hwi_3, scales)
+m_hwi_3 <- lm(engage ~ hwi_3, d_w_scales)
 
 summary(m_hwi_3) # p = 0.03
 ```
 
-# 4. monitoring
+# 2.4. monitoring
 ```{r}
-m_monit <- lm(engage ~ monit, scales)
+m_monit <- lm(engage ~ monit, d_w_scales)
 
 summary(m_monit) # p = 0.89
 ```
 
 
-# 5. structure at home
+# 2.5. structure at home
 ```{r}
-m_str_home <- lm(engage ~ str_home, scales)
+m_str_home <- lm(engage ~ str_home, d_w_scales)
 
 summary(m_str_home) # p = 0.04
 ```
 
 
-# 6. convos: child beh & school climate
+# 2.6. convos: child beh & school climate
 ```{r}
-m_convos_1 <- lm(engage ~ convos_1, scales)
+m_convos_1 <- lm(engage ~ convos_1, d_w_scales)
 
 summary(m_convos_1) # p = 0.86
 ```
 
 
-# 7. convos: future career planning
+# 2.7. convos: future career planning
 ```{r}
-m_convos_2 <- lm(engage ~ convos_2, scales)
+m_convos_2 <- lm(engage ~ convos_2, d_w_scales)
 
 summary(m_convos_2) # p = 0.07
 ```
 
 
-# 8. convos: child's social involvement
+# 2.8. convos: child's social involvement
 ```{r}
-m_convos_3 <- lm(engage ~ convos_3, scales)
+m_convos_3 <- lm(engage ~ convos_3, d_w_scales)
 
 summary(m_convos_3) # p = 0.27
 ```
 
 
-# 9. Basic involvement
+# 2.9. Basic involvement
 ```{r}
-m_sbi_1 <- lm(engage ~ sbi_1, scales)
+m_sbi_1 <- lm(engage ~ sbi_1, d_w_scales)
 
 summary(m_sbi_1) # p = 0.05
 ```
 
 
-# 10. Resource-intensive involvement
+# 2.10. Resource-intensive involvement
 ```{r}
-m_sbi_2 <- lm(engage ~ sbi_2, scales)
+m_sbi_2 <- lm(engage ~ sbi_2, d_w_scales)
 
 summary(m_sbi_2) # p = 0.03
 ```
 
 
-# 11. Belongingness
+# 2.11. Belongingness
 ```{r}
-m_belong <- lm(engage ~ belong, scales)
+m_belong <- lm(engage ~ belong, d_w_scales)
 
 summary(m_belong) # p = 0.97
 ```
 
 
-# 12. Endorsemnt
+# 2.12. Endorsemnt
 ```{r}
-m_endorse <- lm(engage ~ endorse, scales)
+m_endorse <- lm(engage ~ endorse, d_w_scales)
 
 summary(m_endorse) # p = 0.53
 ```
 
 
-# 13. Value & supp of Ed
+# 2.13. Value & supp of Ed
 ```{r}
-m_value_ed <- lm(engage ~ value_ed, scales)
+m_value_ed <- lm(engage ~ value_ed, d_w_scales)
 
 summary(m_value_ed) # p = 0.77
 ```
 
 
-# 14. Rel with teachers: comfort, interest, and openness
+# 2.14. Rel with teachers: comfort, interest, and openness
 ```{r}
-m_rel_1 <- lm(engage ~ rel_1, scales)
+m_rel_1 <- lm(engage ~ rel_1, d_w_scales)
 
 summary(m_rel_1) # p = 0.19
 ```
 
 
-# 15. Rel with school: parent self-efficacy to solve probs with school
+# 2.15. Rel with school: parent self-efficacy to solve probs with school
 ```{r}
-m_rel_2 <- lm(engage ~ rel_2, scales)
+m_rel_2 <- lm(engage ~ rel_2, d_w_scales)
 
 summary(m_rel_2) # p = 0.65
 ```
 
-## Conclusions:
-
-
 # just for fun: relational aspects predicting parent's self-effi
 ```{r}
-m_rel_belong <- lm(rel_2 ~ belong, scales)
+m_rel_belong <- lm(rel_2 ~ belong, d_w_scales)
 summary(m_rel_belong) # p < 0.001
 
-m_rel_endorse <- lm(rel_2 ~ endorse, scales)
+m_rel_endorse <- lm(rel_2 ~ endorse, d_w_scales)
 summary(m_rel_endorse) # p < 0.001
 
-m_rel_value_ed <- lm(rel_2 ~ value_ed, scales)
+m_rel_value_ed <- lm(rel_2 ~ value_ed, d_w_scales)
 summary(m_rel_value_ed) # p < 0.001
 
-m_rel_qual <- lm(rel_2 ~ rel_1, scales)
+m_rel_qual <- lm(rel_2 ~ rel_1, d_w_scales)
 summary(m_rel_qual) # p < 0.001
 ```
 
 
+------------------------------
+# RESEARCH QUESTION 3
+------------------------------
+
+```{r}
+d_w_scales$q36_hv1 # ed level ((1 - 11)
+
+d_w_scales$q173_3_p1 # ENG comfort in youth school (1 - 5)
+```
+
+
+# 3.1. Academic approach (tutor)
+```{r}
+m2.1_hwi_1 <- lm(engage ~ hwi_1 + hwi_1:q36_hv1, d_w_scales)
+summary(m2.1_hwi_1) # p = not sure which to look at
+
+m2.2_hwi_1 <- lm(engage ~ hwi_1 + hwi_1:q173_3_p1, d_w_scales)
+summary(m2.2_hwi_1) # p = not sure which to look at
+```
+
+
+# 3.2. structuring/monitoring approach to HWI
+```{r}
+m2.1_hwi_2 <- lm(engage ~ hwi_2 + hwi_2:q36_hv1, d_w_scales)
+summary(m2.1_hwi_2) # p = 
+
+m2.2_hwi_2 <- lm(engage ~ hwi_2 + hwi_2:q173_3_p1, d_w_scales)
+summary(m2.2_hwi_2) # p = 
+```
+
+## Note for Jeff: 
+disregard the following models, I just copied and pasted the simple regression models and will add the interaction terms once I get my mind sorted out. 
+
+# 3.3. positive reinforcement to increase HW completion
+```{r}
+m_hwi_3 <- lm(engage ~ hwi_3, d_w_scales)
+
+summary(m_hwi_3) # p = 0.03
+```
+
+# 3.4. monitoring
+```{r}
+m_monit <- lm(engage ~ monit, d_w_scales)
+
+summary(m_monit) # p = 0.89
+```
+
+
+# 3.5. structure at home
+```{r}
+m_str_home <- lm(engage ~ str_home, d_w_scales)
+
+summary(m_str_home) # p = 0.04
+```
+
+
+# 3.6. convos: child beh & school climate
+```{r}
+m_convos_1 <- lm(engage ~ convos_1, d_w_scales)
+
+summary(m_convos_1) # p = 0.86
+```
+
+
+# 3.7. convos: future career planning
+```{r}
+m_convos_2 <- lm(engage ~ convos_2, d_w_scales)
+
+summary(m_convos_2) # p = 0.07
+```
+
+
+# 3.8. convos: child's social involvement
+```{r}
+m_convos_3 <- lm(engage ~ convos_3, d_w_scales)
+
+summary(m_convos_3) # p = 0.27
+```
+
+
+# 3.9. Basic involvement
+```{r}
+m_sbi_1 <- lm(engage ~ sbi_1, d_w_scales)
+
+summary(m_sbi_1) # p = 0.05
+```
+
+
+# 3.10. Resource-intensive involvement
+```{r}
+m_sbi_2 <- lm(engage ~ sbi_2, d_w_scales)
+
+summary(m_sbi_2) # p = 0.03
+```
+
+
+# 3.11. Belongingness
+```{r}
+m_belong <- lm(engage ~ belong, d_w_scales)
+
+summary(m_belong) # p = 0.97
+```
+
+
+# 3.12. Endorsemnt
+```{r}
+m_endorse <- lm(engage ~ endorse, d_w_scales)
+
+summary(m_endorse) # p = 0.53
+```
+
+
+# 3.13. Value & supp of Ed
+```{r}
+m_value_ed <- lm(engage ~ value_ed, d_w_scales)
+
+summary(m_value_ed) # p = 0.77
+```
+
+
+# 3.14. Rel with teachers: comfort, interest, and openness
+```{r}
+m_rel_1 <- lm(engage ~ rel_1, d_w_scales)
+
+summary(m_rel_1) # p = 0.19
+```
+
+
+# 3.15. Rel with school: parent self-efficacy to solve probs with school
+```{r}
+m_rel_2 <- lm(engage ~ rel_2, d_w_scales)
+
+summary(m_rel_2) # p = 0.65
+```
 
 
 

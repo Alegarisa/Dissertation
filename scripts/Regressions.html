@@ -370,6 +370,62 @@ pre code {
 </div>
 
 
+<p>Diss Research questions:</p>
+<ol style="list-style-type: decimal">
+<li><p>Can both structural and relational components of family-school
+connections be identified using exploratory factor analysis approaches
+in the Conexiones parents’ assessment data? –&gt; addressed with
+Exploratory Factor Analyses, not included here.</p>
+<p>I identified <em>15 predictors</em> in the EFA part of my study. They
+are different parent engagement practices, some are considered
+structural and some are considered relational (“hwi_1” “hwi_2” “hwi_3”
+“monit” “str_home” “convos_1” “convos_2” “convos_3” “sbi_1” “sbi_2”
+“belong” “endorse” “value_ed” “rel_1” “rel_2” )</p>
+<p>The <em>outcome</em> is youth engagement (called “engage”)</p>
+<p>The <em>moderators</em> are parent’s educational level (q36_hv1) and
+parent’s comfort with ENG (q173_3_p1)</p></li>
+<li><p>What specific structural and relational components of
+family-school connections in the Conexiones parents’ assessment data are
+significantly and positively associated with positive students’ school
+engagement? –&gt; to be addressed with simple linear regression
+models</p></li>
+<li><p>Does parent educational level and comfort with English language
+moderate the relationship between structural and relational
+family-school connections components and student’s school engagement?
+–&gt; to be addressed with moderated multiple regression models</p></li>
+<li><p>What model best predicts positive students’ school engagement, a
+structural components only model or a combined structural plus
+relational components model? –&gt; to be addressed with a step-wise
+multiple linear regression model, with predictor blocks</p></li>
+</ol>
+<table>
+<tbody>
+<tr class="odd">
+<td>Questions for Jeff:</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Is it okay to treat my predictors and outcome (that really are
+Likert scales = ordinal variables) as numeric (dbl in R)? I didn’t in
+EFAs because it was against EFA best practices. Not sure about rec.
+approach.</li>
+<li>The moderators are parent’s educational level and comfort with ENG.
+Should I treat these as factors?</li>
+<li>Should I include covariates in all the regression models (simple,
+multiple, etc)?</li>
+<li>Was correct to conduct 15 separate simple regression models or
+should have I done it in one call? –&gt; I want to know if the specific
+var predicts the outcome (RQ1)</li>
+<li>When conducting simple regression the p. value is the same in two
+places in the output, but when conducting in moderation, shows different
+values in the same two places. Why?</li>
+<li>For moderation need to grand mean center? (If yes, my code to do
+this on lines 110-137 is not working, any clues why?)</li>
+<li>Should I run moderation models if the IV and DV are not
+significantly related in simple linear regression models (models 11-15
+below that have relational parent practice</li>
+</ul>
 <div id="loading-the-dataset-only-analysis-vars" class="section level1">
 <h1>Loading the dataset (only analysis vars)</h1>
 <pre class="r"><code>d &lt;- read_sav(here(&quot;data&quot;, &quot;d3.sav&quot;))
@@ -1813,19 +1869,10 @@ q91_y1
 ## #   q52_p1 &lt;dbl&gt;, q53_p1 &lt;dbl&gt;, q59_p1 &lt;dbl&gt;, q60_p1 &lt;dbl&gt;, q54_p1 &lt;dbl&gt;,
 ## #   q55_p1 &lt;dbl&gt;, q56_p1 &lt;dbl&gt;, q57_p1 &lt;dbl&gt;, q64_p1 &lt;dbl&gt;, q65_p1 &lt;dbl&gt;,
 ## #   q66_p1 &lt;dbl&gt;, q67_p1 &lt;dbl&gt;, q68_p1 &lt;dbl&gt;, q69_p1 &lt;dbl&gt;, q70_p1 &lt;dbl&gt;, ...</code></pre>
-<pre class="r"><code># engag &lt;- d %&gt;%
-#   select(q83_y1:q91_y1)
-# 
-# alpha(engag) # .72
-# 
-# engag_2 &lt;- d %&gt;%
-#   select(q83_y1, q85_y1:q91_y1)
-# 
-# alpha(engag_2) #.80</code></pre>
 </div>
 <div id="scale-creation-15-predictors-1-outcome" class="section level1">
 <h1>Scale creation (15 predictors, 1 outcome)</h1>
-<pre class="r"><code>scales &lt;- d %&gt;%
+<pre class="r"><code>d_w_scales &lt;- d %&gt;%
   rowwise() %&gt;% 
   mutate(hwi_1 = mean(c(q86_p1, q87_p1, q88_p1, q89_p1, q94_p1, q96_p1, q97_p1), na.rm = TRUE),
          hwi_2 = mean(c(q84_p1, q85_p1, q93_p1, q95_p1), na.rm = TRUE),
@@ -1844,10 +1891,10 @@ q91_y1
          rel_2 = mean(c(q43_p1, q44_p1, q50_p1, q126_p1), na.rm = TRUE),
          engage = mean(c(q83_y1, q85_y1, q86_y1, q87_y1, q88_y1, q89_y1, q90_y1, q91_y1), na.rm = TRUE))
 
-view_df(scales)</code></pre>
+view_df(d_w_scales)</code></pre>
 <table style="border-collapse:collapse; border:none;">
 <caption>
-Data frame: scales
+Data frame: d_w_scales
 </caption>
 <tr>
 <th style="border-bottom:double; font-style:italic; font-weight:normal; padding:0.2cm; text-align:left; vertical-align:top;">
@@ -3473,20 +3520,199 @@ engage
 </div>
 <div id="descriptive-stats-function" class="section level1">
 <h1>descriptive stats function</h1>
-<pre class="r"><code>descrips &lt;- scales %&gt;%
+<pre class="r"><code>only_scales &lt;- d_w_scales %&gt;%
   select(108:123)
 
-descrip_table &lt;- descriptives(descrips) %&gt;%
+descrip_table &lt;- descriptives(only_scales) %&gt;%
   rename(c(&quot;Scale&quot; = &quot;column&quot;))</code></pre>
 </div>
+<div id="grand-mean-center-predictors" class="section level1">
+<h1>grand mean center predictors (?)</h1>
+<pre class="r"><code>d_w_scales_c &lt;- d_w_scales %&gt;%
+mutate(hwi_1_c = hwi_1 - (round(mean(hwi_1, na.rm = TRUE), 2)),
+       hwi_2_c = hwi_2 - mean(hwi_2, na.rm = TRUE),
+       hwi_3_c = hwi_3 - mean(hwi_3, na.rm = TRUE),
+       monit_c = monit - mean(monit, na.rm = TRUE),
+       str_home_c = str_home - mean(str_home, na.rm = TRUE),
+       convos_1_c = convos_1 - mean(convos_1, na.rm = TRUE),
+       convos_2_c = convos_2 - mean(convos_2, na.rm = TRUE),
+       convos_3_c = convos_3 - mean(convos_3, na.rm = TRUE),
+       sbi_1_c = sbi_1 - mean(sbi_1, na.rm = TRUE),
+       sbi_2_c = sbi_2 - mean(sbi_2, na.rm = TRUE),
+       belong_c = belong - mean(belong, na.rm = TRUE),
+       endorse_c = endorse - mean(endorse, na.rm = TRUE),
+       value_ed_c = value_ed - mean(value_ed, na.rm = TRUE),
+       rel_1_c = rel_1 - mean(rel_1, na.rm = TRUE),
+       rel_2_c = rel_2 - mean(rel_2, na.rm = TRUE),
+       ed_level = factor(q36_hv1),
+       eng_comf = factor(q173_3_p1)) # this is not working. it gives me a zero in all the centered vars. Have tried multiple ways of using ()
+
+# summary(d_w_scales)
+
+# first row: 1.857143 - 2.704045 # -0.846902\
+d_w_scales$hwi_1 - round(mean(d_w_scales$hwi_1, na.rm = TRUE), 2) # this works</code></pre>
+<pre><code>##  [1] -0.84285714  0.01428571  0.44285714 -0.27142857  0.87142857  0.15714286
+##  [7] -0.12857143  0.58571429  0.01428571 -1.41428571 -0.41428571 -0.36666667
+## [13]  0.87142857  0.87142857  0.87142857  1.15714286 -0.27142857 -0.55714286
+## [19] -0.12857143 -1.12857143 -1.12857143  0.15714286  0.72857143 -0.70000000
+## [25]  0.15714286  1.01428571  0.01428571  0.72857143 -0.84285714 -0.41428571
+## [31]  0.44285714  0.01428571 -0.70000000  0.58571429  0.58571429 -1.41428571
+## [37]  0.44285714  0.15714286         NaN  0.44285714  1.15714286  0.72857143
+## [43] -0.27142857 -0.20000000 -0.12857143  1.30000000 -0.12857143 -0.27142857
+## [49]  1.01428571 -0.12857143  0.72857143  0.58571429 -0.27142857  0.72857143
+## [55]  0.30000000  0.01428571  0.15714286  0.30000000  0.87142857  0.58571429
+## [61] -0.20000000 -0.55714286  0.87142857 -0.12857143 -1.70000000  0.30000000
+## [67] -0.84285714 -0.12857143 -0.84285714 -0.70000000 -0.41428571  0.44285714
+## [73]  0.30000000  1.15714286 -0.41428571  0.01428571 -0.55714286  0.44285714
+## [79]  0.44285714  0.01428571 -1.70000000 -1.27142857  0.01428571  0.30000000
+## [85]  0.01428571 -0.55714286 -0.41428571 -0.55714286  0.44285714  0.44285714
+## [91]  0.01428571 -0.70000000 -0.41428571 -0.41428571</code></pre>
+<pre class="r"><code>d_w_scales_c &lt;- d_w_scales %&gt;%
+  mutate(hwi_1_c = hwi_1 - round(mean(hwi_1, na.rm = TRUE), 2)) # this doesn&#39;t, first row of hwi_1_c = -0.002857143</code></pre>
+<p>#correlation matrix</p>
+<pre class="r"><code>library(Hmisc)</code></pre>
+<pre><code>## Warning: package &#39;Hmisc&#39; was built under R version 4.0.5</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Loading required package: survival</code></pre>
+<pre><code>## Loading required package: Formula</code></pre>
+<pre><code>## Warning: package &#39;Formula&#39; was built under R version 4.0.3</code></pre>
+<pre><code>## 
+## Attaching package: &#39;Hmisc&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:sjmisc&#39;:
+## 
+##     %nin%</code></pre>
+<pre><code>## The following object is masked from &#39;package:psych&#39;:
+## 
+##     describe</code></pre>
+<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
+## 
+##     src, summarize</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     format.pval, units</code></pre>
+<pre class="r"><code>rcorr(as.matrix(only_scales), type = &quot;pearson&quot;)</code></pre>
+<pre><code>##          hwi_1 hwi_2 hwi_3 monit str_home convos_1 convos_2 convos_3 sbi_1
+## hwi_1     1.00  0.33  0.37  0.42     0.48     0.30     0.33     0.18  0.33
+## hwi_2     0.33  1.00  0.29  0.21     0.33     0.25     0.30     0.04  0.30
+## hwi_3     0.37  0.29  1.00  0.12     0.20     0.08     0.21     0.04  0.01
+## monit     0.42  0.21  0.12  1.00     0.49     0.30     0.30     0.32  0.36
+## str_home  0.48  0.33  0.20  0.49     1.00     0.40     0.44     0.36  0.67
+## convos_1  0.30  0.25  0.08  0.30     0.40     1.00     0.47     0.51  0.30
+## convos_2  0.33  0.30  0.21  0.30     0.44     0.47     1.00     0.47  0.44
+## convos_3  0.18  0.04  0.04  0.32     0.36     0.51     0.47     1.00  0.33
+## sbi_1     0.33  0.30  0.01  0.36     0.67     0.30     0.44     0.33  1.00
+## sbi_2     0.50  0.36  0.26  0.28     0.53     0.18     0.41     0.17  0.45
+## belong    0.29  0.25 -0.03  0.58     0.42     0.17     0.19     0.25  0.37
+## endorse   0.23  0.23  0.03  0.36     0.38     0.18     0.18     0.22  0.36
+## value_ed  0.05 -0.02 -0.04  0.32     0.30     0.31     0.15     0.33  0.19
+## rel_1     0.21  0.19 -0.05  0.37     0.41     0.22     0.29     0.25  0.38
+## rel_2     0.34  0.20  0.01  0.65     0.35     0.19     0.23     0.22  0.45
+## engage    0.19  0.26  0.22  0.01     0.21    -0.02     0.19     0.12  0.21
+##          sbi_2 belong endorse value_ed rel_1 rel_2 engage
+## hwi_1     0.50   0.29    0.23     0.05  0.21  0.34   0.19
+## hwi_2     0.36   0.25    0.23    -0.02  0.19  0.20   0.26
+## hwi_3     0.26  -0.03    0.03    -0.04 -0.05  0.01   0.22
+## monit     0.28   0.58    0.36     0.32  0.37  0.65   0.01
+## str_home  0.53   0.42    0.38     0.30  0.41  0.35   0.21
+## convos_1  0.18   0.17    0.18     0.31  0.22  0.19  -0.02
+## convos_2  0.41   0.19    0.18     0.15  0.29  0.23   0.19
+## convos_3  0.17   0.25    0.22     0.33  0.25  0.22   0.12
+## sbi_1     0.45   0.37    0.36     0.19  0.38  0.45   0.21
+## sbi_2     1.00   0.24    0.23    -0.15  0.16  0.27   0.22
+## belong    0.24   1.00    0.73     0.27  0.62  0.74   0.00
+## endorse   0.23   0.73    1.00     0.41  0.71  0.66  -0.07
+## value_ed -0.15   0.27    0.41     1.00  0.45  0.34   0.03
+## rel_1     0.16   0.62    0.71     0.45  1.00  0.54  -0.13
+## rel_2     0.27   0.74    0.66     0.34  0.54  1.00   0.05
+## engage    0.22   0.00   -0.07     0.03 -0.13  0.05   1.00
+## 
+## n
+##          hwi_1 hwi_2 hwi_3 monit str_home convos_1 convos_2 convos_3 sbi_1
+## hwi_1       93    93    93    93       93       93       93       93    93
+## hwi_2       93    93    93    93       93       93       93       93    93
+## hwi_3       93    93    93    93       93       93       93       93    93
+## monit       93    93    93    94       94       94       94       94    94
+## str_home    93    93    93    94       94       94       94       94    94
+## convos_1    93    93    93    94       94       94       94       94    94
+## convos_2    93    93    93    94       94       94       94       94    94
+## convos_3    93    93    93    94       94       94       94       94    94
+## sbi_1       93    93    93    94       94       94       94       94    94
+## sbi_2       93    93    93    94       94       94       94       94    94
+## belong      93    93    93    94       94       94       94       94    94
+## endorse     93    93    93    94       94       94       94       94    94
+## value_ed    93    93    93    94       94       94       94       94    94
+## rel_1       93    93    93    94       94       94       94       94    94
+## rel_2       93    93    93    94       94       94       94       94    94
+## engage      93    93    93    94       94       94       94       94    94
+##          sbi_2 belong endorse value_ed rel_1 rel_2 engage
+## hwi_1       93     93      93       93    93    93     93
+## hwi_2       93     93      93       93    93    93     93
+## hwi_3       93     93      93       93    93    93     93
+## monit       94     94      94       94    94    94     94
+## str_home    94     94      94       94    94    94     94
+## convos_1    94     94      94       94    94    94     94
+## convos_2    94     94      94       94    94    94     94
+## convos_3    94     94      94       94    94    94     94
+## sbi_1       94     94      94       94    94    94     94
+## sbi_2       94     94      94       94    94    94     94
+## belong      94     94      94       94    94    94     94
+## endorse     94     94      94       94    94    94     94
+## value_ed    94     94      94       94    94    94     94
+## rel_1       94     94      94       94    94    94     94
+## rel_2       94     94      94       94    94    94     94
+## engage      94     94      94       94    94    94     94
+## 
+## P
+##          hwi_1  hwi_2  hwi_3  monit  str_home convos_1 convos_2 convos_3 sbi_1 
+## hwi_1           0.0014 0.0003 0.0000 0.0000   0.0030   0.0013   0.0903   0.0011
+## hwi_2    0.0014        0.0048 0.0480 0.0013   0.0144   0.0037   0.7378   0.0037
+## hwi_3    0.0003 0.0048        0.2632 0.0496   0.4420   0.0475   0.7335   0.9352
+## monit    0.0000 0.0480 0.2632        0.0000   0.0033   0.0030   0.0017   0.0003
+## str_home 0.0000 0.0013 0.0496 0.0000          0.0000   0.0000   0.0004   0.0000
+## convos_1 0.0030 0.0144 0.4420 0.0033 0.0000            0.0000   0.0000   0.0031
+## convos_2 0.0013 0.0037 0.0475 0.0030 0.0000   0.0000            0.0000   0.0000
+## convos_3 0.0903 0.7378 0.7335 0.0017 0.0004   0.0000   0.0000            0.0012
+## sbi_1    0.0011 0.0037 0.9352 0.0003 0.0000   0.0031   0.0000   0.0012         
+## sbi_2    0.0000 0.0004 0.0115 0.0072 0.0000   0.0907   0.0000   0.1086   0.0000
+## belong   0.0045 0.0177 0.8093 0.0000 0.0000   0.0938   0.0689   0.0133   0.0002
+## endorse  0.0240 0.0243 0.7479 0.0004 0.0002   0.0867   0.0882   0.0332   0.0004
+## value_ed 0.6078 0.8655 0.7282 0.0017 0.0035   0.0025   0.1572   0.0010   0.0702
+## rel_1    0.0403 0.0697 0.6583 0.0003 0.0000   0.0362   0.0044   0.0162   0.0002
+## rel_2    0.0007 0.0542 0.9480 0.0000 0.0005   0.0643   0.0256   0.0295   0.0000
+## engage   0.0751 0.0119 0.0319 0.8914 0.0429   0.8566   0.0705   0.2655   0.0454
+##          sbi_2  belong endorse value_ed rel_1  rel_2  engage
+## hwi_1    0.0000 0.0045 0.0240  0.6078   0.0403 0.0007 0.0751
+## hwi_2    0.0004 0.0177 0.0243  0.8655   0.0697 0.0542 0.0119
+## hwi_3    0.0115 0.8093 0.7479  0.7282   0.6583 0.9480 0.0319
+## monit    0.0072 0.0000 0.0004  0.0017   0.0003 0.0000 0.8914
+## str_home 0.0000 0.0000 0.0002  0.0035   0.0000 0.0005 0.0429
+## convos_1 0.0907 0.0938 0.0867  0.0025   0.0362 0.0643 0.8566
+## convos_2 0.0000 0.0689 0.0882  0.1572   0.0044 0.0256 0.0705
+## convos_3 0.1086 0.0133 0.0332  0.0010   0.0162 0.0295 0.2655
+## sbi_1    0.0000 0.0002 0.0004  0.0702   0.0002 0.0000 0.0454
+## sbi_2           0.0189 0.0247  0.1478   0.1178 0.0086 0.0313
+## belong   0.0189        0.0000  0.0074   0.0000 0.0000 0.9704
+## endorse  0.0247 0.0000         0.0000   0.0000 0.0000 0.5322
+## value_ed 0.1478 0.0074 0.0000           0.0000 0.0008 0.7746
+## rel_1    0.1178 0.0000 0.0000  0.0000          0.0000 0.1948
+## rel_2    0.0086 0.0000 0.0000  0.0008   0.0000        0.6584
+## engage   0.0313 0.9704 0.5322  0.7746   0.1948 0.6584</code></pre>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"># RESEARCH QUESTION 2</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div id="academic-approach-tutor" class="section level1">
-<h1>1. Academic approach (tutor)</h1>
-<pre class="r"><code>m_hwi_1 &lt;- lm(engage ~ hwi_1, scales)
+<h1>2.1. Academic approach (tutor)</h1>
+<pre class="r"><code>m_hwi_1 &lt;- lm(engage ~ hwi_1, d_w_scales)
 
 summary(m_hwi_1) # p = 0.07</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_1, data = scales)
+## lm(formula = engage ~ hwi_1, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3503,15 +3729,21 @@ summary(m_hwi_1) # p = 0.07</code></pre>
 ##   (1 observation deleted due to missingness)
 ## Multiple R-squared:  0.03441,    Adjusted R-squared:  0.0238 
 ## F-statistic: 3.243 on 1 and 91 DF,  p-value: 0.07505</code></pre>
+<p>engage predicted by hw1</p>
+<p>Intercept: expected value of youth’s engagement when the average hW
+involvement in data set is considered (I think = 2.70)</p>
+<p>slope: the effect HW involvement has in youth’s engagement = for
+every one unit increase in HW involvement, youth’s engagement increases
+by 0.15 (but is not significant).</p>
 </div>
 <div id="structuringmonitoring-approach-to-hwi" class="section level1">
-<h1>2. structuring/monitoring approach to HWI</h1>
-<pre class="r"><code>m_hwi_2 &lt;- lm(engage ~ hwi_2, scales)
+<h1>2.2. structuring/monitoring approach to HWI</h1>
+<pre class="r"><code>m_hwi_2 &lt;- lm(engage ~ hwi_2, d_w_scales)
 
 summary(m_hwi_2)# p = 0.01</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_2, data = scales)
+## lm(formula = engage ~ hwi_2, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3530,13 +3762,13 @@ summary(m_hwi_2)# p = 0.01</code></pre>
 ## F-statistic: 6.583 on 1 and 91 DF,  p-value: 0.01193</code></pre>
 </div>
 <div id="positive-reinforcement-to-increase-hw-completion" class="section level1">
-<h1>3. positive reinforcement to increase HW completion</h1>
-<pre class="r"><code>m_hwi_3 &lt;- lm(engage ~ hwi_3, scales)
+<h1>2.3. positive reinforcement to increase HW completion</h1>
+<pre class="r"><code>m_hwi_3 &lt;- lm(engage ~ hwi_3, d_w_scales)
 
 summary(m_hwi_3) # p = 0.03</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_3, data = scales)
+## lm(formula = engage ~ hwi_3, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3555,13 +3787,13 @@ summary(m_hwi_3) # p = 0.03</code></pre>
 ## F-statistic: 4.749 on 1 and 91 DF,  p-value: 0.0319</code></pre>
 </div>
 <div id="monitoring" class="section level1">
-<h1>4. monitoring</h1>
-<pre class="r"><code>m_monit &lt;- lm(engage ~ monit, scales)
+<h1>2.4. monitoring</h1>
+<pre class="r"><code>m_monit &lt;- lm(engage ~ monit, d_w_scales)
 
 summary(m_monit) # p = 0.89</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ monit, data = scales)
+## lm(formula = engage ~ monit, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3579,13 +3811,13 @@ summary(m_monit) # p = 0.89</code></pre>
 ## F-statistic: 0.01876 on 1 and 92 DF,  p-value: 0.8914</code></pre>
 </div>
 <div id="structure-at-home" class="section level1">
-<h1>5. structure at home</h1>
-<pre class="r"><code>m_str_home &lt;- lm(engage ~ str_home, scales)
+<h1>2.5. structure at home</h1>
+<pre class="r"><code>m_str_home &lt;- lm(engage ~ str_home, d_w_scales)
 
 summary(m_str_home) # p = 0.04</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ str_home, data = scales)
+## lm(formula = engage ~ str_home, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3603,13 +3835,13 @@ summary(m_str_home) # p = 0.04</code></pre>
 ## F-statistic: 4.215 on 1 and 92 DF,  p-value: 0.04292</code></pre>
 </div>
 <div id="convos-child-beh-school-climate" class="section level1">
-<h1>6. convos: child beh &amp; school climate</h1>
-<pre class="r"><code>m_convos_1 &lt;- lm(engage ~ convos_1, scales)
+<h1>2.6. convos: child beh &amp; school climate</h1>
+<pre class="r"><code>m_convos_1 &lt;- lm(engage ~ convos_1, d_w_scales)
 
 summary(m_convos_1) # p = 0.86</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ convos_1, data = scales)
+## lm(formula = engage ~ convos_1, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3627,13 +3859,13 @@ summary(m_convos_1) # p = 0.86</code></pre>
 ## F-statistic: 0.03283 on 1 and 92 DF,  p-value: 0.8566</code></pre>
 </div>
 <div id="convos-future-career-planning" class="section level1">
-<h1>7. convos: future career planning</h1>
-<pre class="r"><code>m_convos_2 &lt;- lm(engage ~ convos_2, scales)
+<h1>2.7. convos: future career planning</h1>
+<pre class="r"><code>m_convos_2 &lt;- lm(engage ~ convos_2, d_w_scales)
 
 summary(m_convos_2) # p = 0.07</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ convos_2, data = scales)
+## lm(formula = engage ~ convos_2, data = d_w_scales)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -3651,13 +3883,13 @@ summary(m_convos_2) # p = 0.07</code></pre>
 ## F-statistic: 3.348 on 1 and 92 DF,  p-value: 0.07052</code></pre>
 </div>
 <div id="convos-childs-social-involvement" class="section level1">
-<h1>8. convos: child’s social involvement</h1>
-<pre class="r"><code>m_convos_3 &lt;- lm(engage ~ convos_3, scales)
+<h1>2.8. convos: child’s social involvement</h1>
+<pre class="r"><code>m_convos_3 &lt;- lm(engage ~ convos_3, d_w_scales)
 
 summary(m_convos_3) # p = 0.27</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ convos_3, data = scales)
+## lm(formula = engage ~ convos_3, data = d_w_scales)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -3675,13 +3907,13 @@ summary(m_convos_3) # p = 0.27</code></pre>
 ## F-statistic: 1.255 on 1 and 92 DF,  p-value: 0.2655</code></pre>
 </div>
 <div id="basic-involvement" class="section level1">
-<h1>9. Basic involvement</h1>
-<pre class="r"><code>m_sbi_1 &lt;- lm(engage ~ sbi_1, scales)
+<h1>2.9. Basic involvement</h1>
+<pre class="r"><code>m_sbi_1 &lt;- lm(engage ~ sbi_1, d_w_scales)
 
 summary(m_sbi_1) # p = 0.05</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ sbi_1, data = scales)
+## lm(formula = engage ~ sbi_1, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3699,13 +3931,13 @@ summary(m_sbi_1) # p = 0.05</code></pre>
 ## F-statistic: 4.114 on 1 and 92 DF,  p-value: 0.04543</code></pre>
 </div>
 <div id="resource-intensive-involvement" class="section level1">
-<h1>10. Resource-intensive involvement</h1>
-<pre class="r"><code>m_sbi_2 &lt;- lm(engage ~ sbi_2, scales)
+<h1>2.10. Resource-intensive involvement</h1>
+<pre class="r"><code>m_sbi_2 &lt;- lm(engage ~ sbi_2, d_w_scales)
 
 summary(m_sbi_2) # p = 0.03</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ sbi_2, data = scales)
+## lm(formula = engage ~ sbi_2, data = d_w_scales)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -3723,13 +3955,13 @@ summary(m_sbi_2) # p = 0.03</code></pre>
 ## F-statistic:  4.78 on 1 and 92 DF,  p-value: 0.03133</code></pre>
 </div>
 <div id="belongingness" class="section level1">
-<h1>11. Belongingness</h1>
-<pre class="r"><code>m_belong &lt;- lm(engage ~ belong, scales)
+<h1>2.11. Belongingness</h1>
+<pre class="r"><code>m_belong &lt;- lm(engage ~ belong, d_w_scales)
 
 summary(m_belong) # p = 0.97</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ belong, data = scales)
+## lm(formula = engage ~ belong, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3747,13 +3979,13 @@ summary(m_belong) # p = 0.97</code></pre>
 ## F-statistic: 0.001385 on 1 and 92 DF,  p-value: 0.9704</code></pre>
 </div>
 <div id="endorsemnt" class="section level1">
-<h1>12. Endorsemnt</h1>
-<pre class="r"><code>m_endorse &lt;- lm(engage ~ endorse, scales)
+<h1>2.12. Endorsemnt</h1>
+<pre class="r"><code>m_endorse &lt;- lm(engage ~ endorse, d_w_scales)
 
 summary(m_endorse) # p = 0.53</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ endorse, data = scales)
+## lm(formula = engage ~ endorse, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3771,13 +4003,13 @@ summary(m_endorse) # p = 0.53</code></pre>
 ## F-statistic: 0.3931 on 1 and 92 DF,  p-value: 0.5322</code></pre>
 </div>
 <div id="value-supp-of-ed" class="section level1">
-<h1>13. Value &amp; supp of Ed</h1>
-<pre class="r"><code>m_value_ed &lt;- lm(engage ~ value_ed, scales)
+<h1>2.13. Value &amp; supp of Ed</h1>
+<pre class="r"><code>m_value_ed &lt;- lm(engage ~ value_ed, d_w_scales)
 
 summary(m_value_ed) # p = 0.77</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ value_ed, data = scales)
+## lm(formula = engage ~ value_ed, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3795,13 +4027,13 @@ summary(m_value_ed) # p = 0.77</code></pre>
 ## F-statistic: 0.08252 on 1 and 92 DF,  p-value: 0.7746</code></pre>
 </div>
 <div id="rel-with-teachers-comfort-interest-and-openness" class="section level1">
-<h1>14. Rel with teachers: comfort, interest, and openness</h1>
-<pre class="r"><code>m_rel_1 &lt;- lm(engage ~ rel_1, scales)
+<h1>2.14. Rel with teachers: comfort, interest, and openness</h1>
+<pre class="r"><code>m_rel_1 &lt;- lm(engage ~ rel_1, d_w_scales)
 
 summary(m_rel_1) # p = 0.19</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ rel_1, data = scales)
+## lm(formula = engage ~ rel_1, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3819,14 +4051,14 @@ summary(m_rel_1) # p = 0.19</code></pre>
 ## F-statistic: 1.706 on 1 and 92 DF,  p-value: 0.1948</code></pre>
 </div>
 <div id="rel-with-school-parent-self-efficacy-to-solve-probs-with-school" class="section level1">
-<h1>15. Rel with school: parent self-efficacy to solve probs with
+<h1>2.15. Rel with school: parent self-efficacy to solve probs with
 school</h1>
-<pre class="r"><code>m_rel_2 &lt;- lm(engage ~ rel_2, scales)
+<pre class="r"><code>m_rel_2 &lt;- lm(engage ~ rel_2, d_w_scales)
 
 summary(m_rel_2) # p = 0.65</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ rel_2, data = scales)
+## lm(formula = engage ~ rel_2, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3842,17 +4074,14 @@ summary(m_rel_2) # p = 0.65</code></pre>
 ## Residual standard error: 0.5477 on 92 degrees of freedom
 ## Multiple R-squared:  0.002134,   Adjusted R-squared:  -0.008712 
 ## F-statistic: 0.1968 on 1 and 92 DF,  p-value: 0.6584</code></pre>
-<div id="conclusions" class="section level2">
-<h2>Conclusions:</h2>
-</div>
 </div>
 <div id="just-for-fun-relational-aspects-predicting-parents-self-effi" class="section level1">
 <h1>just for fun: relational aspects predicting parent’s self-effi</h1>
-<pre class="r"><code>m_rel_belong &lt;- lm(rel_2 ~ belong, scales)
+<pre class="r"><code>m_rel_belong &lt;- lm(rel_2 ~ belong, d_w_scales)
 summary(m_rel_belong) # p &lt; 0.001</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = rel_2 ~ belong, data = scales)
+## lm(formula = rel_2 ~ belong, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3868,11 +4097,11 @@ summary(m_rel_belong) # p &lt; 0.001</code></pre>
 ## Residual standard error: 0.2681 on 92 degrees of freedom
 ## Multiple R-squared:  0.548,  Adjusted R-squared:  0.5431 
 ## F-statistic: 111.5 on 1 and 92 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code>m_rel_endorse &lt;- lm(rel_2 ~ endorse, scales)
+<pre class="r"><code>m_rel_endorse &lt;- lm(rel_2 ~ endorse, d_w_scales)
 summary(m_rel_endorse) # p &lt; 0.001</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = rel_2 ~ endorse, data = scales)
+## lm(formula = rel_2 ~ endorse, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3888,11 +4117,11 @@ summary(m_rel_endorse) # p &lt; 0.001</code></pre>
 ## Residual standard error: 0.2993 on 92 degrees of freedom
 ## Multiple R-squared:  0.4366, Adjusted R-squared:  0.4305 
 ## F-statistic:  71.3 on 1 and 92 DF,  p-value: 4.268e-13</code></pre>
-<pre class="r"><code>m_rel_value_ed &lt;- lm(rel_2 ~ value_ed, scales)
+<pre class="r"><code>m_rel_value_ed &lt;- lm(rel_2 ~ value_ed, d_w_scales)
 summary(m_rel_value_ed) # p &lt; 0.001</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = rel_2 ~ value_ed, data = scales)
+## lm(formula = rel_2 ~ value_ed, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3908,11 +4137,11 @@ summary(m_rel_value_ed) # p &lt; 0.001</code></pre>
 ## Residual standard error: 0.3752 on 92 degrees of freedom
 ## Multiple R-squared:  0.1149, Adjusted R-squared:  0.1053 
 ## F-statistic: 11.95 on 1 and 92 DF,  p-value: 0.0008303</code></pre>
-<pre class="r"><code>m_rel_qual &lt;- lm(rel_2 ~ rel_1, scales)
+<pre class="r"><code>m_rel_qual &lt;- lm(rel_2 ~ rel_1, d_w_scales)
 summary(m_rel_qual) # p &lt; 0.001</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = rel_2 ~ rel_1, data = scales)
+## lm(formula = rel_2 ~ rel_1, data = d_w_scales)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3928,6 +4157,441 @@ summary(m_rel_qual) # p &lt; 0.001</code></pre>
 ## Residual standard error: 0.3349 on 92 degrees of freedom
 ## Multiple R-squared:  0.2949, Adjusted R-squared:  0.2872 
 ## F-statistic: 38.48 on 1 and 92 DF,  p-value: 1.559e-08</code></pre>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left"># RESEARCH QUESTION 3</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>d_w_scales$q36_hv1 # ed level ((1 - 11)</code></pre>
+<pre><code>##  [1]  5  9  4  6  2  3  6  6  2  1  5  2  3  3  4  4  4  3 10  2  4  5  9  5  6
+## [26]  6  5  3  5  6  2  6  4  4  3  5  4  2  7  6  1  6  1  5  4  8  4  2  4  6
+## [51]  5  6  2 10  6  5  5  6  6  6  5  4  5  8  6  7  2  2  6  6  4  5 10  3  5
+## [76]  2  7  4  7  4  5  3  7  6  4  6  5  5  6  6  5  6  6  6
+## attr(,&quot;format.spss&quot;)
+## [1] &quot;F8.2&quot;</code></pre>
+<pre class="r"><code>d_w_scales$q173_3_p1 # ENG comfort in youth school (1 - 5)</code></pre>
+<pre><code>##  [1]  2  4  3  5  2  4  1  2  1  1  1  2  2  4  4  2  3  1  3 NA  2  1  4 NA  3
+## [26]  5  4 NA  4  1  4  4  1  2  3 NA  4  1  4  1  1  5  4  2  1  5  1  2  1  3
+## [51]  2  3  3  4  2  4  2  2  5  1  5  1  2  4  1  1  1 NA  4  4  3  1 NA  2  4
+## [76] NA  2  2  5  2  1  4  3  2  2  2  4  2 NA  4  4  2  3  5
+## attr(,&quot;format.spss&quot;)
+## [1] &quot;F8.2&quot;</code></pre>
+</div>
+<div id="academic-approach-tutor-1" class="section level1">
+<h1>3.1. Academic approach (tutor)</h1>
+<pre class="r"><code>m2.1_hwi_1 &lt;- lm(engage ~ hwi_1 + hwi_1:q36_hv1, d_w_scales)
+summary(m2.1_hwi_1) # p = not sure which to look at</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ hwi_1 + hwi_1:q36_hv1, data = d_w_scales)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.5900 -0.3500 -0.0176  0.4600  1.0103 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   3.6884253  0.2364745  15.598   &lt;2e-16 ***
+## hwi_1         0.1466507  0.0999259   1.468    0.146    
+## hwi_1:q36_hv1 0.0009948  0.0099791   0.100    0.921    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5446 on 90 degrees of freedom
+##   (1 observation deleted due to missingness)
+## Multiple R-squared:  0.03452,    Adjusted R-squared:  0.01306 
+## F-statistic: 1.609 on 2 and 90 DF,  p-value: 0.2058</code></pre>
+<pre class="r"><code>m2.2_hwi_1 &lt;- lm(engage ~ hwi_1 + hwi_1:q173_3_p1, d_w_scales)
+summary(m2.2_hwi_1) # p = not sure which to look at</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ hwi_1 + hwi_1:q173_3_p1, data = d_w_scales)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.5931 -0.3684  0.0421  0.4164  0.9423 
+## 
+## Coefficients:
+##                 Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      3.62854    0.25599  14.175   &lt;2e-16 ***
+## hwi_1            0.23602    0.10545   2.238   0.0279 *  
+## hwi_1:q173_3_p1 -0.02145    0.01582  -1.356   0.1789    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5483 on 82 degrees of freedom
+##   (9 observations deleted due to missingness)
+## Multiple R-squared:  0.05824,    Adjusted R-squared:  0.03527 
+## F-statistic: 2.535 on 2 and 82 DF,  p-value: 0.08542</code></pre>
+</div>
+<div id="structuringmonitoring-approach-to-hwi-1" class="section level1">
+<h1>3.2. structuring/monitoring approach to HWI</h1>
+<pre class="r"><code>m2.1_hwi_2 &lt;- lm(engage ~ hwi_2 + hwi_2:q36_hv1, d_w_scales)
+summary(m2.1_hwi_2) # p = </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ hwi_2 + hwi_2:q36_hv1, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.44025 -0.40673  0.06374  0.41040  0.87439 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   3.337200   0.289723  11.519   &lt;2e-16 ***
+## hwi_2         0.199258   0.088657   2.248   0.0271 *  
+## hwi_2:q36_hv1 0.007222   0.008739   0.826   0.4108    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5332 on 90 degrees of freedom
+##   (1 observation deleted due to missingness)
+## Multiple R-squared:  0.07448,    Adjusted R-squared:  0.05392 
+## F-statistic: 3.622 on 2 and 90 DF,  p-value: 0.03071</code></pre>
+<pre class="r"><code>m2.2_hwi_2 &lt;- lm(engage ~ hwi_2 + hwi_2:q173_3_p1, d_w_scales)
+summary(m2.2_hwi_2) # p = </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ hwi_2 + hwi_2:q173_3_p1, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.56997 -0.40359  0.04745  0.39519  0.99657 
+## 
+## Coefficients:
+##                 Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      3.48327    0.31683  10.994   &lt;2e-16 ***
+## hwi_2            0.24344    0.10132   2.403   0.0185 *  
+## hwi_2:q173_3_p1 -0.01896    0.01335  -1.421   0.1591    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5448 on 82 degrees of freedom
+##   (9 observations deleted due to missingness)
+## Multiple R-squared:  0.0702, Adjusted R-squared:  0.04753 
+## F-statistic: 3.096 on 2 and 82 DF,  p-value: 0.05057</code></pre>
+<div id="note-for-jeff" class="section level2">
+<h2>Note for Jeff:</h2>
+<p>disregard the following models, I just copied and pasted the simple
+regression models and will add the interaction terms once I get my mind
+sorted out.</p>
+</div>
+</div>
+<div id="positive-reinforcement-to-increase-hw-completion-1" class="section level1">
+<h1>3.3. positive reinforcement to increase HW completion</h1>
+<pre class="r"><code>m_hwi_3 &lt;- lm(engage ~ hwi_3, d_w_scales)
+
+summary(m_hwi_3) # p = 0.03</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ hwi_3, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.58153 -0.43716  0.01203  0.46123  0.96525 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.67911    0.20019  18.378   &lt;2e-16 ***
+## hwi_3        0.15241    0.06994   2.179   0.0319 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5374 on 91 degrees of freedom
+##   (1 observation deleted due to missingness)
+## Multiple R-squared:  0.0496, Adjusted R-squared:  0.03915 
+## F-statistic: 4.749 on 1 and 91 DF,  p-value: 0.0319</code></pre>
+</div>
+<div id="monitoring-1" class="section level1">
+<h1>3.4. monitoring</h1>
+<pre class="r"><code>m_monit &lt;- lm(engage ~ monit, d_w_scales)
+
+summary(m_monit) # p = 0.89</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ monit, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.82899 -0.34946 -0.03491  0.40873  0.90873 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  4.03395    0.46432   8.688 1.31e-13 ***
+## monit        0.02047    0.14946   0.137    0.891    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5483 on 92 degrees of freedom
+## Multiple R-squared:  0.0002039,  Adjusted R-squared:  -0.01066 
+## F-statistic: 0.01876 on 1 and 92 DF,  p-value: 0.8914</code></pre>
+</div>
+<div id="structure-at-home-1" class="section level1">
+<h1>3.5. structure at home</h1>
+<pre class="r"><code>m_str_home &lt;- lm(engage ~ str_home, d_w_scales)
+
+summary(m_str_home) # p = 0.04</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ str_home, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.49640 -0.36042  0.01255  0.42083  0.95411 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   3.3138     0.3855   8.596 2.05e-13 ***
+## str_home      0.2662     0.1297   2.053   0.0429 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5362 on 92 degrees of freedom
+## Multiple R-squared:  0.0438, Adjusted R-squared:  0.03341 
+## F-statistic: 4.215 on 1 and 92 DF,  p-value: 0.04292</code></pre>
+</div>
+<div id="convos-child-beh-school-climate-1" class="section level1">
+<h1>3.6. convos: child beh &amp; school climate</h1>
+<pre class="r"><code>m_convos_1 &lt;- lm(engage ~ convos_1, d_w_scales)
+
+summary(m_convos_1) # p = 0.86</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ convos_1, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.84770 -0.34770 -0.04356  0.41067  0.91067 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  4.15626    0.33151  12.538   &lt;2e-16 ***
+## convos_1    -0.01673    0.09235  -0.181    0.857    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5482 on 92 degrees of freedom
+## Multiple R-squared:  0.0003568,  Adjusted R-squared:  -0.01051 
+## F-statistic: 0.03283 on 1 and 92 DF,  p-value: 0.8566</code></pre>
+</div>
+<div id="convos-future-career-planning-1" class="section level1">
+<h1>3.7. convos: future career planning</h1>
+<pre class="r"><code>m_convos_2 &lt;- lm(engage ~ convos_2, d_w_scales)
+
+summary(m_convos_2) # p = 0.07</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ convos_2, data = d_w_scales)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.8901 -0.3496  0.0088  0.4284  0.9344 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.61892    0.26716   13.55   &lt;2e-16 ***
+## convos_2     0.14891    0.08138    1.83   0.0705 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5386 on 92 degrees of freedom
+## Multiple R-squared:  0.03511,    Adjusted R-squared:  0.02463 
+## F-statistic: 3.348 on 1 and 92 DF,  p-value: 0.07052</code></pre>
+</div>
+<div id="convos-childs-social-involvement-1" class="section level1">
+<h1>3.8. convos: child’s social involvement</h1>
+<pre class="r"><code>m_convos_3 &lt;- lm(engage ~ convos_3, d_w_scales)
+
+summary(m_convos_3) # p = 0.27</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ convos_3, data = d_w_scales)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.8242 -0.2974 -0.0024  0.4459  0.9888 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.72499    0.33683   11.06   &lt;2e-16 ***
+## convos_3     0.10745    0.09591    1.12    0.265    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5446 on 92 degrees of freedom
+## Multiple R-squared:  0.01346,    Adjusted R-squared:  0.002736 
+## F-statistic: 1.255 on 1 and 92 DF,  p-value: 0.2655</code></pre>
+</div>
+<div id="basic-involvement-1" class="section level1">
+<h1>3.9. Basic involvement</h1>
+<pre class="r"><code>m_sbi_1 &lt;- lm(engage ~ sbi_1, d_w_scales)
+
+summary(m_sbi_1) # p = 0.05</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ sbi_1, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.64213 -0.35394 -0.01868  0.39182  1.10787 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   3.4600     0.3189  10.849   &lt;2e-16 ***
+## sbi_1         0.2161     0.1065   2.028   0.0454 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5365 on 92 degrees of freedom
+## Multiple R-squared:  0.0428, Adjusted R-squared:  0.03239 
+## F-statistic: 4.114 on 1 and 92 DF,  p-value: 0.04543</code></pre>
+</div>
+<div id="resource-intensive-involvement-1" class="section level1">
+<h1>3.10. Resource-intensive involvement</h1>
+<pre class="r"><code>m_sbi_2 &lt;- lm(engage ~ sbi_2, d_w_scales)
+
+summary(m_sbi_2) # p = 0.03</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ sbi_2, data = d_w_scales)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.4595 -0.3551 -0.0337  0.4283  1.1014 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   3.4730     0.2907  11.947   &lt;2e-16 ***
+## sbi_2         0.2364     0.1081   2.186   0.0313 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5346 on 92 degrees of freedom
+## Multiple R-squared:  0.04939,    Adjusted R-squared:  0.03906 
+## F-statistic:  4.78 on 1 and 92 DF,  p-value: 0.03133</code></pre>
+</div>
+<div id="belongingness-1" class="section level1">
+<h1>3.11. Belongingness</h1>
+<pre class="r"><code>m_belong &lt;- lm(engage ~ belong, d_w_scales)
+
+summary(m_belong) # p = 0.97</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ belong, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.84566 -0.34681 -0.03431  0.40434  0.90434 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 4.079666   0.471204   8.658 1.52e-13 ***
+## belong      0.005714   0.153537   0.037     0.97    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5483 on 92 degrees of freedom
+## Multiple R-squared:  1.505e-05,  Adjusted R-squared:  -0.01085 
+## F-statistic: 0.001385 on 1 and 92 DF,  p-value: 0.9704</code></pre>
+</div>
+<div id="endorsemnt-1" class="section level1">
+<h1>3.12. Endorsemnt</h1>
+<pre class="r"><code>m_endorse &lt;- lm(engage ~ endorse, d_w_scales)
+
+summary(m_endorse) # p = 0.53</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ endorse, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.86077 -0.36077 -0.03364  0.38923  0.97702 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   4.3742     0.4455   9.818 5.52e-16 ***
+## endorse      -0.0878     0.1400  -0.627    0.532    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5472 on 92 degrees of freedom
+## Multiple R-squared:  0.004255,   Adjusted R-squared:  -0.006569 
+## F-statistic: 0.3931 on 1 and 92 DF,  p-value: 0.5322</code></pre>
+</div>
+<div id="value-supp-of-ed-1" class="section level1">
+<h1>3.13. Value &amp; supp of Ed</h1>
+<pre class="r"><code>m_value_ed &lt;- lm(engage ~ value_ed, d_w_scales)
+
+summary(m_value_ed) # p = 0.77</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ value_ed, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.86545 -0.34481 -0.03072  0.42265  0.92265 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.96307    0.46991   8.434 4.48e-13 ***
+## value_ed     0.03809    0.13261   0.287    0.775    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5481 on 92 degrees of freedom
+## Multiple R-squared:  0.0008961,  Adjusted R-squared:  -0.009964 
+## F-statistic: 0.08252 on 1 and 92 DF,  p-value: 0.7746</code></pre>
+</div>
+<div id="rel-with-teachers-comfort-interest-and-openness-1" class="section level1">
+<h1>3.14. Rel with teachers: comfort, interest, and openness</h1>
+<pre class="r"><code>m_rel_1 &lt;- lm(engage ~ rel_1, d_w_scales)
+
+summary(m_rel_1) # p = 0.19</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ rel_1, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.70691 -0.37096  0.00404  0.37904  1.04309 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   4.6834     0.4524  10.352   &lt;2e-16 ***
+## rel_1        -0.1875     0.1436  -1.306    0.195    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5433 on 92 degrees of freedom
+## Multiple R-squared:  0.0182, Adjusted R-squared:  0.007532 
+## F-statistic: 1.706 on 1 and 92 DF,  p-value: 0.1948</code></pre>
+</div>
+<div id="rel-with-school-parent-self-efficacy-to-solve-probs-with-school-1" class="section level1">
+<h1>3.15. Rel with school: parent self-efficacy to solve probs with
+school</h1>
+<pre class="r"><code>m_rel_2 &lt;- lm(engage ~ rel_2, d_w_scales)
+
+summary(m_rel_2) # p = 0.65</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ rel_2, data = d_w_scales)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.79409 -0.34172 -0.02128  0.40828  0.97179 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.90117    0.44524   8.762 9.19e-14 ***
+## rel_2        0.06352    0.14319   0.444    0.658    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5477 on 92 degrees of freedom
+## Multiple R-squared:  0.002134,   Adjusted R-squared:  -0.008712 
+## F-statistic: 0.1968 on 1 and 92 DF,  p-value: 0.6584</code></pre>
 </div>
 
 
