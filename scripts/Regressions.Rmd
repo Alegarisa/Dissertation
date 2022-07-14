@@ -28,7 +28,9 @@ Questions for Jeff:
 
 - Is it okay to treat my predictors and outcome (that really are Likert scales = ordinal variables) as numeric (dbl in R)? I didn't in EFAs because it was against EFA best practices. Not sure about rec. approach. 
 - The moderators are parent's educational level and comfort with ENG. Should I treat these as factors?
+  -- okay to treat those as factors and not the predictors?
 - Should I include covariates in all the regression models (simple, multiple, etc)? 
+  -- The ones that I identify may be important are already a moderators (ed.level and ENG comf) 
 - Was correct to conduct 15 separate simple regression models or should have I done it in one call? --> I want to know if the specific var predicts the outcome (RQ1)
 - When conducting simple regression the p. value is the same in two places in the output, but when conducting in moderation, shows different values in the same two places. Why?
 - For moderation need to grand mean center? (If yes, my code to do this on lines 110-137 is not working, any clues why?)
@@ -53,6 +55,14 @@ library(MVN)
 
 theme_set(theme_minimal())
 ```
+
+
+```{r}
+all <- read_sav(here("data", "parent_hv1_youth_w1.sav"))
+
+view_df(all) # need to select covariates to include from this dataset 
+```
+
 
 
 # Loading the dataset (only analysis vars)
@@ -126,32 +136,32 @@ descrip_table <- descriptives(only_scales) %>%
 
 # grand mean center predictors (?)
 ```{r}
-d_w_scales_c <- d_w_scales %>%
-mutate(hwi_1_c = hwi_1 - (round(mean(hwi_1, na.rm = TRUE), 2)),
-       hwi_2_c = hwi_2 - mean(hwi_2, na.rm = TRUE),
-       hwi_3_c = hwi_3 - mean(hwi_3, na.rm = TRUE),
-       monit_c = monit - mean(monit, na.rm = TRUE),
-       str_home_c = str_home - mean(str_home, na.rm = TRUE),
-       convos_1_c = convos_1 - mean(convos_1, na.rm = TRUE),
-       convos_2_c = convos_2 - mean(convos_2, na.rm = TRUE),
-       convos_3_c = convos_3 - mean(convos_3, na.rm = TRUE),
-       sbi_1_c = sbi_1 - mean(sbi_1, na.rm = TRUE),
-       sbi_2_c = sbi_2 - mean(sbi_2, na.rm = TRUE),
-       belong_c = belong - mean(belong, na.rm = TRUE),
-       endorse_c = endorse - mean(endorse, na.rm = TRUE),
-       value_ed_c = value_ed - mean(value_ed, na.rm = TRUE),
-       rel_1_c = rel_1 - mean(rel_1, na.rm = TRUE),
-       rel_2_c = rel_2 - mean(rel_2, na.rm = TRUE),
-       ed_level = factor(q36_hv1),
-       eng_comf = factor(q173_3_p1)) # this is not working. it gives me a zero in all the centered vars. Have tried multiple ways of using ()
-
-# summary(d_w_scales)
-
-# first row: 1.857143 - 2.704045 # -0.846902\
-d_w_scales$hwi_1 - round(mean(d_w_scales$hwi_1, na.rm = TRUE), 2) # this works
-
-d_w_scales_c <- d_w_scales %>%
-  mutate(hwi_1_c = hwi_1 - round(mean(hwi_1, na.rm = TRUE), 2)) # this doesn't, first row of hwi_1_c = -0.002857143
+# d_w_scales_c <- d_w_scales %>%
+# mutate(hwi_1_c = hwi_1 - (round(mean(hwi_1, na.rm = TRUE), 2)),
+#        hwi_2_c = hwi_2 - mean(hwi_2, na.rm = TRUE),
+#        hwi_3_c = hwi_3 - mean(hwi_3, na.rm = TRUE),
+#        monit_c = monit - mean(monit, na.rm = TRUE),
+#        str_home_c = str_home - mean(str_home, na.rm = TRUE),
+#        convos_1_c = convos_1 - mean(convos_1, na.rm = TRUE),
+#        convos_2_c = convos_2 - mean(convos_2, na.rm = TRUE),
+#        convos_3_c = convos_3 - mean(convos_3, na.rm = TRUE),
+#        sbi_1_c = sbi_1 - mean(sbi_1, na.rm = TRUE),
+#        sbi_2_c = sbi_2 - mean(sbi_2, na.rm = TRUE),
+#        belong_c = belong - mean(belong, na.rm = TRUE),
+#        endorse_c = endorse - mean(endorse, na.rm = TRUE),
+#        value_ed_c = value_ed - mean(value_ed, na.rm = TRUE),
+#        rel_1_c = rel_1 - mean(rel_1, na.rm = TRUE),
+#        rel_2_c = rel_2 - mean(rel_2, na.rm = TRUE),
+#        ed_level = factor(q36_hv1),
+#        eng_comf = factor(q173_3_p1)) # this is not working. it gives me a zero in all the centered vars. Have tried multiple ways of using ()
+# 
+# # summary(d_w_scales)
+# 
+# # first row: 1.857143 - 2.704045 # -0.846902\
+# d_w_scales$hwi_1 - round(mean(d_w_scales$hwi_1, na.rm = TRUE), 2) # this works
+# 
+# d_w_scales_c <- d_w_scales %>%
+#   mutate(hwi_1_c = hwi_1 - round(mean(hwi_1, na.rm = TRUE), 2)) # this doesn't, first row of hwi_1_c = -0.002857143
 ```
 
 
