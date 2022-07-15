@@ -14,12 +14,34 @@ Diss Research questions:
     The *outcome* is youth engagement (called "engage")
     
     The *moderators* are parent's educational level (q36_hv1) and parent's comfort with ENG (q173_3_p1)
+    
 
 2. What specific structural and relational components of family-school connections in the Conexiones parents’ assessment data are significantly and positively associated with positive students’ school engagement? --> to be addressed with simple linear regression models
 
-3. Does parent educational level and comfort with English language moderate the relationship between structural and relational family-school connections components and student’s school engagement? --> to be addressed with moderated multiple regression models
+3. Does parent educational level and comfort with English language moderate the relationship between structural and relational family-school connections components and student’s school engagement? --> to be addressed with moderated multiple regression models (take it out from the beginning, inform the memeber when sending the complete diss that Q3 was taken out due to the large number of models)
 
 4. What model best predicts positive students’ school engagement, a structural components only model or a combined structural plus relational components model? --> to be addressed with a step-wise multiple linear regression model, with predictor blocks
+
+     demo vars: if effects hold when demo vars included... 
+     
+     model 1a: what is the univar association of each predictor with the outcome (15 models)
+     model 1b: what is the multivar assicition of each predictor with th outcome adjusting for demo charcs (covariates) (15 models)
+     model 2a: what is the multivar effect of the structural predictors with th outcome (1 model, 10 composire scores simultaneously)
+     model 2b: what is the multivar effect of the structural predictors with th outcome adjusting for demo charcr (1 model, 10 composite scores simultaneously + demo vars: block 1 demos, block 2: structural (10 scores))
+     model 3a: what is the multivar effect of the relational predictors with th outcome (1 model, 5 composite scores simultaneously)
+     model 3b: what is the multivar effect of the relational predictors with th outcome adjusting for demo charcr (1 model, 5 composite scores simultaneously + demo vars: block 1 demos, block 2: relational (5 scores))
+     model 4a: what is the multivar effect of structural and relational predictors on the outcome (1 model,  15 scores simultaneosuly)
+     model 4b: what is the multivar effect of structural and relational predictors on the outcome adjusting for demo charcr (1 model,  15 scores simultaneosuly + demo vars: block 1 demos, block 2: structural + block 3: relational; if RQ changes and is that interest is above and beyond structural)
+     
+     moderation
+     
+     Ed. level: look at distruibution and dichotomize hoe it makes more sense: option could be HS, Bachelor, higher
+     lang comf: look at distruibution and dichotomize hoe it makes more sense.
+     
+     
+     this is exploratory: use the benjamini correction: test the effects of moderation on model 1a (if covariates don't matter) or 1b (if covariates do matter) = 30 models (say in analysis plan the test of moderation are exploratory and no adjustment to p value will be done)
+   
+   hwi
 
 
 ----
@@ -27,14 +49,29 @@ Questions for Jeff:
 ----
 
 - Is it okay to treat my predictors and outcome (that really are Likert scales = ordinal variables) as numeric (dbl in R)? I didn't in EFAs because it was against EFA best practices. Not sure about rec. approach. 
-- The moderators are parent's educational level and comfort with ENG. Should I treat these as factors?
+
+
+- The moderators are parent's educational level and comfort with ENG. Should I treat these as factors? YES
   -- okay to treat those as factors and not the predictors?
-- Should I include covariates in all the regression models (simple, multiple, etc)? 
+  
+  
+- Should I include covariates in all the regression models (simple, multiple, etc)? NO, LOOK AT NOTES
   -- The ones that I identify may be important are already a moderators (ed.level and ENG comf) 
+  
+  
 - Was correct to conduct 15 separate simple regression models or should have I done it in one call? --> I want to know if the specific var predicts the outcome (RQ1)
+
+
 - When conducting simple regression the p. value is the same in two places in the output, but when conducting in moderation, shows different values in the same two places. Why?
+
+
 - For moderation need to grand mean center? (If yes, my code to do this on lines 110-137 is not working, any clues why?)
+
+
 - Should I run moderation models if the IV and DV are not significantly related in simple linear regression models (models 11-15 below that have relational parent practice
+
+
+- For moderation analyses: just one-way moderation. Do I need to probe the interactions? 
 
 
 ```{r setup, include=FALSE}
