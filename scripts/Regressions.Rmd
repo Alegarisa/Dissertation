@@ -13,7 +13,7 @@ Diss Research questions:
     
     The *outcome* is youth engagement (called "engage")
     
-    The *moderators* are parent's educational level (q36_hv1) and parent's comfort with ENG (q173_3_p1)
+    The *covariates* are parent's educational level (q36_hv1) and parent's comfort with ENG (q173_3_p1)
     
 
 2. What specific structural and relational components of family-school connections in the Conexiones parents’ assessment data are significantly and positively associated with positive students’ school engagement? --> to be addressed with simple linear regression models
@@ -39,39 +39,8 @@ Diss Research questions:
      lang comf: look at distruibution and dichotomize hoe it makes more sense.
      
      
-     this is exploratory: use the benjamini correction: test the effects of moderation on model 1a (if covariates don't matter) or 1b (if covariates do matter) = 30 models (say in analysis plan the test of moderation are exploratory and no adjustment to p value will be done)
+     this is exploratory: use the benjamini correction: test the effects of moderation on model 1a (if covariates don't matter) or 1b (if covariates do matter) = 30 models (say in analysis plan the test of moderation are exploratory and adjustment to p value will be done)
    
-   hwi
-
-
-----
-Questions for Jeff:
-----
-
-- Is it okay to treat my predictors and outcome (that really are Likert scales = ordinal variables) as numeric (dbl in R)? I didn't in EFAs because it was against EFA best practices. Not sure about rec. approach. 
-
-
-- The moderators are parent's educational level and comfort with ENG. Should I treat these as factors? YES
-  -- okay to treat those as factors and not the predictors?
-  
-  
-- Should I include covariates in all the regression models (simple, multiple, etc)? NO, LOOK AT NOTES
-  -- The ones that I identify may be important are already a moderators (ed.level and ENG comf) 
-  
-  
-- Was correct to conduct 15 separate simple regression models or should have I done it in one call? --> I want to know if the specific var predicts the outcome (RQ1)
-
-
-- When conducting simple regression the p. value is the same in two places in the output, but when conducting in moderation, shows different values in the same two places. Why?
-
-
-- For moderation need to grand mean center? (If yes, my code to do this on lines 110-137 is not working, any clues why?)
-
-
-- Should I run moderation models if the IV and DV are not significantly related in simple linear regression models (models 11-15 below that have relational parent practice
-
-
-- For moderation analyses: just one-way moderation. Do I need to probe the interactions? 
 
 
 ```{r setup, include=FALSE}
@@ -98,8 +67,74 @@ theme_set(theme_minimal())
 all <- read_sav(here("data", "parent_hv1_youth_w1.sav"))
 
 view_df(all) # need to select covariates to include from this dataset 
+
+# Inlcuded in d3:
+ggplot(all, aes(factor(q36_hv1))) + 
+  geom_bar() 
+
+ggplot(all, aes(factor(q173_3_p1))) + 
+  geom_bar()
+  
+# TO BE INCLUDED
+all$q4_3_text_hv1 # parent's age -- MAKE IT DOUBLE
+
+ggplot(all, aes(factor(participant_p1))) + 
+  geom_bar() # Parent role (1 = mom, 2 = dad, 4 = other) -- FACTOR
+
+ggplot(all, aes(as.double(q17_1_text_hv1))) + 
+  geom_histogram() # child's age -- MAKE IT DOUBLE
+
+ggplot(all, aes(factor(q231_y1))) + 
+  geom_bar() # youth gender (1 = male, 2 = FEMALE) -- FACTOR
+
+ggplot(all, aes(factor(q4_y1))) + 
+  geom_bar() # self-reported youth grades -- FACTOR
+
+ggplot(all, aes(factor(q2_y1))) + 
+  geom_bar()# youth's grade (1 = 6th, 2 = 7th, 3 = 8th) -- FACTOR
+
+selected <- all %>%
+  select(1:4, participant_p1, q173_3_p1, q4_3_text_hv1, q17_1_text_hv1, q36_hv1, q231_y1, q4_y1, q2_y1)
+
 ```
 
+
+# recoding missing variables as N/A
+```{r include=FALSE}
+# recoding missing values as N/A with function
+
+# vector with missing values in dataset
+missing_vals <- c(77, 99, -99)
+
+# function that returns true if values in vector are equal to missing_vals. The function takes a vector x, and specified values of missing data
+recode_missing <- function(x, missing_vals = c(77, 99, -99)) {
+  test <- x %in% missing_vals
+  ifelse(test, NA, x)
+}
+
+# function that recodes missing values to NA. The function takes a dataframe with variables with missing data, and specified values of missing data
+recode_missing_df <- function(df, missing_vals = c(77, 99, -99)) {
+  modify(df, ~recode_missing(.x, missing_vals)) # here uses the function created above
+}
+
+d2 <- recode_missing_df(selected) # the function strips out variable labels
+```
+
+```{r}
+covariates <- selected %>%
+  rename(parent_role = participant_p1) %>%
+  mutate(parent_age = as.numeric(q4_3_text_hv1),
+         parent_age = 2018 - parent_age,
+         parent_ed = as.factor(q36_hv1),
+         parent_eng_comf = as.factor(q173_3_p1),
+         youth_age = as.numeric(q17_1_text_hv1),
+         youth_gender = as.factor(q231_y1),
+         youth_grades = as.factor(q4_y1),
+         youth_grlevel = as.factor(q2_y1)) %>%
+  select(1:4, parent_role, parent_age, parent_ed, parent_eng_comf, youth_age, youth_gender, youth_grades, youth_grlevel)
+
+covariates # need to join this to d_w_scales
+```
 
 
 # Loading the dataset (only analysis vars)
@@ -211,6 +246,18 @@ rcorr(as.matrix(only_scales), type = "pearson")
 ------------------------------
 # RESEARCH QUESTION 2
 ------------------------------
+
+     model 1a: what is the univar association of each predictor with the outcome (15 models)
+     model 1b: what is the multivar assiciation of each predictor with th outcome adjusting for demo charcs (covariates) (15 models)
+     
+     model 2a: what is the multivar effect of the structural predictors with th outcome (1 model, 10 composiTe scores simultaneously)
+     model 2b: what is the multivar effect of the structural predictors with th outcome adjusting for demo charcr (1 model, 10 composite     scores simultaneously + demo vars: block 1 demos, block 2: structural (10 scores))
+     
+     model 3a: what is the multivar effect of the relational predictors with th outcome (1 model, 5 composite scores simultaneously)
+     model 3b: what is the multivar effect of the relational predictors with th outcome adjusting for demo charcr (1 model, 5 composite scores simultaneously + demo vars: block 1 demos, block 2: relational (5 scores))
+     
+     model 4a: what is the multivar effect of structural and relational predictors on the outcome (1 model,  15 scores simultaneosuly)
+     model 4b: what is the multivar effect of structural and relational predictors on the outcome adjusting for demo charcr (1 model,  15  scores simultaneosuly + demo vars: block 1 demos, block 2: structural + block 3: relational; if RQ changes and is that interest is above and beyond structural)
 
 # 2.1. Academic approach (tutor)
 ```{r}
