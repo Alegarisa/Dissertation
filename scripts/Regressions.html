@@ -382,1519 +382,56 @@ structural and some are considered relational (“hwi_1” “hwi_2” “hwi_3�
 “monit” “str_home” “convos_1” “convos_2” “convos_3” “sbi_1” “sbi_2”
 “belong” “endorse” “value_ed” “rel_1” “rel_2” )</p>
 <p>The <em>outcome</em> is youth engagement (called “engage”)</p>
-<p>The <em>moderators</em> are parent’s educational level (q36_hv1) and
+<p>The <em>covariates</em> are parent’s educational level (q36_hv1) and
 parent’s comfort with ENG (q173_3_p1)</p></li>
 <li><p>What specific structural and relational components of
 family-school connections in the Conexiones parents’ assessment data are
 significantly and positively associated with positive students’ school
 engagement? –&gt; to be addressed with simple linear regression
 models</p></li>
-<li><p>Does parent educational level and comfort with English language
-moderate the relationship between structural and relational
-family-school connections components and student’s school engagement?
-–&gt; to be addressed with moderated multiple regression models</p></li>
 <li><p>What model best predicts positive students’ school engagement, a
 structural components only model or a combined structural plus
 relational components model? –&gt; to be addressed with a step-wise
-multiple linear regression model, with predictor blocks</p></li>
+multiple linear regression model, with predictor blocks</p>
+<p>demo vars: if effects hold when demo vars included…</p>
+<p>model 1a: what is the univar association of each predictor with the
+outcome (15 models) model 1b: what is the multivar assicition of each
+predictor with th outcome adjusting for demo charcs (covariates) (15
+models)</p>
+<p>model 2a: what is the multivar effect of the structural predictors
+with th outcome (1 model, 10 composire scores simultaneously) model 2b:
+what is the multivar effect of the structural predictors with th outcome
+adjusting for demo charcr (1 model, 10 composite scores simultaneously +
+demo vars: block 1 demos, block 2: structural (10 scores))</p>
+<p>model 3a: what is the multivar effect of the relational predictors
+with th outcome (1 model, 5 composite scores simultaneously) model 3b:
+what is the multivar effect of the relational predictors with th outcome
+adjusting for demo charcr (1 model, 5 composite scores simultaneously +
+demo vars: block 1 demos, block 2: relational (5 scores))</p>
+<p>model 4a: what is the multivar effect of structural and relational
+predictors on the outcome (1 model, 15 scores simultaneosuly) model 4b:
+what is the multivar effect of structural and relational predictors on
+the outcome adjusting for demo charcr (1 model, 15 scores simultaneosuly
++ demo vars: block 1 demos, block 2: structural + block 3: relational;
+if RQ changes and is that interest is above and beyond structural)</p>
+<p>moderation</p>
+<p>Ed. level: look at distruibution and dichotomize hoe it makes more
+sense: option could be HS, Bachelor, higher lang comf: look at
+distruibution and dichotomize hoe it makes more sense.</p>
+<p>this is exploratory: use the benjamini correction: test the effects
+of moderation on model 1a (if covariates don’t matter) or 1b (if
+covariates do matter) = 30 models (say in analysis plan the test of
+moderation are exploratory and adjustment to p value will be
+done)</p></li>
 </ol>
-<table>
-<tbody>
-<tr class="odd">
-<td>Questions for Jeff:</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li>Is it okay to treat my predictors and outcome (that really are
-Likert scales = ordinal variables) as numeric (dbl in R)? I didn’t in
-EFAs because it was against EFA best practices. Not sure about rec.
-approach.</li>
-<li>The moderators are parent’s educational level and comfort with ENG.
-Should I treat these as factors?</li>
-<li>Should I include covariates in all the regression models (simple,
-multiple, etc)?</li>
-<li>Was correct to conduct 15 separate simple regression models or
-should have I done it in one call? –&gt; I want to know if the specific
-var predicts the outcome (RQ1)</li>
-<li>When conducting simple regression the p. value is the same in two
-places in the output, but when conducting in moderation, shows different
-values in the same two places. Why?</li>
-<li>For moderation need to grand mean center? (If yes, my code to do
-this on lines 110-137 is not working, any clues why?)</li>
-<li>Should I run moderation models if the IV and DV are not
-significantly related in simple linear regression models (models 11-15
-below that have relational parent practice</li>
-</ul>
 <div id="loading-the-dataset-only-analysis-vars" class="section level1">
 <h1>Loading the dataset (only analysis vars)</h1>
-<pre class="r"><code>d &lt;- read_sav(here(&quot;data&quot;, &quot;d3.sav&quot;))
+<pre class="r"><code>d &lt;- read_sav(here(&quot;data&quot;, &quot;d4 - scales &amp; covariates.sav&quot;))
 
 view_df(d)</code></pre>
 <table style="border-collapse:collapse; border:none;">
 <caption>
 Data frame: d
-</caption>
-<tr>
-<th style="border-bottom:double; font-style:italic; font-weight:normal; padding:0.2cm; text-align:left; vertical-align:top;">
-ID
-</th>
-<th style="border-bottom:double; font-style:italic; font-weight:normal; padding:0.2cm; text-align:left; vertical-align:top;">
-Name
-</th>
-<th style="border-bottom:double; font-style:italic; font-weight:normal; padding:0.2cm; text-align:left; vertical-align:top;">
-Label
-</th>
-<th style="border-bottom:double; font-style:italic; font-weight:normal; padding:0.2cm; text-align:left; vertical-align:top;">
-Values
-</th>
-<th style="border-bottom:double; font-style:italic; font-weight:normal; padding:0.2cm; text-align:left; vertical-align:top;">
-Value Labels
-</th>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-school_id
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-6</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-2
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-condition
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-2</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-3
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-family_id
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-&lt;output omitted&gt;
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-4
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-participant_id
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-&lt;output omitted&gt;
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-5
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q23_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-6
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q24_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-7
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q25_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-8
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q26_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-9
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q27_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-10
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q28_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-11
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q29_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-12
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q30_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-13
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q31_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-14
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q32_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-15
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q33_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-16
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q34_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-17
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q35_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-18
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q36_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-19
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q37_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-20
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q38_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-21
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q39_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-22
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q40_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-23
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q47_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-24
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q48_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-25
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q51_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-26
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q52_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-27
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q53_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-28
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q59_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-29
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q60_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-30
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q54_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-31
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q55_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-32
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q56_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-33
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q57_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-34
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q64_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-35
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q65_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-36
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q66_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-37
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q67_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-38
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q68_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-39
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q69_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-40
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q70_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-41
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q71_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-42
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q72_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-43
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q73_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-44
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q74_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-45
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q75_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-46
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q76_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-47
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q77_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-48
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q78_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-49
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q79_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-50
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q80_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-51
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q81_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-52
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q82_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-53
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q83_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-54
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q84_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-55
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q85_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-56
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q86_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-57
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q87_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-58
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q88_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-59
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q89_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-60
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q90_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-61
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q91_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-62
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q92_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-63
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q93_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-64
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q94_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-65
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q95_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-66
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q96_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-67
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q97_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-68
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q98_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-69
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q105_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 3-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-70
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q106_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 3-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-71
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q107_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-72
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q108_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 3-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-73
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q109_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 3-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-74
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q110_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-75
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q128_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-76
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q129_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-77
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q130_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-78
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q131_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-79
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q133_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-80
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q134_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-81
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q136_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-82
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q137_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-83
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q139_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-84
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q140_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-85
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q143_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-86
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q144_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-87
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q18_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-88
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q19_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-89
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q41_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-90
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q43_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-91
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q50_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-92
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q62_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-93
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q44_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-94
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q58_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-95
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q63_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-96
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q126_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-4</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-97
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q36_hv1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-10</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-98
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q173_3_p1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-99
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q83_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 3-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-100
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q84_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 1-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-101
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q85_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 3-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-102
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q86_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-103
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q87_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-104
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q88_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-105
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q89_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 2-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-106
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-q90_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
-<em>range: 2-5</em>
-</td>
-</tr>
-<tr>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-107
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-q91_y1
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;">
-</td>
-<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
-<em>range: 1-5</em>
-</td>
-</tr>
-</table>
-<pre class="r"><code>d</code></pre>
-<pre><code>## # A tibble: 94 x 107
-##    school_id condition family_id participant_id q23_p1 q24_p1 q25_p1 q26_p1
-##        &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;           &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
-##  1         1         1 101       101_1               3      3      3      3
-##  2         1         1 102       102_1               3      3      4      4
-##  3         1         1 103       103_1               3      3      2      3
-##  4         1         1 104       104_1               2      2      2      2
-##  5         1         1 105       105_1               3      3      3      3
-##  6         1         1 106       106_1               3      3      3      3
-##  7         1         1 107       107_1               3      3      3      3
-##  8         1         1 108       108_1               3      3      3      3
-##  9         1         1 109       109_1               3      3      3      3
-## 10         1         1 110       110_1               4      4      2      3
-## # ... with 84 more rows, and 99 more variables: q27_p1 &lt;dbl&gt;, q28_p1 &lt;dbl&gt;,
-## #   q29_p1 &lt;dbl&gt;, q30_p1 &lt;dbl&gt;, q31_p1 &lt;dbl&gt;, q32_p1 &lt;dbl&gt;, q33_p1 &lt;dbl&gt;,
-## #   q34_p1 &lt;dbl&gt;, q35_p1 &lt;dbl&gt;, q36_p1 &lt;dbl&gt;, q37_p1 &lt;dbl&gt;, q38_p1 &lt;dbl&gt;,
-## #   q39_p1 &lt;dbl&gt;, q40_p1 &lt;dbl&gt;, q47_p1 &lt;dbl&gt;, q48_p1 &lt;dbl&gt;, q51_p1 &lt;dbl&gt;,
-## #   q52_p1 &lt;dbl&gt;, q53_p1 &lt;dbl&gt;, q59_p1 &lt;dbl&gt;, q60_p1 &lt;dbl&gt;, q54_p1 &lt;dbl&gt;,
-## #   q55_p1 &lt;dbl&gt;, q56_p1 &lt;dbl&gt;, q57_p1 &lt;dbl&gt;, q64_p1 &lt;dbl&gt;, q65_p1 &lt;dbl&gt;,
-## #   q66_p1 &lt;dbl&gt;, q67_p1 &lt;dbl&gt;, q68_p1 &lt;dbl&gt;, q69_p1 &lt;dbl&gt;, q70_p1 &lt;dbl&gt;, ...</code></pre>
-</div>
-<div id="scale-creation-15-predictors-1-outcome" class="section level1">
-<h1>Scale creation (15 predictors, 1 outcome)</h1>
-<pre class="r"><code>d_w_scales &lt;- d %&gt;%
-  rowwise() %&gt;% 
-  mutate(hwi_1 = mean(c(q86_p1, q87_p1, q88_p1, q89_p1, q94_p1, q96_p1, q97_p1), na.rm = TRUE),
-         hwi_2 = mean(c(q84_p1, q85_p1, q93_p1, q95_p1), na.rm = TRUE),
-         hwi_3 = mean(c(q90_p1, q91_p1, q98_p1), na.rm = TRUE),
-         monit = mean(c(q137_p1, q139_p1, q140_p1, q143_p1, q144_p1), na.rm = TRUE),
-         str_home = mean(c(q23_p1, q24_p1, q25_p1, q26_p1, q27_p1, q28_p1, q29_p1, q30_p1), na.rm = TRUE),
-         convos_1 = mean(c(q76_p1, q77_p1, q78_p1, q79_p1), na.rm = TRUE),
-         convos_2 = mean(c(q73_p1, q75_p1, q80_p1, q81_p1), na.rm = TRUE),
-         convos_3 = mean(c(q68_p1, q69_p1, q70_p1, q71_p1), na.rm = TRUE),
-         sbi_1 = mean(c(q31_p1, q32_p1, q33_p1, q34_p1), na.rm = TRUE),
-         sbi_2 = mean(c(q36_p1, q37_p1, q38_p1, q39_p1, q40_p1), na.rm = TRUE),
-         belong = mean(c(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1), na.rm = TRUE),
-         endorse = mean(c(q54_p1, q56_p1, q57_p1), na.rm = TRUE),
-         value_ed = mean(c(q105_p1, q106_p1, q107_p1, q108_p1, q109_p1, q110_p1), na.rm = TRUE),
-         rel_1 = mean(c(q41_p1, q58_p1, q62_p1, q63_p1, q64_p1, q65_p1, q66_p1, q67_p1), na.rm = TRUE),
-         rel_2 = mean(c(q43_p1, q44_p1, q50_p1, q126_p1), na.rm = TRUE),
-         engage = mean(c(q83_y1, q85_y1, q86_y1, q87_y1, q88_y1, q89_y1, q90_y1, q91_y1), na.rm = TRUE))
-
-view_df(d_w_scales)</code></pre>
-<table style="border-collapse:collapse; border:none;">
-<caption>
-Data frame: d_w_scales
 </caption>
 <tr>
 <th style="border-bottom:double; font-style:italic; font-weight:normal; padding:0.2cm; text-align:left; vertical-align:top;">
@@ -3516,60 +2053,140 @@ engage
 <em>range: 2.2-5.0</em>
 </td>
 </tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+124
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+parent_role
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+1<br>2<br>3
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+1<br>2<br>4
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+125
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+parent_age
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;" colspan="2">
+<em>range: 28-76</em>
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+126
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+parent_ed
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+127
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+parent_eng_comf
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+1<br>2<br>3<br>4<br>5
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+1<br>2<br>3<br>4<br>5
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+128
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+youth_age
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee" colspan="2">
+<em>range: 10-13</em>
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+129
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+youth_gender
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+1<br>2
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+1<br>2
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+130
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+youth_grades
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+1<br>2<br>3<br>4<br>5<br>6<br>7
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top; background-color:#eeeeee">
+1<br>2<br>3<br>4<br>5<br>6<br>7
+</td>
+</tr>
+<tr>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+131
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+youth_grlevel
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+1<br>2<br>3
+</td>
+<td style="padding:0.2cm; text-align:left; vertical-align:top;">
+1<br>2<br>3
+</td>
+</tr>
 </table>
 </div>
 <div id="descriptive-stats-function" class="section level1">
 <h1>descriptive stats function</h1>
-<pre class="r"><code>only_scales &lt;- d_w_scales %&gt;%
+<pre class="r"><code>only_scales &lt;- d %&gt;%
   select(108:123)
 
 descrip_table &lt;- descriptives(only_scales) %&gt;%
   rename(c(&quot;Scale&quot; = &quot;column&quot;))</code></pre>
 </div>
-<div id="grand-mean-center-predictors" class="section level1">
-<h1>grand mean center predictors (?)</h1>
-<pre class="r"><code>d_w_scales_c &lt;- d_w_scales %&gt;%
-mutate(hwi_1_c = hwi_1 - (round(mean(hwi_1, na.rm = TRUE), 2)),
-       hwi_2_c = hwi_2 - mean(hwi_2, na.rm = TRUE),
-       hwi_3_c = hwi_3 - mean(hwi_3, na.rm = TRUE),
-       monit_c = monit - mean(monit, na.rm = TRUE),
-       str_home_c = str_home - mean(str_home, na.rm = TRUE),
-       convos_1_c = convos_1 - mean(convos_1, na.rm = TRUE),
-       convos_2_c = convos_2 - mean(convos_2, na.rm = TRUE),
-       convos_3_c = convos_3 - mean(convos_3, na.rm = TRUE),
-       sbi_1_c = sbi_1 - mean(sbi_1, na.rm = TRUE),
-       sbi_2_c = sbi_2 - mean(sbi_2, na.rm = TRUE),
-       belong_c = belong - mean(belong, na.rm = TRUE),
-       endorse_c = endorse - mean(endorse, na.rm = TRUE),
-       value_ed_c = value_ed - mean(value_ed, na.rm = TRUE),
-       rel_1_c = rel_1 - mean(rel_1, na.rm = TRUE),
-       rel_2_c = rel_2 - mean(rel_2, na.rm = TRUE),
-       ed_level = factor(q36_hv1),
-       eng_comf = factor(q173_3_p1)) # this is not working. it gives me a zero in all the centered vars. Have tried multiple ways of using ()
-
-# summary(d_w_scales)
-
-# first row: 1.857143 - 2.704045 # -0.846902\
-d_w_scales$hwi_1 - round(mean(d_w_scales$hwi_1, na.rm = TRUE), 2) # this works</code></pre>
-<pre><code>##  [1] -0.84285714  0.01428571  0.44285714 -0.27142857  0.87142857  0.15714286
-##  [7] -0.12857143  0.58571429  0.01428571 -1.41428571 -0.41428571 -0.36666667
-## [13]  0.87142857  0.87142857  0.87142857  1.15714286 -0.27142857 -0.55714286
-## [19] -0.12857143 -1.12857143 -1.12857143  0.15714286  0.72857143 -0.70000000
-## [25]  0.15714286  1.01428571  0.01428571  0.72857143 -0.84285714 -0.41428571
-## [31]  0.44285714  0.01428571 -0.70000000  0.58571429  0.58571429 -1.41428571
-## [37]  0.44285714  0.15714286         NaN  0.44285714  1.15714286  0.72857143
-## [43] -0.27142857 -0.20000000 -0.12857143  1.30000000 -0.12857143 -0.27142857
-## [49]  1.01428571 -0.12857143  0.72857143  0.58571429 -0.27142857  0.72857143
-## [55]  0.30000000  0.01428571  0.15714286  0.30000000  0.87142857  0.58571429
-## [61] -0.20000000 -0.55714286  0.87142857 -0.12857143 -1.70000000  0.30000000
-## [67] -0.84285714 -0.12857143 -0.84285714 -0.70000000 -0.41428571  0.44285714
-## [73]  0.30000000  1.15714286 -0.41428571  0.01428571 -0.55714286  0.44285714
-## [79]  0.44285714  0.01428571 -1.70000000 -1.27142857  0.01428571  0.30000000
-## [85]  0.01428571 -0.55714286 -0.41428571 -0.55714286  0.44285714  0.44285714
-## [91]  0.01428571 -0.70000000 -0.41428571 -0.41428571</code></pre>
-<pre class="r"><code>d_w_scales_c &lt;- d_w_scales %&gt;%
-  mutate(hwi_1_c = hwi_1 - round(mean(hwi_1, na.rm = TRUE), 2)) # this doesn&#39;t, first row of hwi_1_c = -0.002857143</code></pre>
-<p>#correlation matrix</p>
+<div id="correlation-matrix" class="section level1">
+<h1>correlation matrix</h1>
 <pre class="r"><code>library(Hmisc)</code></pre>
 <pre><code>## Warning: package &#39;Hmisc&#39; was built under R version 4.0.5</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
@@ -3704,15 +2321,16 @@ d_w_scales$hwi_1 - round(mean(d_w_scales$hwi_1, na.rm = TRUE), 2) # this works</
 </tr>
 </tbody>
 </table>
+<pre><code> model 1a: what is the univar association of each predictor with the outcome (15 models)
+ model 1b: what is the multivar assiciation of each predictor with th outcome adjusting for      demo charcs (covariates) (15 models)</code></pre>
 </div>
 <div id="academic-approach-tutor" class="section level1">
 <h1>2.1. Academic approach (tutor)</h1>
-<pre class="r"><code>m_hwi_1 &lt;- lm(engage ~ hwi_1, d_w_scales)
-
-summary(m_hwi_1) # p = 0.07</code></pre>
+<pre class="r"><code>m_hwi_1a &lt;- lm(engage ~ hwi_1, d)
+summary(m_hwi_1a) # p = 0.07</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_1, data = d_w_scales)
+## lm(formula = engage ~ hwi_1, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3729,6 +2347,36 @@ summary(m_hwi_1) # p = 0.07</code></pre>
 ##   (1 observation deleted due to missingness)
 ## Multiple R-squared:  0.03441,    Adjusted R-squared:  0.0238 
 ## F-statistic: 3.243 on 1 and 91 DF,  p-value: 0.07505</code></pre>
+<pre class="r"><code>m_hwi_1b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d)
+summary(m_hwi_1b) # p = 0.04 (not completely sure if this is the p-value i should look at?)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_1, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.51935 -0.38521  0.02389  0.43236  1.01703 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      2.960216   1.606193   1.843   0.0694 .
+## parent_role     -0.065161   0.348637  -0.187   0.8523  
+## parent_age       0.003667   0.012321   0.298   0.7668  
+## parent_ed        0.014520   0.036577   0.397   0.6925  
+## parent_eng_comf -0.059383   0.050330  -1.180   0.2419  
+## youth_age        0.020358   0.140810   0.145   0.8854  
+## youth_gender     0.224434   0.128531   1.746   0.0850 .
+## youth_grlevel    0.019528   0.150578   0.130   0.8972  
+## hwi_1            0.202929   0.097980   2.071   0.0419 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5579 on 73 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.09138,    Adjusted R-squared:  -0.008198 
+## F-statistic: 0.9177 on 8 and 73 DF,  p-value: 0.507</code></pre>
 <p>engage predicted by hw1</p>
 <p>Intercept: expected value of youth’s engagement when the average hW
 involvement in data set is considered (I think = 2.70)</p>
@@ -3738,12 +2386,11 @@ by 0.15 (but is not significant).</p>
 </div>
 <div id="structuringmonitoring-approach-to-hwi" class="section level1">
 <h1>2.2. structuring/monitoring approach to HWI</h1>
-<pre class="r"><code>m_hwi_2 &lt;- lm(engage ~ hwi_2, d_w_scales)
-
-summary(m_hwi_2)# p = 0.01</code></pre>
+<pre class="r"><code>m_hwi_2a &lt;- lm(engage ~ hwi_2, d)
+summary(m_hwi_2a)# p = 0.01</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_2, data = d_w_scales)
+## lm(formula = engage ~ hwi_2, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3760,15 +2407,44 @@ summary(m_hwi_2)# p = 0.01</code></pre>
 ##   (1 observation deleted due to missingness)
 ## Multiple R-squared:  0.06746,    Adjusted R-squared:  0.05721 
 ## F-statistic: 6.583 on 1 and 91 DF,  p-value: 0.01193</code></pre>
+<pre class="r"><code>m_hwi_2b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_2, d)
+summary(m_hwi_2b)# p = 0.01 </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_2, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.42301 -0.39482 -0.03753  0.46947  0.86483 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      2.8399066  1.5896422   1.787   0.0782 .
+## parent_role      0.1164653  0.3462281   0.336   0.7375  
+## parent_age       0.0002862  0.0120887   0.024   0.9812  
+## parent_ed        0.0244054  0.0365158   0.668   0.5060  
+## parent_eng_comf -0.0510755  0.0493137  -1.036   0.3037  
+## youth_age        0.0008909  0.1392009   0.006   0.9949  
+## youth_gender     0.2114302  0.1260492   1.677   0.0977 .
+## youth_grlevel    0.0231853  0.1491522   0.155   0.8769  
+## hwi_2            0.2436433  0.1012014   2.408   0.0186 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5525 on 73 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.1087, Adjusted R-squared:  0.01108 
+## F-statistic: 1.113 on 8 and 73 DF,  p-value: 0.3645</code></pre>
 </div>
 <div id="positive-reinforcement-to-increase-hw-completion" class="section level1">
 <h1>2.3. positive reinforcement to increase HW completion</h1>
-<pre class="r"><code>m_hwi_3 &lt;- lm(engage ~ hwi_3, d_w_scales)
-
-summary(m_hwi_3) # p = 0.03</code></pre>
+<pre class="r"><code>m_hwi_3a &lt;- lm(engage ~ hwi_3, d)
+summary(m_hwi_3a) # p = 0.03</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_3, data = d_w_scales)
+## lm(formula = engage ~ hwi_3, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3785,15 +2461,44 @@ summary(m_hwi_3) # p = 0.03</code></pre>
 ##   (1 observation deleted due to missingness)
 ## Multiple R-squared:  0.0496, Adjusted R-squared:  0.03915 
 ## F-statistic: 4.749 on 1 and 91 DF,  p-value: 0.0319</code></pre>
+<pre class="r"><code>m_hwi_3b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_3, d)
+summary(m_hwi_3b) # p = 0.01</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_3, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.47202 -0.41866  0.08431  0.42809  0.86830 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      2.809726   1.582802   1.775   0.0800 .
+## parent_role      0.017468   0.342209   0.051   0.9594  
+## parent_age      -0.002119   0.012081  -0.175   0.8612  
+## parent_ed        0.017116   0.036126   0.474   0.6371  
+## parent_eng_comf -0.051691   0.049148  -1.052   0.2964  
+## youth_age        0.047074   0.139827   0.337   0.7373  
+## youth_gender     0.232780   0.126756   1.836   0.0704 .
+## youth_grlevel   -0.026854   0.149564  -0.180   0.8580  
+## hwi_3            0.203878   0.080890   2.520   0.0139 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5506 on 73 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.115,  Adjusted R-squared:  0.01801 
+## F-statistic: 1.186 on 8 and 73 DF,  p-value: 0.3195</code></pre>
 </div>
 <div id="monitoring" class="section level1">
 <h1>2.4. monitoring</h1>
-<pre class="r"><code>m_monit &lt;- lm(engage ~ monit, d_w_scales)
-
-summary(m_monit) # p = 0.89</code></pre>
+<pre class="r"><code>m_monit_a &lt;- lm(engage ~ monit, d)
+summary(m_monit_a) # p = 0.89</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ monit, data = d_w_scales)
+## lm(formula = engage ~ monit, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3809,15 +2514,44 @@ summary(m_monit) # p = 0.89</code></pre>
 ## Residual standard error: 0.5483 on 92 degrees of freedom
 ## Multiple R-squared:  0.0002039,  Adjusted R-squared:  -0.01066 
 ## F-statistic: 0.01876 on 1 and 92 DF,  p-value: 0.8914</code></pre>
+<pre class="r"><code>m_monit_a &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + monit, d)
+summary(m_monit_a) # p = 0.61</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     monit, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.79076 -0.34766  0.03205  0.43032  0.90816 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.624174   1.610295   2.251   0.0274 *
+## parent_role      0.013128   0.353739   0.037   0.9705  
+## parent_age       0.001700   0.012410   0.137   0.8914  
+## parent_ed        0.013097   0.037249   0.352   0.7261  
+## parent_eng_comf -0.051063   0.052619  -0.970   0.3350  
+## youth_age       -0.009053   0.145729  -0.062   0.9506  
+## youth_gender     0.179848   0.129103   1.393   0.1678  
+## youth_grlevel    0.027176   0.155176   0.175   0.8615  
+## monit            0.088088   0.174087   0.506   0.6144  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5695 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.04086,    Adjusted R-squared:  -0.06283 
+## F-statistic: 0.3941 on 8 and 74 DF,  p-value: 0.9204</code></pre>
 </div>
 <div id="structure-at-home" class="section level1">
 <h1>2.5. structure at home</h1>
-<pre class="r"><code>m_str_home &lt;- lm(engage ~ str_home, d_w_scales)
-
-summary(m_str_home) # p = 0.04</code></pre>
+<pre class="r"><code>m_str_home_a &lt;- lm(engage ~ str_home, d)
+summary(m_str_home_a) # p = 0.04</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ str_home, data = d_w_scales)
+## lm(formula = engage ~ str_home, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3833,15 +2567,44 @@ summary(m_str_home) # p = 0.04</code></pre>
 ## Residual standard error: 0.5362 on 92 degrees of freedom
 ## Multiple R-squared:  0.0438, Adjusted R-squared:  0.03341 
 ## F-statistic: 4.215 on 1 and 92 DF,  p-value: 0.04292</code></pre>
+<pre class="r"><code>m_str_home_b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + str_home, d)
+summary(m_str_home_b) # p = 0.02</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     str_home, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.43497 -0.34975  0.01297  0.40016  0.87853 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.014960   1.553436   1.941   0.0561 .
+## parent_role     -0.051488   0.342036  -0.151   0.8808  
+## parent_age       0.002289   0.011845   0.193   0.8473  
+## parent_ed        0.020726   0.036049   0.575   0.5671  
+## parent_eng_comf -0.060587   0.049183  -1.232   0.2219  
+## youth_age       -0.017977   0.138471  -0.130   0.8971  
+## youth_gender     0.188709   0.123902   1.523   0.1320  
+## youth_grlevel    0.025390   0.148193   0.171   0.8644  
+## str_home         0.345140   0.141992   2.431   0.0175 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5489 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.1087, Adjusted R-squared:  0.01235 
+## F-statistic: 1.128 on 8 and 74 DF,  p-value: 0.3547</code></pre>
 </div>
 <div id="convos-child-beh-school-climate" class="section level1">
 <h1>2.6. convos: child beh &amp; school climate</h1>
-<pre class="r"><code>m_convos_1 &lt;- lm(engage ~ convos_1, d_w_scales)
-
-summary(m_convos_1) # p = 0.86</code></pre>
+<pre class="r"><code>m_convos_1a &lt;- lm(engage ~ convos_1, d)
+summary(m_convos_1a) # p = 0.86</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ convos_1, data = d_w_scales)
+## lm(formula = engage ~ convos_1, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3857,15 +2620,44 @@ summary(m_convos_1) # p = 0.86</code></pre>
 ## Residual standard error: 0.5482 on 92 degrees of freedom
 ## Multiple R-squared:  0.0003568,  Adjusted R-squared:  -0.01051 
 ## F-statistic: 0.03283 on 1 and 92 DF,  p-value: 0.8566</code></pre>
+<pre class="r"><code>m_convos_1b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + convos_1, d)
+summary(m_convos_1b) # p = 0.86</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     convos_1, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.85768 -0.34360  0.02012  0.40983  0.89507 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.7093084  1.6495720   2.249   0.0275 *
+## parent_role      0.0182141  0.3555608   0.051   0.9593  
+## parent_age       0.0008856  0.0123125   0.072   0.9429  
+## parent_ed        0.0115397  0.0377530   0.306   0.7607  
+## parent_eng_comf -0.0439775  0.0506340  -0.869   0.3879  
+## youth_age        0.0055235  0.1437495   0.038   0.9695  
+## youth_gender     0.1743705  0.1288910   1.353   0.1802  
+## youth_grlevel    0.0152396  0.1540509   0.099   0.9215  
+## convos_1         0.0168555  0.1014264   0.166   0.8685  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5703 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.03791,    Adjusted R-squared:  -0.0661 
+## F-statistic: 0.3644 on 8 and 74 DF,  p-value: 0.936</code></pre>
 </div>
 <div id="convos-future-career-planning" class="section level1">
 <h1>2.7. convos: future career planning</h1>
-<pre class="r"><code>m_convos_2 &lt;- lm(engage ~ convos_2, d_w_scales)
-
-summary(m_convos_2) # p = 0.07</code></pre>
+<pre class="r"><code>m_convos_2a &lt;- lm(engage ~ convos_2, d)
+summary(m_convos_2a) # p = 0.07</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ convos_2, data = d_w_scales)
+## lm(formula = engage ~ convos_2, data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -3881,15 +2673,44 @@ summary(m_convos_2) # p = 0.07</code></pre>
 ## Residual standard error: 0.5386 on 92 degrees of freedom
 ## Multiple R-squared:  0.03511,    Adjusted R-squared:  0.02463 
 ## F-statistic: 3.348 on 1 and 92 DF,  p-value: 0.07052</code></pre>
+<pre class="r"><code>m_convos_2b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + convos_2, d)
+summary(m_convos_2b) # p = 0.14</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     convos_2, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.90025 -0.37085  0.05209  0.42831  0.92344 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      2.963653   1.653112   1.793   0.0771 .
+## parent_role      0.097914   0.353817   0.277   0.7828  
+## parent_age       0.002118   0.012147   0.174   0.8621  
+## parent_ed        0.011101   0.036765   0.302   0.7635  
+## parent_eng_comf -0.042250   0.049860  -0.847   0.3995  
+## youth_age        0.031233   0.142647   0.219   0.8273  
+## youth_gender     0.158274   0.127079   1.245   0.2169  
+## youth_grlevel   -0.015766   0.153234  -0.103   0.9183  
+## convos_2         0.139162   0.093731   1.485   0.1419  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5621 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.06539,    Adjusted R-squared:  -0.03565 
+## F-statistic: 0.6471 on 8 and 74 DF,  p-value: 0.7356</code></pre>
 </div>
 <div id="convos-childs-social-involvement" class="section level1">
 <h1>2.8. convos: child’s social involvement</h1>
-<pre class="r"><code>m_convos_3 &lt;- lm(engage ~ convos_3, d_w_scales)
-
-summary(m_convos_3) # p = 0.27</code></pre>
+<pre class="r"><code>m_convos_3a &lt;- lm(engage ~ convos_3, d)
+summary(m_convos_3a) # p = 0.27</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ convos_3, data = d_w_scales)
+## lm(formula = engage ~ convos_3, data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -3905,15 +2726,44 @@ summary(m_convos_3) # p = 0.27</code></pre>
 ## Residual standard error: 0.5446 on 92 degrees of freedom
 ## Multiple R-squared:  0.01346,    Adjusted R-squared:  0.002736 
 ## F-statistic: 1.255 on 1 and 92 DF,  p-value: 0.2655</code></pre>
+<pre class="r"><code>m_convos_3b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + convos_3, d)
+summary(m_convos_3b) # p = 0.24</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     convos_3, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.84826 -0.35131  0.06829  0.38002  1.05701 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.200038   1.642446   1.948   0.0552 .
+## parent_role      0.011840   0.351051   0.034   0.9732  
+## parent_age       0.001191   0.012183   0.098   0.9224  
+## parent_ed        0.011077   0.036969   0.300   0.7653  
+## parent_eng_comf -0.049540   0.050370  -0.984   0.3286  
+## youth_age        0.015406   0.142552   0.108   0.9142  
+## youth_gender     0.158877   0.127920   1.242   0.2182  
+## youth_grlevel    0.025150   0.152696   0.165   0.8696  
+## convos_3         0.134671   0.113880   1.183   0.2408  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5651 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.0554, Adjusted R-squared:  -0.04672 
+## F-statistic: 0.5425 on 8 and 74 DF,  p-value: 0.8208</code></pre>
 </div>
 <div id="basic-involvement" class="section level1">
 <h1>2.9. Basic involvement</h1>
-<pre class="r"><code>m_sbi_1 &lt;- lm(engage ~ sbi_1, d_w_scales)
-
-summary(m_sbi_1) # p = 0.05</code></pre>
+<pre class="r"><code>m_sbi_1a &lt;- lm(engage ~ sbi_1, d)
+summary(m_sbi_1a) # p = 0.05</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ sbi_1, data = d_w_scales)
+## lm(formula = engage ~ sbi_1, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3929,15 +2779,44 @@ summary(m_sbi_1) # p = 0.05</code></pre>
 ## Residual standard error: 0.5365 on 92 degrees of freedom
 ## Multiple R-squared:  0.0428, Adjusted R-squared:  0.03239 
 ## F-statistic: 4.114 on 1 and 92 DF,  p-value: 0.04543</code></pre>
+<pre class="r"><code>m_sbi_1b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + sbi_1, d)
+summary(m_sbi_1b) # p = 0.01</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     sbi_1, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.63319 -0.31622  0.03794  0.33827  1.13012 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      2.448e+00  1.608e+00   1.522   0.1323  
+## parent_role     -8.560e-03  3.403e-01  -0.025   0.9800  
+## parent_age       3.603e-05  1.180e-02   0.003   0.9976  
+## parent_ed        2.891e-02  3.640e-02   0.794   0.4295  
+## parent_eng_comf -7.900e-02  5.058e-02  -1.562   0.1226  
+## youth_age        5.664e-02  1.394e-01   0.406   0.6857  
+## youth_gender     1.578e-01  1.236e-01   1.277   0.2055  
+## youth_grlevel   -4.089e-02  1.495e-01  -0.273   0.7853  
+## sbi_1            3.106e-01  1.239e-01   2.507   0.0144 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5477 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.1129, Adjusted R-squared:  0.01698 
+## F-statistic: 1.177 on 8 and 74 DF,  p-value: 0.3244</code></pre>
 </div>
 <div id="resource-intensive-involvement" class="section level1">
 <h1>2.10. Resource-intensive involvement</h1>
-<pre class="r"><code>m_sbi_2 &lt;- lm(engage ~ sbi_2, d_w_scales)
-
-summary(m_sbi_2) # p = 0.03</code></pre>
+<pre class="r"><code>m_sbi_2a &lt;- lm(engage ~ sbi_2, d)
+summary(m_sbi_2a) # p = 0.03</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ sbi_2, data = d_w_scales)
+## lm(formula = engage ~ sbi_2, data = d)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
@@ -3953,15 +2832,44 @@ summary(m_sbi_2) # p = 0.03</code></pre>
 ## Residual standard error: 0.5346 on 92 degrees of freedom
 ## Multiple R-squared:  0.04939,    Adjusted R-squared:  0.03906 
 ## F-statistic:  4.78 on 1 and 92 DF,  p-value: 0.03133</code></pre>
+<pre class="r"><code>m_sbi_2b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + sbi_2, d)
+summary(m_sbi_2b) # p = 0.03</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     sbi_2, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.45891 -0.39255  0.04154  0.40827  1.09327 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      2.951882   1.571387   1.879   0.0642 .
+## parent_role     -0.091472   0.345687  -0.265   0.7920  
+## parent_age       0.002351   0.011905   0.197   0.8440  
+## parent_ed        0.022267   0.036314   0.613   0.5416  
+## parent_eng_comf -0.059082   0.049385  -1.196   0.2354  
+## youth_age        0.022210   0.139042   0.160   0.8735  
+## youth_gender     0.176162   0.124320   1.417   0.1607  
+## youth_grlevel   -0.002577   0.149074  -0.017   0.9863  
+## sbi_2            0.262320   0.115458   2.272   0.0260 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5515 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.1003, Adjusted R-squared:  0.003042 
+## F-statistic: 1.031 on 8 and 74 DF,  p-value: 0.4206</code></pre>
 </div>
 <div id="belongingness" class="section level1">
 <h1>2.11. Belongingness</h1>
-<pre class="r"><code>m_belong &lt;- lm(engage ~ belong, d_w_scales)
-
-summary(m_belong) # p = 0.97</code></pre>
+<pre class="r"><code>m_belong_a &lt;- lm(engage ~ belong, d)
+summary(m_belong_a) # p = 0.97</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ belong, data = d_w_scales)
+## lm(formula = engage ~ belong, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -3977,15 +2885,44 @@ summary(m_belong) # p = 0.97</code></pre>
 ## Residual standard error: 0.5483 on 92 degrees of freedom
 ## Multiple R-squared:  1.505e-05,  Adjusted R-squared:  -0.01085 
 ## F-statistic: 0.001385 on 1 and 92 DF,  p-value: 0.9704</code></pre>
+<pre class="r"><code>m_belong_b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + belong, d)
+summary(m_belong_b) # p = 0.65</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     belong, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.84589 -0.33162  0.03964  0.42392  0.90246 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.612440   1.624607   2.224   0.0292 *
+## parent_role     -0.006811   0.356592  -0.019   0.9848  
+## parent_age       0.001125   0.012301   0.091   0.9274  
+## parent_ed        0.014693   0.037550   0.391   0.6967  
+## parent_eng_comf -0.048140   0.051503  -0.935   0.3530  
+## youth_age       -0.002979   0.144264  -0.021   0.9836  
+## youth_gender     0.174601   0.128456   1.359   0.1782  
+## youth_grlevel    0.023820   0.154620   0.154   0.8780  
+## belong           0.082975   0.182662   0.454   0.6510  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5696 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.04022,    Adjusted R-squared:  -0.06354 
+## F-statistic: 0.3877 on 8 and 74 DF,  p-value: 0.924</code></pre>
 </div>
 <div id="endorsemnt" class="section level1">
 <h1>2.12. Endorsemnt</h1>
-<pre class="r"><code>m_endorse &lt;- lm(engage ~ endorse, d_w_scales)
-
-summary(m_endorse) # p = 0.53</code></pre>
+<pre class="r"><code>m_endorse_a &lt;- lm(engage ~ endorse, d)
+summary(m_endorse_a) # p = 0.53</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ endorse, data = d_w_scales)
+## lm(formula = engage ~ endorse, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -4001,15 +2938,44 @@ summary(m_endorse) # p = 0.53</code></pre>
 ## Residual standard error: 0.5472 on 92 degrees of freedom
 ## Multiple R-squared:  0.004255,   Adjusted R-squared:  -0.006569 
 ## F-statistic: 0.3931 on 1 and 92 DF,  p-value: 0.5322</code></pre>
+<pre class="r"><code>m_endorse_b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + endorse, d)
+summary(m_endorse_b) # p = 0.84</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     endorse, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.86224 -0.35169  0.02298  0.40043  0.88266 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.899075   1.676386   2.326   0.0228 *
+## parent_role      0.020254   0.356047   0.057   0.9548  
+## parent_age       0.001002   0.012349   0.081   0.9355  
+## parent_ed        0.011908   0.037415   0.318   0.7512  
+## parent_eng_comf -0.042692   0.050778  -0.841   0.4032  
+## youth_age        0.001604   0.144173   0.011   0.9912  
+## youth_gender     0.172056   0.128598   1.338   0.1850  
+## youth_grlevel    0.019409   0.154707   0.125   0.9005  
+## endorse         -0.031719   0.160597  -0.198   0.8440  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5703 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.03805,    Adjusted R-squared:  -0.06594 
+## F-statistic: 0.3659 on 8 and 74 DF,  p-value: 0.9353</code></pre>
 </div>
 <div id="value-supp-of-ed" class="section level1">
 <h1>2.13. Value &amp; supp of Ed</h1>
-<pre class="r"><code>m_value_ed &lt;- lm(engage ~ value_ed, d_w_scales)
-
-summary(m_value_ed) # p = 0.77</code></pre>
+<pre class="r"><code>m_value_ed_a &lt;- lm(engage ~ value_ed, d)
+summary(m_value_ed_a) # p = 0.77</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ value_ed, data = d_w_scales)
+## lm(formula = engage ~ value_ed, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -4025,15 +2991,44 @@ summary(m_value_ed) # p = 0.77</code></pre>
 ## Residual standard error: 0.5481 on 92 degrees of freedom
 ## Multiple R-squared:  0.0008961,  Adjusted R-squared:  -0.009964 
 ## F-statistic: 0.08252 on 1 and 92 DF,  p-value: 0.7746</code></pre>
+<pre class="r"><code>m_value_ed_b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + value_ed, d)
+summary(m_value_ed_b) # p = 0.65</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     value_ed, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.89680 -0.33029  0.04404  0.40528  0.88356 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.7210544  1.5849407   2.348   0.0216 *
+## parent_role      0.0325993  0.3564818   0.091   0.9274  
+## parent_age       0.0007165  0.0122755   0.058   0.9536  
+## parent_ed        0.0091097  0.0380091   0.240   0.8112  
+## parent_eng_comf -0.0450934  0.0506307  -0.891   0.3760  
+## youth_age       -0.0112849  0.1474928  -0.077   0.9392  
+## youth_gender     0.1687810  0.1287114   1.311   0.1938  
+## youth_grlevel    0.0264343  0.1553773   0.170   0.8654  
+## value_ed         0.0692710  0.1539910   0.450   0.6541  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5697 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.04017,    Adjusted R-squared:  -0.06359 
+## F-statistic: 0.3871 on 8 and 74 DF,  p-value: 0.9242</code></pre>
 </div>
 <div id="rel-with-teachers-comfort-interest-and-openness" class="section level1">
 <h1>2.14. Rel with teachers: comfort, interest, and openness</h1>
-<pre class="r"><code>m_rel_1 &lt;- lm(engage ~ rel_1, d_w_scales)
-
-summary(m_rel_1) # p = 0.19</code></pre>
+<pre class="r"><code>m_rel_1a &lt;- lm(engage ~ rel_1, d)
+summary(m_rel_1a) # p = 0.19</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ rel_1, data = d_w_scales)
+## lm(formula = engage ~ rel_1, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -4049,16 +3044,45 @@ summary(m_rel_1) # p = 0.19</code></pre>
 ## Residual standard error: 0.5433 on 92 degrees of freedom
 ## Multiple R-squared:  0.0182, Adjusted R-squared:  0.007532 
 ## F-statistic: 1.706 on 1 and 92 DF,  p-value: 0.1948</code></pre>
+<pre class="r"><code>m_rel_1b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + rel_1, d)
+summary(m_rel_1b) # p = 0.24</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     rel_1, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.71094 -0.33371 -0.00203  0.38677  0.98508 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)      4.5166084  1.6790599   2.690  0.00883 **
+## parent_role      0.0648041  0.3536030   0.183  0.85509   
+## parent_age      -0.0002755  0.0122053  -0.023  0.98206   
+## parent_ed        0.0094718  0.0370278   0.256  0.79881   
+## parent_eng_comf -0.0398351  0.0502037  -0.793  0.43004   
+## youth_age       -0.0048307  0.1424104  -0.034  0.97303   
+## youth_gender     0.1452565  0.1294102   1.122  0.26530   
+## youth_grlevel    0.0363208  0.1533907   0.237  0.81348   
+## rel_1           -0.2004221  0.1674013  -1.197  0.23503   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.565 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.05584,    Adjusted R-squared:  -0.04624 
+## F-statistic: 0.547 on 8 and 74 DF,  p-value: 0.8173</code></pre>
 </div>
 <div id="rel-with-school-parent-self-efficacy-to-solve-probs-with-school" class="section level1">
 <h1>2.15. Rel with school: parent self-efficacy to solve probs with
 school</h1>
-<pre class="r"><code>m_rel_2 &lt;- lm(engage ~ rel_2, d_w_scales)
-
-summary(m_rel_2) # p = 0.65</code></pre>
+<pre class="r"><code>m_rel_2a &lt;- lm(engage ~ rel_2, d)
+summary(m_rel_2a) # p = 0.66</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ rel_2, data = d_w_scales)
+## lm(formula = engage ~ rel_2, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
@@ -4074,89 +3098,50 @@ summary(m_rel_2) # p = 0.65</code></pre>
 ## Residual standard error: 0.5477 on 92 degrees of freedom
 ## Multiple R-squared:  0.002134,   Adjusted R-squared:  -0.008712 
 ## F-statistic: 0.1968 on 1 and 92 DF,  p-value: 0.6584</code></pre>
+<pre class="r"><code>m_rel_2b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + rel_2, d)
+summary(m_rel_2b) # p = 0.41</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     rel_2, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.77083 -0.31512  0.04778  0.41338  1.00700 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.5254091  1.6047795   2.197   0.0312 *
+## parent_role      0.0010774  0.3530389   0.003   0.9976  
+## parent_age       0.0004126  0.0122431   0.034   0.9732  
+## parent_ed        0.0130834  0.0371323   0.352   0.7256  
+## parent_eng_comf -0.0582247  0.0533931  -1.090   0.2790  
+## youth_age       -0.0052647  0.1433892  -0.037   0.9708  
+## youth_gender     0.1704009  0.1280206   1.331   0.1873  
+## youth_grlevel    0.0265973  0.1537509   0.173   0.8631  
+## rel_2            0.1376942  0.1669284   0.825   0.4121  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5678 on 74 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.04632,    Adjusted R-squared:  -0.05679 
+## F-statistic: 0.4492 on 8 and 74 DF,  p-value: 0.8873</code></pre>
 </div>
 <div id="just-for-fun-relational-aspects-predicting-parents-self-effi" class="section level1">
 <h1>just for fun: relational aspects predicting parent’s self-effi</h1>
-<pre class="r"><code>m_rel_belong &lt;- lm(rel_2 ~ belong, d_w_scales)
-summary(m_rel_belong) # p &lt; 0.001</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = rel_2 ~ belong, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -0.88852 -0.10820 -0.04711  0.15999  0.95289 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  0.66838    0.23040   2.901  0.00465 ** 
-## belong       0.79291    0.07507  10.562  &lt; 2e-16 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.2681 on 92 degrees of freedom
-## Multiple R-squared:  0.548,  Adjusted R-squared:  0.5431 
-## F-statistic: 111.5 on 1 and 92 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code>m_rel_endorse &lt;- lm(rel_2 ~ endorse, d_w_scales)
-summary(m_rel_endorse) # p &lt; 0.001</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = rel_2 ~ endorse, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -0.98329 -0.18173  0.01671  0.11984  1.01671 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  1.04267    0.24374   4.278 4.61e-05 ***
-## endorse      0.64687    0.07661   8.444 4.27e-13 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.2993 on 92 degrees of freedom
-## Multiple R-squared:  0.4366, Adjusted R-squared:  0.4305 
-## F-statistic:  71.3 on 1 and 92 DF,  p-value: 4.268e-13</code></pre>
-<pre class="r"><code>m_rel_value_ed &lt;- lm(rel_2 ~ value_ed, d_w_scales)
-summary(m_rel_value_ed) # p &lt; 0.001</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = rel_2 ~ value_ed, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.23554 -0.22247  0.02020  0.07823  0.76446 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  1.98047    0.32167   6.157 1.92e-08 ***
-## value_ed     0.31377    0.09078   3.456  0.00083 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.3752 on 92 degrees of freedom
-## Multiple R-squared:  0.1149, Adjusted R-squared:  0.1053 
-## F-statistic: 11.95 on 1 and 92 DF,  p-value: 0.0008303</code></pre>
-<pre class="r"><code>m_rel_qual &lt;- lm(rel_2 ~ rel_1, d_w_scales)
-summary(m_rel_qual) # p &lt; 0.001</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = rel_2 ~ rel_1, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.28872 -0.10694 -0.01429  0.18230  1.19153 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  1.36772    0.27886   4.905 4.02e-06 ***
-## rel_1        0.54886    0.08848   6.203 1.56e-08 ***
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.3349 on 92 degrees of freedom
-## Multiple R-squared:  0.2949, Adjusted R-squared:  0.2872 
-## F-statistic: 38.48 on 1 and 92 DF,  p-value: 1.559e-08</code></pre>
+<pre class="r"><code># m_rel_belong &lt;- lm(rel_2 ~ belong, d)
+# summary(m_rel_belong) # p &lt; 0.001
+# 
+# m_rel_endorse &lt;- lm(rel_2 ~ endorse, d)
+# summary(m_rel_endorse) # p &lt; 0.001
+# 
+# m_rel_value_ed &lt;- lm(rel_2 ~ value_ed, d)
+# summary(m_rel_value_ed) # p &lt; 0.001
+# 
+# m_rel_qual &lt;- lm(rel_2 ~ rel_1, d)
+# summary(m_rel_qual) # p &lt; 0.001</code></pre>
 <table>
 <tbody>
 <tr class="odd">
@@ -4164,434 +3149,377 @@ summary(m_rel_qual) # p &lt; 0.001</code></pre>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>d_w_scales$q36_hv1 # ed level ((1 - 11)</code></pre>
-<pre><code>##  [1]  5  9  4  6  2  3  6  6  2  1  5  2  3  3  4  4  4  3 10  2  4  5  9  5  6
-## [26]  6  5  3  5  6  2  6  4  4  3  5  4  2  7  6  1  6  1  5  4  8  4  2  4  6
-## [51]  5  6  2 10  6  5  5  6  6  6  5  4  5  8  6  7  2  2  6  6  4  5 10  3  5
-## [76]  2  7  4  7  4  5  3  7  6  4  6  5  5  6  6  5  6  6  6
-## attr(,&quot;format.spss&quot;)
-## [1] &quot;F8.2&quot;</code></pre>
-<pre class="r"><code>d_w_scales$q173_3_p1 # ENG comfort in youth school (1 - 5)</code></pre>
-<pre><code>##  [1]  2  4  3  5  2  4  1  2  1  1  1  2  2  4  4  2  3  1  3 NA  2  1  4 NA  3
-## [26]  5  4 NA  4  1  4  4  1  2  3 NA  4  1  4  1  1  5  4  2  1  5  1  2  1  3
-## [51]  2  3  3  4  2  4  2  2  5  1  5  1  2  4  1  1  1 NA  4  4  3  1 NA  2  4
-## [76] NA  2  2  5  2  1  4  3  2  2  2  4  2 NA  4  4  2  3  5
-## attr(,&quot;format.spss&quot;)
-## [1] &quot;F8.2&quot;</code></pre>
-</div>
-<div id="academic-approach-tutor-1" class="section level1">
-<h1>3.1. Academic approach (tutor)</h1>
-<pre class="r"><code>m2.1_hwi_1 &lt;- lm(engage ~ hwi_1 + hwi_1:q36_hv1, d_w_scales)
-summary(m2.1_hwi_1) # p = not sure which to look at</code></pre>
+<pre><code> model 2a: what is the multivar effect of the structural predictors with th outcome (1          model, 10 composire scores simultaneously)</code></pre>
+<pre class="r"><code>m_structs_2a &lt;- lm(engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
+summary(m_structs_2a) # p = 0.09 (full model p-value)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_1 + hwi_1:q36_hv1, data = d_w_scales)
+## lm(formula = engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + 
+##     convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, data = d)
 ## 
 ## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -1.5900 -0.3500 -0.0176  0.4600  1.0103 
+##      Min       1Q   Median       3Q      Max 
+## -1.20481 -0.37328  0.01094  0.44577  0.85401 
 ## 
 ## Coefficients:
-##                Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   3.6884253  0.2364745  15.598   &lt;2e-16 ***
-## hwi_1         0.1466507  0.0999259   1.468    0.146    
-## hwi_1:q36_hv1 0.0009948  0.0099791   0.100    0.921    
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.19617    0.55772   5.731 1.61e-07 ***
+## hwi_1        0.06249    0.10815   0.578   0.5650    
+## hwi_2        0.16719    0.09837   1.700   0.0930 .  
+## hwi_3        0.09092    0.07831   1.161   0.2490    
+## monit       -0.23378    0.17406  -1.343   0.1830    
+## str_home     0.11600    0.20417   0.568   0.5715    
+## convos_1    -0.21165    0.11516  -1.838   0.0697 .  
+## convos_2     0.05266    0.10569   0.498   0.6197    
+## convos_3     0.15450    0.11903   1.298   0.1979    
+## sbi_1        0.11010    0.15205   0.724   0.4710    
+## sbi_2        0.01442    0.14208   0.101   0.9194    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.5446 on 90 degrees of freedom
+## Residual standard error: 0.528 on 82 degrees of freedom
 ##   (1 observation deleted due to missingness)
-## Multiple R-squared:  0.03452,    Adjusted R-squared:  0.01306 
-## F-statistic: 1.609 on 2 and 90 DF,  p-value: 0.2058</code></pre>
-<pre class="r"><code>m2.2_hwi_1 &lt;- lm(engage ~ hwi_1 + hwi_1:q173_3_p1, d_w_scales)
-summary(m2.2_hwi_1) # p = not sure which to look at</code></pre>
+## Multiple R-squared:  0.1734, Adjusted R-squared:  0.07254 
+## F-statistic:  1.72 on 10 and 82 DF,  p-value: 0.09</code></pre>
+<pre><code> model 2b: what is the multivar effect of the structural predictors with th outcome             adjusting for demo charcr (1 model, 10 composite scores simultaneously + demo vars: block      1 demos, block 2: structural (10 scores))</code></pre>
+<pre class="r"><code>m_structs_2b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
+summary(m_structs_2b) # p = 0.21 (full model p-value)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_1 + hwi_1:q173_3_p1, data = d_w_scales)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -1.5931 -0.3684  0.0421  0.4164  0.9423 
-## 
-## Coefficients:
-##                 Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)      3.62854    0.25599  14.175   &lt;2e-16 ***
-## hwi_1            0.23602    0.10545   2.238   0.0279 *  
-## hwi_1:q173_3_p1 -0.02145    0.01582  -1.356   0.1789    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5483 on 82 degrees of freedom
-##   (9 observations deleted due to missingness)
-## Multiple R-squared:  0.05824,    Adjusted R-squared:  0.03527 
-## F-statistic: 2.535 on 2 and 82 DF,  p-value: 0.08542</code></pre>
-</div>
-<div id="structuringmonitoring-approach-to-hwi-1" class="section level1">
-<h1>3.2. structuring/monitoring approach to HWI</h1>
-<pre class="r"><code>m2.1_hwi_2 &lt;- lm(engage ~ hwi_2 + hwi_2:q36_hv1, d_w_scales)
-summary(m2.1_hwi_2) # p = </code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ hwi_2 + hwi_2:q36_hv1, data = d_w_scales)
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + 
+##     convos_3 + sbi_1 + sbi_2, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -1.44025 -0.40673  0.06374  0.41040  0.87439 
+## -0.98750 -0.40079  0.02976  0.45011  0.80119 
 ## 
 ## Coefficients:
-##               Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   3.337200   0.289723  11.519   &lt;2e-16 ***
-## hwi_2         0.199258   0.088657   2.248   0.0271 *  
-## hwi_2:q36_hv1 0.007222   0.008739   0.826   0.4108    
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      1.526447   1.692774   0.902   0.3706  
+## parent_role     -0.087929   0.356362  -0.247   0.8059  
+## parent_age      -0.004896   0.012260  -0.399   0.6909  
+## parent_ed        0.051868   0.037391   1.387   0.1702  
+## parent_eng_comf -0.081472   0.052505  -1.552   0.1257  
+## youth_age        0.108739   0.147975   0.735   0.4651  
+## youth_gender     0.197907   0.129932   1.523   0.1326  
+## youth_grlevel   -0.050326   0.155965  -0.323   0.7480  
+## hwi_1            0.086835   0.127452   0.681   0.4981  
+## hwi_2            0.147596   0.119984   1.230   0.2232  
+## hwi_3            0.155919   0.090012   1.732   0.0881 .
+## monit           -0.237378   0.203741  -1.165   0.2483  
+## str_home         0.116911   0.223963   0.522   0.6035  
+## convos_1        -0.239633   0.138057  -1.736   0.0874 .
+## convos_2        -0.034976   0.125797  -0.278   0.7819  
+## convos_3         0.217087   0.143522   1.513   0.1353  
+## sbi_1            0.276367   0.176093   1.569   0.1215  
+## sbi_2           -0.009289   0.155179  -0.060   0.9525  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.5332 on 90 degrees of freedom
+## Residual standard error: 0.5375 on 64 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.2605, Adjusted R-squared:  0.06405 
+## F-statistic: 1.326 on 17 and 64 DF,  p-value: 0.206</code></pre>
+<pre><code> model 3a: what is the multivar effect of the relational predictors with th outcome (1          model, 5 composite scores simultaneously)</code></pre>
+<pre class="r"><code>m_rels_3a &lt;- lm(engage ~ belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_rels_3a) # p = 0.47 (full model p-value)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ belong + endorse + value_ed + rel_1 + rel_2, 
+##     data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.48022 -0.32907 -0.03525  0.43363  1.18252 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   4.0822     0.5949   6.862 9.11e-10 ***
+## belong        0.1496     0.2673   0.560    0.577    
+## endorse      -0.1235     0.2427  -0.509    0.612    
+## value_ed      0.1405     0.1521   0.924    0.358    
+## rel_1        -0.3543     0.2179  -1.626    0.108    
+## rel_2         0.1823     0.2220   0.821    0.414    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5464 on 88 degrees of freedom
+## Multiple R-squared:  0.05021,    Adjusted R-squared:  -0.00376 
+## F-statistic: 0.9303 on 5 and 88 DF,  p-value: 0.4654</code></pre>
+<pre><code> model 3b: what is the multivar effect of the relational predictors with th outcome             adjusting for demo charcr (1 model, 5 composite scores simultaneously + demo vars: block 1      demos, block 2: relational (5 scores))</code></pre>
+<pre class="r"><code>m_rels_3b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_rels_3b) # p = 0.58 (full model p-value)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     belong + endorse + value_ed + rel_1 + rel_2, data = d)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.3399 -0.3115 -0.0195  0.4045  1.1873 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)      4.870382   1.682477   2.895  0.00506 **
+## parent_role      0.144665   0.357368   0.405  0.68685   
+## parent_age      -0.001158   0.012556  -0.092  0.92680   
+## parent_ed        0.001033   0.038195   0.027  0.97851   
+## parent_eng_comf -0.077935   0.053600  -1.454  0.15041   
+## youth_age       -0.125684   0.156123  -0.805  0.42353   
+## youth_gender     0.076395   0.131668   0.580  0.56364   
+## youth_grlevel    0.165773   0.164848   1.006  0.31807   
+## belong           0.355282   0.319107   1.113  0.26936   
+## endorse         -0.058626   0.299747  -0.196  0.84550   
+## value_ed         0.224948   0.177451   1.268  0.20912   
+## rel_1           -0.623530   0.281604  -2.214  0.03007 * 
+## rel_2            0.219035   0.251184   0.872  0.38618   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5579 on 70 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.1293, Adjusted R-squared:  -0.01995 
+## F-statistic: 0.8664 on 12 and 70 DF,  p-value: 0.5838</code></pre>
+<pre><code>  model 4a: what is the multivar effect of structural and relational predictors on the           outcome (1 model,  15 scores simultaneosuly)</code></pre>
+<pre class="r"><code>m_combi_4a &lt;- lm(engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_combi_4a) # p = 0.02 (full model p-value)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + 
+##     convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + 
+##     endorse + value_ed + rel_1 + rel_2, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.93385 -0.37085 -0.01974  0.34579  1.03921 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  3.30625    0.65006   5.086 2.51e-06 ***
+## hwi_1        0.06386    0.10440   0.612   0.5426    
+## hwi_2        0.20558    0.09610   2.139   0.0356 *  
+## hwi_3        0.07591    0.07687   0.987   0.3265    
+## monit       -0.41797    0.21896  -1.909   0.0600 .  
+## str_home     0.18658    0.21524   0.867   0.3887    
+## convos_1    -0.23955    0.11176  -2.143   0.0352 *  
+## convos_2     0.07976    0.10385   0.768   0.4448    
+## convos_3     0.14326    0.11659   1.229   0.2229    
+## sbi_1        0.11898    0.15394   0.773   0.4419    
+## sbi_2        0.06455    0.14739   0.438   0.6627    
+## belong       0.21893    0.27148   0.806   0.4225    
+## endorse     -0.35144    0.24417  -1.439   0.1541    
+## value_ed     0.32023    0.16832   1.902   0.0609 .  
+## rel_1       -0.47136    0.21027  -2.242   0.0279 *  
+## rel_2        0.27494    0.24998   1.100   0.2748    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5051 on 77 degrees of freedom
 ##   (1 observation deleted due to missingness)
-## Multiple R-squared:  0.07448,    Adjusted R-squared:  0.05392 
-## F-statistic: 3.622 on 2 and 90 DF,  p-value: 0.03071</code></pre>
-<pre class="r"><code>m2.2_hwi_2 &lt;- lm(engage ~ hwi_2 + hwi_2:q173_3_p1, d_w_scales)
-summary(m2.2_hwi_2) # p = </code></pre>
+## Multiple R-squared:  0.2895, Adjusted R-squared:  0.1511 
+## F-statistic: 2.092 on 15 and 77 DF,  p-value: 0.01896</code></pre>
+<pre><code>  model 4b: what is the multivar effect of structural and relational predictors on the           outcome adjusting for demo charcr (1 model,  15 scores simultaneosuly + demo vars: block       1 demos, block 2: structural + block 3: relational; if RQ changes and is that interest is       above and beyond structural)</code></pre>
+<pre class="r"><code># Block 0: demo only
+m_demo_4b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d)
+summary(m_demo_4b) # p = 0.89 (full model p-value)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_2 + hwi_2:q173_3_p1, data = d_w_scales)
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel, 
+##     data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -1.56997 -0.40359  0.04745  0.39519  0.99657 
+## -1.85830 -0.34460  0.02829  0.40300  0.88669 
 ## 
 ## Coefficients:
-##                 Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)      3.48327    0.31683  10.994   &lt;2e-16 ***
-## hwi_2            0.24344    0.10132   2.403   0.0185 *  
-## hwi_2:q173_3_p1 -0.01896    0.01335  -1.421   0.1591    
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.7882185  1.5694793   2.414   0.0182 *
+## parent_role      0.0132114  0.3519800   0.038   0.9702  
+## parent_age       0.0007609  0.0122097   0.062   0.9505  
+## parent_ed        0.0125200  0.0370468   0.338   0.7363  
+## parent_eng_comf -0.0435868  0.0502504  -0.867   0.3885  
+## youth_age        0.0042698  0.1426177   0.030   0.9762  
+## youth_gender     0.1728139  0.1277142   1.353   0.1801  
+## youth_grlevel    0.0163036  0.1529168   0.107   0.9154  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.5448 on 82 degrees of freedom
-##   (9 observations deleted due to missingness)
-## Multiple R-squared:  0.0702, Adjusted R-squared:  0.04753 
-## F-statistic: 3.096 on 2 and 82 DF,  p-value: 0.05057</code></pre>
-<div id="note-for-jeff" class="section level2">
-<h2>Note for Jeff:</h2>
-<p>disregard the following models, I just copied and pasted the simple
-regression models and will add the interaction terms once I get my mind
-sorted out.</p>
-</div>
-</div>
-<div id="positive-reinforcement-to-increase-hw-completion-1" class="section level1">
-<h1>3.3. positive reinforcement to increase HW completion</h1>
-<pre class="r"><code>m_hwi_3 &lt;- lm(engage ~ hwi_3, d_w_scales)
-
-summary(m_hwi_3) # p = 0.03</code></pre>
+## Residual standard error: 0.5666 on 75 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.03755,    Adjusted R-squared:  -0.05228 
+## F-statistic: 0.418 on 7 and 75 DF,  p-value: 0.8883</code></pre>
+<pre class="r"><code># Block 1: demo + (combined structural + relational at once)
+m_combi_4b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_combi_4b) # p = 0.06 (full model p-value)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ hwi_3, data = d_w_scales)
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + 
+##     convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + 
+##     rel_1 + rel_2, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -1.58153 -0.43716  0.01203  0.46123  0.96525 
+## -0.95257 -0.28423 -0.00679  0.31106  0.98005 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  3.67911    0.20019  18.378   &lt;2e-16 ***
-## hwi_3        0.15241    0.06994   2.179   0.0319 *  
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.4013841  1.7062326   1.994   0.0508 .
+## parent_role      0.1594066  0.3485022   0.457   0.6491  
+## parent_age      -0.0074179  0.0121753  -0.609   0.5447  
+## parent_ed        0.0332894  0.0365298   0.911   0.3658  
+## parent_eng_comf -0.1047077  0.0511319  -2.048   0.0450 *
+## youth_age       -0.0678946  0.1560980  -0.435   0.6652  
+## youth_gender     0.0695308  0.1308950   0.531   0.5973  
+## youth_grlevel    0.1328567  0.1613595   0.823   0.4136  
+## hwi_1            0.0554520  0.1243497   0.446   0.6573  
+## hwi_2            0.2152322  0.1168581   1.842   0.0705 .
+## hwi_3            0.1251294  0.0871558   1.436   0.1564  
+## monit           -0.3680267  0.2381403  -1.545   0.1276  
+## str_home         0.1685593  0.2326808   0.724   0.4717  
+## convos_1        -0.2697969  0.1333022  -2.024   0.0475 *
+## convos_2        -0.0006219  0.1231910  -0.005   0.9960  
+## convos_3         0.2020614  0.1431263   1.412   0.1633  
+## sbi_1            0.2394921  0.1765659   1.356   0.1801  
+## sbi_2            0.0538708  0.1588695   0.339   0.7357  
+## belong           0.3017385  0.3160103   0.955   0.3436  
+## endorse         -0.2675815  0.2976562  -0.899   0.3723  
+## value_ed         0.3696121  0.1951315   1.894   0.0631 .
+## rel_1           -0.6514169  0.2684337  -2.427   0.0183 *
+## rel_2            0.3025287  0.2874274   1.053   0.2968  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.5374 on 91 degrees of freedom
-##   (1 observation deleted due to missingness)
-## Multiple R-squared:  0.0496, Adjusted R-squared:  0.03915 
-## F-statistic: 4.749 on 1 and 91 DF,  p-value: 0.0319</code></pre>
+## Residual standard error: 0.5108 on 59 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.3843, Adjusted R-squared:  0.1547 
+## F-statistic: 1.674 on 22 and 59 DF,  p-value: 0.06007</code></pre>
 </div>
-<div id="monitoring-1" class="section level1">
-<h1>3.4. monitoring</h1>
-<pre class="r"><code>m_monit &lt;- lm(engage ~ monit, d_w_scales)
-
-summary(m_monit) # p = 0.89</code></pre>
+<div id="over-and-above-structural" class="section level1">
+<h1>over and above structural</h1>
+<pre class="r"><code># Block 0: demo only
+m_demo_4b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d)
+summary(m_demo_4b) # p = 0.89 (full model p-value)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ monit, data = d_w_scales)
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel, 
+##     data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -1.82899 -0.34946 -0.03491  0.40873  0.90873 
+## -1.85830 -0.34460  0.02829  0.40300  0.88669 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  4.03395    0.46432   8.688 1.31e-13 ***
-## monit        0.02047    0.14946   0.137    0.891    
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.7882185  1.5694793   2.414   0.0182 *
+## parent_role      0.0132114  0.3519800   0.038   0.9702  
+## parent_age       0.0007609  0.0122097   0.062   0.9505  
+## parent_ed        0.0125200  0.0370468   0.338   0.7363  
+## parent_eng_comf -0.0435868  0.0502504  -0.867   0.3885  
+## youth_age        0.0042698  0.1426177   0.030   0.9762  
+## youth_gender     0.1728139  0.1277142   1.353   0.1801  
+## youth_grlevel    0.0163036  0.1529168   0.107   0.9154  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.5483 on 92 degrees of freedom
-## Multiple R-squared:  0.0002039,  Adjusted R-squared:  -0.01066 
-## F-statistic: 0.01876 on 1 and 92 DF,  p-value: 0.8914</code></pre>
-</div>
-<div id="structure-at-home-1" class="section level1">
-<h1>3.5. structure at home</h1>
-<pre class="r"><code>m_str_home &lt;- lm(engage ~ str_home, d_w_scales)
-
-summary(m_str_home) # p = 0.04</code></pre>
+## Residual standard error: 0.5666 on 75 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.03755,    Adjusted R-squared:  -0.05228 
+## F-statistic: 0.418 on 7 and 75 DF,  p-value: 0.8883</code></pre>
+<pre class="r"><code># block 1: demo + structural
+m_block1_4b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
+summary(m_block1_4b) # p = 0.21 (full model p-value)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ str_home, data = d_w_scales)
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + 
+##     convos_3 + sbi_1 + sbi_2, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -1.49640 -0.36042  0.01255  0.42083  0.95411 
+## -0.98750 -0.40079  0.02976  0.45011  0.80119 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   3.3138     0.3855   8.596 2.05e-13 ***
-## str_home      0.2662     0.1297   2.053   0.0429 *  
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      1.526447   1.692774   0.902   0.3706  
+## parent_role     -0.087929   0.356362  -0.247   0.8059  
+## parent_age      -0.004896   0.012260  -0.399   0.6909  
+## parent_ed        0.051868   0.037391   1.387   0.1702  
+## parent_eng_comf -0.081472   0.052505  -1.552   0.1257  
+## youth_age        0.108739   0.147975   0.735   0.4651  
+## youth_gender     0.197907   0.129932   1.523   0.1326  
+## youth_grlevel   -0.050326   0.155965  -0.323   0.7480  
+## hwi_1            0.086835   0.127452   0.681   0.4981  
+## hwi_2            0.147596   0.119984   1.230   0.2232  
+## hwi_3            0.155919   0.090012   1.732   0.0881 .
+## monit           -0.237378   0.203741  -1.165   0.2483  
+## str_home         0.116911   0.223963   0.522   0.6035  
+## convos_1        -0.239633   0.138057  -1.736   0.0874 .
+## convos_2        -0.034976   0.125797  -0.278   0.7819  
+## convos_3         0.217087   0.143522   1.513   0.1353  
+## sbi_1            0.276367   0.176093   1.569   0.1215  
+## sbi_2           -0.009289   0.155179  -0.060   0.9525  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.5362 on 92 degrees of freedom
-## Multiple R-squared:  0.0438, Adjusted R-squared:  0.03341 
-## F-statistic: 4.215 on 1 and 92 DF,  p-value: 0.04292</code></pre>
-</div>
-<div id="convos-child-beh-school-climate-1" class="section level1">
-<h1>3.6. convos: child beh &amp; school climate</h1>
-<pre class="r"><code>m_convos_1 &lt;- lm(engage ~ convos_1, d_w_scales)
-
-summary(m_convos_1) # p = 0.86</code></pre>
+## Residual standard error: 0.5375 on 64 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.2605, Adjusted R-squared:  0.06405 
+## F-statistic: 1.326 on 17 and 64 DF,  p-value: 0.206</code></pre>
+<pre class="r"><code># block 2: demo + structural + relational (over and above structural)
+m_block2_4b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_block2_4b) # p = 0.06 (full model p-value)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = engage ~ convos_1, data = d_w_scales)
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + 
+##     convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + 
+##     rel_1 + rel_2, data = d)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -1.84770 -0.34770 -0.04356  0.41067  0.91067 
+## -0.95257 -0.28423 -0.00679  0.31106  0.98005 
 ## 
 ## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  4.15626    0.33151  12.538   &lt;2e-16 ***
-## convos_1    -0.01673    0.09235  -0.181    0.857    
+##                   Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.4013841  1.7062326   1.994   0.0508 .
+## parent_role      0.1594066  0.3485022   0.457   0.6491  
+## parent_age      -0.0074179  0.0121753  -0.609   0.5447  
+## parent_ed        0.0332894  0.0365298   0.911   0.3658  
+## parent_eng_comf -0.1047077  0.0511319  -2.048   0.0450 *
+## youth_age       -0.0678946  0.1560980  -0.435   0.6652  
+## youth_gender     0.0695308  0.1308950   0.531   0.5973  
+## youth_grlevel    0.1328567  0.1613595   0.823   0.4136  
+## hwi_1            0.0554520  0.1243497   0.446   0.6573  
+## hwi_2            0.2152322  0.1168581   1.842   0.0705 .
+## hwi_3            0.1251294  0.0871558   1.436   0.1564  
+## monit           -0.3680267  0.2381403  -1.545   0.1276  
+## str_home         0.1685593  0.2326808   0.724   0.4717  
+## convos_1        -0.2697969  0.1333022  -2.024   0.0475 *
+## convos_2        -0.0006219  0.1231910  -0.005   0.9960  
+## convos_3         0.2020614  0.1431263   1.412   0.1633  
+## sbi_1            0.2394921  0.1765659   1.356   0.1801  
+## sbi_2            0.0538708  0.1588695   0.339   0.7357  
+## belong           0.3017385  0.3160103   0.955   0.3436  
+## endorse         -0.2675815  0.2976562  -0.899   0.3723  
+## value_ed         0.3696121  0.1951315   1.894   0.0631 .
+## rel_1           -0.6514169  0.2684337  -2.427   0.0183 *
+## rel_2            0.3025287  0.2874274   1.053   0.2968  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.5482 on 92 degrees of freedom
-## Multiple R-squared:  0.0003568,  Adjusted R-squared:  -0.01051 
-## F-statistic: 0.03283 on 1 and 92 DF,  p-value: 0.8566</code></pre>
-</div>
-<div id="convos-future-career-planning-1" class="section level1">
-<h1>3.7. convos: future career planning</h1>
-<pre class="r"><code>m_convos_2 &lt;- lm(engage ~ convos_2, d_w_scales)
-
-summary(m_convos_2) # p = 0.07</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ convos_2, data = d_w_scales)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -1.8901 -0.3496  0.0088  0.4284  0.9344 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  3.61892    0.26716   13.55   &lt;2e-16 ***
-## convos_2     0.14891    0.08138    1.83   0.0705 .  
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5386 on 92 degrees of freedom
-## Multiple R-squared:  0.03511,    Adjusted R-squared:  0.02463 
-## F-statistic: 3.348 on 1 and 92 DF,  p-value: 0.07052</code></pre>
-</div>
-<div id="convos-childs-social-involvement-1" class="section level1">
-<h1>3.8. convos: child’s social involvement</h1>
-<pre class="r"><code>m_convos_3 &lt;- lm(engage ~ convos_3, d_w_scales)
-
-summary(m_convos_3) # p = 0.27</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ convos_3, data = d_w_scales)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -1.8242 -0.2974 -0.0024  0.4459  0.9888 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  3.72499    0.33683   11.06   &lt;2e-16 ***
-## convos_3     0.10745    0.09591    1.12    0.265    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5446 on 92 degrees of freedom
-## Multiple R-squared:  0.01346,    Adjusted R-squared:  0.002736 
-## F-statistic: 1.255 on 1 and 92 DF,  p-value: 0.2655</code></pre>
-</div>
-<div id="basic-involvement-1" class="section level1">
-<h1>3.9. Basic involvement</h1>
-<pre class="r"><code>m_sbi_1 &lt;- lm(engage ~ sbi_1, d_w_scales)
-
-summary(m_sbi_1) # p = 0.05</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ sbi_1, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.64213 -0.35394 -0.01868  0.39182  1.10787 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   3.4600     0.3189  10.849   &lt;2e-16 ***
-## sbi_1         0.2161     0.1065   2.028   0.0454 *  
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5365 on 92 degrees of freedom
-## Multiple R-squared:  0.0428, Adjusted R-squared:  0.03239 
-## F-statistic: 4.114 on 1 and 92 DF,  p-value: 0.04543</code></pre>
-</div>
-<div id="resource-intensive-involvement-1" class="section level1">
-<h1>3.10. Resource-intensive involvement</h1>
-<pre class="r"><code>m_sbi_2 &lt;- lm(engage ~ sbi_2, d_w_scales)
-
-summary(m_sbi_2) # p = 0.03</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ sbi_2, data = d_w_scales)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -1.4595 -0.3551 -0.0337  0.4283  1.1014 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   3.4730     0.2907  11.947   &lt;2e-16 ***
-## sbi_2         0.2364     0.1081   2.186   0.0313 *  
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5346 on 92 degrees of freedom
-## Multiple R-squared:  0.04939,    Adjusted R-squared:  0.03906 
-## F-statistic:  4.78 on 1 and 92 DF,  p-value: 0.03133</code></pre>
-</div>
-<div id="belongingness-1" class="section level1">
-<h1>3.11. Belongingness</h1>
-<pre class="r"><code>m_belong &lt;- lm(engage ~ belong, d_w_scales)
-
-summary(m_belong) # p = 0.97</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ belong, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.84566 -0.34681 -0.03431  0.40434  0.90434 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) 4.079666   0.471204   8.658 1.52e-13 ***
-## belong      0.005714   0.153537   0.037     0.97    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5483 on 92 degrees of freedom
-## Multiple R-squared:  1.505e-05,  Adjusted R-squared:  -0.01085 
-## F-statistic: 0.001385 on 1 and 92 DF,  p-value: 0.9704</code></pre>
-</div>
-<div id="endorsemnt-1" class="section level1">
-<h1>3.12. Endorsemnt</h1>
-<pre class="r"><code>m_endorse &lt;- lm(engage ~ endorse, d_w_scales)
-
-summary(m_endorse) # p = 0.53</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ endorse, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.86077 -0.36077 -0.03364  0.38923  0.97702 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   4.3742     0.4455   9.818 5.52e-16 ***
-## endorse      -0.0878     0.1400  -0.627    0.532    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5472 on 92 degrees of freedom
-## Multiple R-squared:  0.004255,   Adjusted R-squared:  -0.006569 
-## F-statistic: 0.3931 on 1 and 92 DF,  p-value: 0.5322</code></pre>
-</div>
-<div id="value-supp-of-ed-1" class="section level1">
-<h1>3.13. Value &amp; supp of Ed</h1>
-<pre class="r"><code>m_value_ed &lt;- lm(engage ~ value_ed, d_w_scales)
-
-summary(m_value_ed) # p = 0.77</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ value_ed, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.86545 -0.34481 -0.03072  0.42265  0.92265 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  3.96307    0.46991   8.434 4.48e-13 ***
-## value_ed     0.03809    0.13261   0.287    0.775    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5481 on 92 degrees of freedom
-## Multiple R-squared:  0.0008961,  Adjusted R-squared:  -0.009964 
-## F-statistic: 0.08252 on 1 and 92 DF,  p-value: 0.7746</code></pre>
-</div>
-<div id="rel-with-teachers-comfort-interest-and-openness-1" class="section level1">
-<h1>3.14. Rel with teachers: comfort, interest, and openness</h1>
-<pre class="r"><code>m_rel_1 &lt;- lm(engage ~ rel_1, d_w_scales)
-
-summary(m_rel_1) # p = 0.19</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ rel_1, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.70691 -0.37096  0.00404  0.37904  1.04309 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   4.6834     0.4524  10.352   &lt;2e-16 ***
-## rel_1        -0.1875     0.1436  -1.306    0.195    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5433 on 92 degrees of freedom
-## Multiple R-squared:  0.0182, Adjusted R-squared:  0.007532 
-## F-statistic: 1.706 on 1 and 92 DF,  p-value: 0.1948</code></pre>
-</div>
-<div id="rel-with-school-parent-self-efficacy-to-solve-probs-with-school-1" class="section level1">
-<h1>3.15. Rel with school: parent self-efficacy to solve probs with
-school</h1>
-<pre class="r"><code>m_rel_2 &lt;- lm(engage ~ rel_2, d_w_scales)
-
-summary(m_rel_2) # p = 0.65</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = engage ~ rel_2, data = d_w_scales)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.79409 -0.34172 -0.02128  0.40828  0.97179 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  3.90117    0.44524   8.762 9.19e-14 ***
-## rel_2        0.06352    0.14319   0.444    0.658    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 0.5477 on 92 degrees of freedom
-## Multiple R-squared:  0.002134,   Adjusted R-squared:  -0.008712 
-## F-statistic: 0.1968 on 1 and 92 DF,  p-value: 0.6584</code></pre>
+## Residual standard error: 0.5108 on 59 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.3843, Adjusted R-squared:  0.1547 
+## F-statistic: 1.674 on 22 and 59 DF,  p-value: 0.06007</code></pre>
 </div>
 
 
