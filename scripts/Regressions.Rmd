@@ -18,18 +18,20 @@ Diss Research questions:
 
 2. What specific structural and relational components of family-school connections in the Conexiones parents’ assessment data are significantly and positively associated with positive students’ school engagement? --> to be addressed with simple linear regression models
 
-3. Does parent educational level and comfort with English language moderate the relationship between structural and relational family-school connections components and student’s school engagement? --> to be addressed with moderated multiple regression models (take it out from the beginning, inform the memeber when sending the complete diss that Q3 was taken out due to the large number of models)
 
-4. What model best predicts positive students’ school engagement, a structural components only model or a combined structural plus relational components model? --> to be addressed with a step-wise multiple linear regression model, with predictor blocks
+3. What model best predicts positive students’ school engagement, a structural components only model or a combined structural plus relational components model? --> to be addressed with a step-wise multiple linear regression model, with predictor blocks
 
      demo vars: if effects hold when demo vars included... 
      
      model 1a: what is the univar association of each predictor with the outcome (15 models)
      model 1b: what is the multivar assicition of each predictor with th outcome adjusting for demo charcs (covariates) (15 models)
+     
      model 2a: what is the multivar effect of the structural predictors with th outcome (1 model, 10 composire scores simultaneously)
      model 2b: what is the multivar effect of the structural predictors with th outcome adjusting for demo charcr (1 model, 10 composite scores simultaneously + demo vars: block 1 demos, block 2: structural (10 scores))
+     
      model 3a: what is the multivar effect of the relational predictors with th outcome (1 model, 5 composite scores simultaneously)
      model 3b: what is the multivar effect of the relational predictors with th outcome adjusting for demo charcr (1 model, 5 composite scores simultaneously + demo vars: block 1 demos, block 2: relational (5 scores))
+     
      model 4a: what is the multivar effect of structural and relational predictors on the outcome (1 model,  15 scores simultaneosuly)
      model 4b: what is the multivar effect of structural and relational predictors on the outcome adjusting for demo charcr (1 model,  15 scores simultaneosuly + demo vars: block 1 demos, block 2: structural + block 3: relational; if RQ changes and is that interest is above and beyond structural)
      
@@ -63,114 +65,13 @@ theme_set(theme_minimal())
 ```
 
 
-```{r}
-all <- read_sav(here("data", "parent_hv1_youth_w1.sav"))
-
-view_df(all) # need to select covariates to include from this dataset 
-
-# Inlcuded in d3:
-ggplot(all, aes(factor(q36_hv1))) + 
-  geom_bar() 
-
-ggplot(all, aes(factor(q173_3_p1))) + 
-  geom_bar()
-  
-# TO BE INCLUDED
-all$q4_3_text_hv1 # parent's age -- MAKE IT DOUBLE
-
-ggplot(all, aes(factor(participant_p1))) + 
-  geom_bar() # Parent role (1 = mom, 2 = dad, 4 = other) -- FACTOR
-
-ggplot(all, aes(as.double(q17_1_text_hv1))) + 
-  geom_histogram() # child's age -- MAKE IT DOUBLE
-
-ggplot(all, aes(factor(q231_y1))) + 
-  geom_bar() # youth gender (1 = male, 2 = FEMALE) -- FACTOR
-
-ggplot(all, aes(factor(q4_y1))) + 
-  geom_bar() # self-reported youth grades -- FACTOR
-
-ggplot(all, aes(factor(q2_y1))) + 
-  geom_bar()# youth's grade (1 = 6th, 2 = 7th, 3 = 8th) -- FACTOR
-
-selected <- all %>%
-  select(1:4, participant_p1, q173_3_p1, q4_3_text_hv1, q17_1_text_hv1, q36_hv1, q231_y1, q4_y1, q2_y1)
-
-```
-
-
-# recoding missing variables as N/A
-```{r include=FALSE}
-# recoding missing values as N/A with function
-
-# vector with missing values in dataset
-missing_vals <- c(77, 99, -99)
-
-# function that returns true if values in vector are equal to missing_vals. The function takes a vector x, and specified values of missing data
-recode_missing <- function(x, missing_vals = c(77, 99, -99)) {
-  test <- x %in% missing_vals
-  ifelse(test, NA, x)
-}
-
-# function that recodes missing values to NA. The function takes a dataframe with variables with missing data, and specified values of missing data
-recode_missing_df <- function(df, missing_vals = c(77, 99, -99)) {
-  modify(df, ~recode_missing(.x, missing_vals)) # here uses the function created above
-}
-
-d2 <- recode_missing_df(selected) # the function strips out variable labels
-```
-
-```{r}
-covariates <- selected %>%
-  rename(parent_role = participant_p1) %>%
-  mutate(parent_age = as.numeric(q4_3_text_hv1),
-         parent_age = 2018 - parent_age,
-         parent_ed = as.factor(q36_hv1),
-         parent_eng_comf = as.factor(q173_3_p1),
-         youth_age = as.numeric(q17_1_text_hv1),
-         youth_gender = as.factor(q231_y1),
-         youth_grades = as.factor(q4_y1),
-         youth_grlevel = as.factor(q2_y1)) %>%
-  select(1:4, parent_role, parent_age, parent_ed, parent_eng_comf, youth_age, youth_gender, youth_grades, youth_grlevel)
-
-covariates # need to join this to d_w_scales
-```
-
-
 # Loading the dataset (only analysis vars)
 ```{r}
-d <- read_sav(here("data", "d3.sav"))
+d <- read_sav(here("data", "d4 - scales & covariates.sav"))
 
 view_df(d)
 ```
 
-
-```{r}
-d
-```
-# Scale creation (15 predictors, 1 outcome)
-```{r}
-d_w_scales <- d %>%
-  rowwise() %>% 
-  mutate(hwi_1 = mean(c(q86_p1, q87_p1, q88_p1, q89_p1, q94_p1, q96_p1, q97_p1), na.rm = TRUE),
-         hwi_2 = mean(c(q84_p1, q85_p1, q93_p1, q95_p1), na.rm = TRUE),
-         hwi_3 = mean(c(q90_p1, q91_p1, q98_p1), na.rm = TRUE),
-         monit = mean(c(q137_p1, q139_p1, q140_p1, q143_p1, q144_p1), na.rm = TRUE),
-         str_home = mean(c(q23_p1, q24_p1, q25_p1, q26_p1, q27_p1, q28_p1, q29_p1, q30_p1), na.rm = TRUE),
-         convos_1 = mean(c(q76_p1, q77_p1, q78_p1, q79_p1), na.rm = TRUE),
-         convos_2 = mean(c(q73_p1, q75_p1, q80_p1, q81_p1), na.rm = TRUE),
-         convos_3 = mean(c(q68_p1, q69_p1, q70_p1, q71_p1), na.rm = TRUE),
-         sbi_1 = mean(c(q31_p1, q32_p1, q33_p1, q34_p1), na.rm = TRUE),
-         sbi_2 = mean(c(q36_p1, q37_p1, q38_p1, q39_p1, q40_p1), na.rm = TRUE),
-         belong = mean(c(q47_p1, q48_p1, q51_p1, q52_p1, q53_p1), na.rm = TRUE),
-         endorse = mean(c(q54_p1, q56_p1, q57_p1), na.rm = TRUE),
-         value_ed = mean(c(q105_p1, q106_p1, q107_p1, q108_p1, q109_p1, q110_p1), na.rm = TRUE),
-         rel_1 = mean(c(q41_p1, q58_p1, q62_p1, q63_p1, q64_p1, q65_p1, q66_p1, q67_p1), na.rm = TRUE),
-         rel_2 = mean(c(q43_p1, q44_p1, q50_p1, q126_p1), na.rm = TRUE),
-         engage = mean(c(q83_y1, q85_y1, q86_y1, q87_y1, q88_y1, q89_y1, q90_y1, q91_y1), na.rm = TRUE))
-
-view_df(d_w_scales)
-```
 
 # descriptive stats function
 ```{r include=FALSE}
@@ -198,7 +99,7 @@ descriptives <- function(df) {
 
 
 ```{r}
-only_scales <- d_w_scales %>%
+only_scales <- d %>%
   select(108:123)
 
 descrip_table <- descriptives(only_scales) %>%
@@ -206,38 +107,7 @@ descrip_table <- descriptives(only_scales) %>%
 ```
 
 
-# grand mean center predictors (?)
-```{r}
-# d_w_scales_c <- d_w_scales %>%
-# mutate(hwi_1_c = hwi_1 - (round(mean(hwi_1, na.rm = TRUE), 2)),
-#        hwi_2_c = hwi_2 - mean(hwi_2, na.rm = TRUE),
-#        hwi_3_c = hwi_3 - mean(hwi_3, na.rm = TRUE),
-#        monit_c = monit - mean(monit, na.rm = TRUE),
-#        str_home_c = str_home - mean(str_home, na.rm = TRUE),
-#        convos_1_c = convos_1 - mean(convos_1, na.rm = TRUE),
-#        convos_2_c = convos_2 - mean(convos_2, na.rm = TRUE),
-#        convos_3_c = convos_3 - mean(convos_3, na.rm = TRUE),
-#        sbi_1_c = sbi_1 - mean(sbi_1, na.rm = TRUE),
-#        sbi_2_c = sbi_2 - mean(sbi_2, na.rm = TRUE),
-#        belong_c = belong - mean(belong, na.rm = TRUE),
-#        endorse_c = endorse - mean(endorse, na.rm = TRUE),
-#        value_ed_c = value_ed - mean(value_ed, na.rm = TRUE),
-#        rel_1_c = rel_1 - mean(rel_1, na.rm = TRUE),
-#        rel_2_c = rel_2 - mean(rel_2, na.rm = TRUE),
-#        ed_level = factor(q36_hv1),
-#        eng_comf = factor(q173_3_p1)) # this is not working. it gives me a zero in all the centered vars. Have tried multiple ways of using ()
-# 
-# # summary(d_w_scales)
-# 
-# # first row: 1.857143 - 2.704045 # -0.846902\
-# d_w_scales$hwi_1 - round(mean(d_w_scales$hwi_1, na.rm = TRUE), 2) # this works
-# 
-# d_w_scales_c <- d_w_scales %>%
-#   mutate(hwi_1_c = hwi_1 - round(mean(hwi_1, na.rm = TRUE), 2)) # this doesn't, first row of hwi_1_c = -0.002857143
-```
-
-
-#correlation matrix 
+# correlation matrix 
 ```{r}
 library(Hmisc)
 rcorr(as.matrix(only_scales), type = "pearson")
@@ -248,23 +118,17 @@ rcorr(as.matrix(only_scales), type = "pearson")
 ------------------------------
 
      model 1a: what is the univar association of each predictor with the outcome (15 models)
-     model 1b: what is the multivar assiciation of each predictor with th outcome adjusting for demo charcs (covariates) (15 models)
-     
-     model 2a: what is the multivar effect of the structural predictors with th outcome (1 model, 10 composiTe scores simultaneously)
-     model 2b: what is the multivar effect of the structural predictors with th outcome adjusting for demo charcr (1 model, 10 composite     scores simultaneously + demo vars: block 1 demos, block 2: structural (10 scores))
-     
-     model 3a: what is the multivar effect of the relational predictors with th outcome (1 model, 5 composite scores simultaneously)
-     model 3b: what is the multivar effect of the relational predictors with th outcome adjusting for demo charcr (1 model, 5 composite scores simultaneously + demo vars: block 1 demos, block 2: relational (5 scores))
-     
-     model 4a: what is the multivar effect of structural and relational predictors on the outcome (1 model,  15 scores simultaneosuly)
-     model 4b: what is the multivar effect of structural and relational predictors on the outcome adjusting for demo charcr (1 model,  15  scores simultaneosuly + demo vars: block 1 demos, block 2: structural + block 3: relational; if RQ changes and is that interest is above and beyond structural)
+     model 1b: what is the multivar assiciation of each predictor with th outcome adjusting for      demo charcs (covariates) (15 models)
 
 # 2.1. Academic approach (tutor)
 ```{r}
-m_hwi_1 <- lm(engage ~ hwi_1, d_w_scales)
+m_hwi_1a <- lm(engage ~ hwi_1, d)
+summary(m_hwi_1a) # p = 0.07
 
-summary(m_hwi_1) # p = 0.07
+m_hwi_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d)
+summary(m_hwi_1b) # p = 0.04 (not completely sure if this is the p-value i should look at?)
 ```
+
 engage predicted by hw1
 
 Intercept: expected value of youth's engagement when the average hW involvement in data set is considered (I think = 2.70)
@@ -273,126 +137,154 @@ slope: the effect HW involvement has in youth's engagement = for every one unit 
 
 # 2.2. structuring/monitoring approach to HWI
 ```{r}
-m_hwi_2 <- lm(engage ~ hwi_2, d_w_scales)
+m_hwi_2a <- lm(engage ~ hwi_2, d)
+summary(m_hwi_2a)# p = 0.01
 
-summary(m_hwi_2)# p = 0.01
+m_hwi_2b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_2, d)
+summary(m_hwi_2b)# p = 0.01 
 ```
 
 # 2.3. positive reinforcement to increase HW completion
 ```{r}
-m_hwi_3 <- lm(engage ~ hwi_3, d_w_scales)
+m_hwi_3a <- lm(engage ~ hwi_3, d)
+summary(m_hwi_3a) # p = 0.03
 
-summary(m_hwi_3) # p = 0.03
+m_hwi_3b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_3, d)
+summary(m_hwi_3b) # p = 0.01
 ```
 
 # 2.4. monitoring
 ```{r}
-m_monit <- lm(engage ~ monit, d_w_scales)
+m_monit_a <- lm(engage ~ monit, d)
+summary(m_monit_a) # p = 0.89
 
-summary(m_monit) # p = 0.89
+m_monit_a <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + monit, d)
+summary(m_monit_a) # p = 0.61
 ```
 
 
 # 2.5. structure at home
 ```{r}
-m_str_home <- lm(engage ~ str_home, d_w_scales)
+m_str_home_a <- lm(engage ~ str_home, d)
+summary(m_str_home_a) # p = 0.04
 
-summary(m_str_home) # p = 0.04
+m_str_home_b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + str_home, d)
+summary(m_str_home_b) # p = 0.02
 ```
 
 
 # 2.6. convos: child beh & school climate
 ```{r}
-m_convos_1 <- lm(engage ~ convos_1, d_w_scales)
+m_convos_1a <- lm(engage ~ convos_1, d)
+summary(m_convos_1a) # p = 0.86
 
-summary(m_convos_1) # p = 0.86
+m_convos_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + convos_1, d)
+summary(m_convos_1b) # p = 0.86
 ```
 
 
 # 2.7. convos: future career planning
 ```{r}
-m_convos_2 <- lm(engage ~ convos_2, d_w_scales)
+m_convos_2a <- lm(engage ~ convos_2, d)
+summary(m_convos_2a) # p = 0.07
 
-summary(m_convos_2) # p = 0.07
+m_convos_2b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + convos_2, d)
+summary(m_convos_2b) # p = 0.14
 ```
 
 
 # 2.8. convos: child's social involvement
 ```{r}
-m_convos_3 <- lm(engage ~ convos_3, d_w_scales)
+m_convos_3a <- lm(engage ~ convos_3, d)
+summary(m_convos_3a) # p = 0.27
 
-summary(m_convos_3) # p = 0.27
+m_convos_3b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + convos_3, d)
+summary(m_convos_3b) # p = 0.24
 ```
 
 
 # 2.9. Basic involvement
 ```{r}
-m_sbi_1 <- lm(engage ~ sbi_1, d_w_scales)
+m_sbi_1a <- lm(engage ~ sbi_1, d)
+summary(m_sbi_1a) # p = 0.05
 
-summary(m_sbi_1) # p = 0.05
+m_sbi_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + sbi_1, d)
+summary(m_sbi_1b) # p = 0.01
 ```
 
 
 # 2.10. Resource-intensive involvement
 ```{r}
-m_sbi_2 <- lm(engage ~ sbi_2, d_w_scales)
+m_sbi_2a <- lm(engage ~ sbi_2, d)
+summary(m_sbi_2a) # p = 0.03
 
-summary(m_sbi_2) # p = 0.03
+m_sbi_2b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + sbi_2, d)
+summary(m_sbi_2b) # p = 0.03
 ```
 
 
 # 2.11. Belongingness
 ```{r}
-m_belong <- lm(engage ~ belong, d_w_scales)
+m_belong_a <- lm(engage ~ belong, d)
+summary(m_belong_a) # p = 0.97
 
-summary(m_belong) # p = 0.97
+m_belong_b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + belong, d)
+summary(m_belong_b) # p = 0.65
 ```
 
 
 # 2.12. Endorsemnt
 ```{r}
-m_endorse <- lm(engage ~ endorse, d_w_scales)
+m_endorse_a <- lm(engage ~ endorse, d)
+summary(m_endorse_a) # p = 0.53
 
-summary(m_endorse) # p = 0.53
+m_endorse_b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + endorse, d)
+summary(m_endorse_b) # p = 0.84
 ```
 
 
 # 2.13. Value & supp of Ed
 ```{r}
-m_value_ed <- lm(engage ~ value_ed, d_w_scales)
+m_value_ed_a <- lm(engage ~ value_ed, d)
+summary(m_value_ed_a) # p = 0.77
 
-summary(m_value_ed) # p = 0.77
+m_value_ed_b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + value_ed, d)
+summary(m_value_ed_b) # p = 0.65
 ```
 
 
 # 2.14. Rel with teachers: comfort, interest, and openness
 ```{r}
-m_rel_1 <- lm(engage ~ rel_1, d_w_scales)
+m_rel_1a <- lm(engage ~ rel_1, d)
+summary(m_rel_1a) # p = 0.19
 
-summary(m_rel_1) # p = 0.19
+m_rel_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + rel_1, d)
+summary(m_rel_1b) # p = 0.24
 ```
 
 
 # 2.15. Rel with school: parent self-efficacy to solve probs with school
 ```{r}
-m_rel_2 <- lm(engage ~ rel_2, d_w_scales)
+m_rel_2a <- lm(engage ~ rel_2, d)
+summary(m_rel_2a) # p = 0.66
 
-summary(m_rel_2) # p = 0.65
+m_rel_2b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + rel_2, d)
+summary(m_rel_2b) # p = 0.41
 ```
 
 # just for fun: relational aspects predicting parent's self-effi
 ```{r}
-m_rel_belong <- lm(rel_2 ~ belong, d_w_scales)
-summary(m_rel_belong) # p < 0.001
-
-m_rel_endorse <- lm(rel_2 ~ endorse, d_w_scales)
-summary(m_rel_endorse) # p < 0.001
-
-m_rel_value_ed <- lm(rel_2 ~ value_ed, d_w_scales)
-summary(m_rel_value_ed) # p < 0.001
-
-m_rel_qual <- lm(rel_2 ~ rel_1, d_w_scales)
-summary(m_rel_qual) # p < 0.001
+# m_rel_belong <- lm(rel_2 ~ belong, d)
+# summary(m_rel_belong) # p < 0.001
+# 
+# m_rel_endorse <- lm(rel_2 ~ endorse, d)
+# summary(m_rel_endorse) # p < 0.001
+# 
+# m_rel_value_ed <- lm(rel_2 ~ value_ed, d)
+# summary(m_rel_value_ed) # p < 0.001
+# 
+# m_rel_qual <- lm(rel_2 ~ rel_1, d)
+# summary(m_rel_qual) # p < 0.001
 ```
 
 
@@ -400,138 +292,64 @@ summary(m_rel_qual) # p < 0.001
 # RESEARCH QUESTION 3
 ------------------------------
 
+     model 2a: what is the multivar effect of the structural predictors with th outcome (1          model, 10 composire scores simultaneously)
 ```{r}
-d_w_scales$q36_hv1 # ed level ((1 - 11)
-
-d_w_scales$q173_3_p1 # ENG comfort in youth school (1 - 5)
+m_structs_2a <- lm(engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
+summary(m_structs_2a) # p = 0.09 (full model p-value)
 ```
 
 
-# 3.1. Academic approach (tutor)
+     model 2b: what is the multivar effect of the structural predictors with th outcome             adjusting for demo charcr (1 model, 10 composite scores simultaneously + demo vars: block      1 demos, block 2: structural (10 scores))
 ```{r}
-m2.1_hwi_1 <- lm(engage ~ hwi_1 + hwi_1:q36_hv1, d_w_scales)
-summary(m2.1_hwi_1) # p = not sure which to look at
-
-m2.2_hwi_1 <- lm(engage ~ hwi_1 + hwi_1:q173_3_p1, d_w_scales)
-summary(m2.2_hwi_1) # p = not sure which to look at
+m_structs_2b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
+summary(m_structs_2b) # p = 0.21 (full model p-value)
 ```
 
 
-# 3.2. structuring/monitoring approach to HWI
+     model 3a: what is the multivar effect of the relational predictors with th outcome (1          model, 5 composite scores simultaneously)
 ```{r}
-m2.1_hwi_2 <- lm(engage ~ hwi_2 + hwi_2:q36_hv1, d_w_scales)
-summary(m2.1_hwi_2) # p = 
-
-m2.2_hwi_2 <- lm(engage ~ hwi_2 + hwi_2:q173_3_p1, d_w_scales)
-summary(m2.2_hwi_2) # p = 
-```
-
-## Note for Jeff: 
-disregard the following models, I just copied and pasted the simple regression models and will add the interaction terms once I get my mind sorted out. 
-
-# 3.3. positive reinforcement to increase HW completion
-```{r}
-m_hwi_3 <- lm(engage ~ hwi_3, d_w_scales)
-
-summary(m_hwi_3) # p = 0.03
-```
-
-# 3.4. monitoring
-```{r}
-m_monit <- lm(engage ~ monit, d_w_scales)
-
-summary(m_monit) # p = 0.89
+m_rels_3a <- lm(engage ~ belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_rels_3a) # p = 0.47 (full model p-value)
 ```
 
 
-# 3.5. structure at home
+     model 3b: what is the multivar effect of the relational predictors with th outcome             adjusting for demo charcr (1 model, 5 composite scores simultaneously + demo vars: block 1      demos, block 2: relational (5 scores))
 ```{r}
-m_str_home <- lm(engage ~ str_home, d_w_scales)
-
-summary(m_str_home) # p = 0.04
+m_rels_3b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_rels_3b) # p = 0.58 (full model p-value)
 ```
 
-
-# 3.6. convos: child beh & school climate
+      model 4a: what is the multivar effect of structural and relational predictors on the           outcome (1 model,  15 scores simultaneosuly)
 ```{r}
-m_convos_1 <- lm(engage ~ convos_1, d_w_scales)
-
-summary(m_convos_1) # p = 0.86
+m_combi_4a <- lm(engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_combi_4a) # p = 0.02 (full model p-value)
 ```
 
-
-# 3.7. convos: future career planning
+      
+      model 4b: what is the multivar effect of structural and relational predictors on the           outcome adjusting for demo charcr (1 model,  15 scores simultaneosuly + demo vars: block       1 demos, block 2: structural + block 3: relational; if RQ changes and is that interest is       above and beyond structural)
 ```{r}
-m_convos_2 <- lm(engage ~ convos_2, d_w_scales)
+# Block 0: demo only
+m_demo_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d)
+summary(m_demo_4b) # p = 0.89 (full model p-value)
 
-summary(m_convos_2) # p = 0.07
+# Block 1: demo + (combined structural + relational at once)
+m_combi_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_combi_4b) # p = 0.06 (full model p-value)
+```
+# over and above structural 
+```{r}
+# Block 0: demo only
+m_demo_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d)
+summary(m_demo_4b) # p = 0.89 (full model p-value)
+
+# block 1: demo + structural
+m_block1_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
+summary(m_block1_4b) # p = 0.21 (full model p-value)
+
+# block 2: demo + structural + relational (over and above structural)
+m_block2_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_block2_4b) # p = 0.06 (full model p-value)
 ```
 
-
-# 3.8. convos: child's social involvement
-```{r}
-m_convos_3 <- lm(engage ~ convos_3, d_w_scales)
-
-summary(m_convos_3) # p = 0.27
-```
-
-
-# 3.9. Basic involvement
-```{r}
-m_sbi_1 <- lm(engage ~ sbi_1, d_w_scales)
-
-summary(m_sbi_1) # p = 0.05
-```
-
-
-# 3.10. Resource-intensive involvement
-```{r}
-m_sbi_2 <- lm(engage ~ sbi_2, d_w_scales)
-
-summary(m_sbi_2) # p = 0.03
-```
-
-
-# 3.11. Belongingness
-```{r}
-m_belong <- lm(engage ~ belong, d_w_scales)
-
-summary(m_belong) # p = 0.97
-```
-
-
-# 3.12. Endorsemnt
-```{r}
-m_endorse <- lm(engage ~ endorse, d_w_scales)
-
-summary(m_endorse) # p = 0.53
-```
-
-
-# 3.13. Value & supp of Ed
-```{r}
-m_value_ed <- lm(engage ~ value_ed, d_w_scales)
-
-summary(m_value_ed) # p = 0.77
-```
-
-
-# 3.14. Rel with teachers: comfort, interest, and openness
-```{r}
-m_rel_1 <- lm(engage ~ rel_1, d_w_scales)
-
-summary(m_rel_1) # p = 0.19
-```
-
-
-# 3.15. Rel with school: parent self-efficacy to solve probs with school
-```{r}
-m_rel_2 <- lm(engage ~ rel_2, d_w_scales)
-
-summary(m_rel_2) # p = 0.65
-```
-
-
-
-
-
+     
+     
