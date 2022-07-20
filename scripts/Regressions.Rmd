@@ -60,16 +60,37 @@ library(kableExtra)
 library(psych)
 library(sjmisc)
 library(MVN)
+library(stats)
 
 theme_set(theme_minimal())
 ```
+Elementary or less 23.4
+Middle school 17 + Some HS  20.2 = 37.2 (reference)
+Complete HS or GED 32.2
+Post secondary ed 7.4
 
 
 # Loading the dataset (only analysis vars)
 ```{r}
 d <- read_sav(here("data", "d4 - scales & covariates.sav"))
 
-view_df(d)
+
+d_test <- d %>%
+  mutate(parent_role = factor(parent_role),
+         parent_role = relevel(parent_role, ref = "1"), # mom
+         parent_ed = factor(parent_ed),
+         parent_ed = case_when(
+           parent_ed == "1" | parent_ed == "2" | parent_ed == "3" ~ "1", #elementary or less
+           parent_ed == "4" | parent_ed == "5" ~ "2", #incomplete HS
+           parent_ed == "6" | parent_ed == "7" ~ "3", #secondary
+           parent_ed == "8" | parent_ed == "9" | parent_ed == "10" ~ "4"), #post-secondary
+         parent_ed = factor(parent_ed),
+         parent_ed = relevel(parent_ed, ref = "2"),
+         parent_eng_comf = as.numeric(parent_eng_comf), # average comfort
+         youth_gender = factor(youth_gender),
+         youth_gender = relevel(youth_gender, ref = "1"), # male
+         youth_grlevel = factor(youth_grlevel),
+         youth_grlevel = relevel(youth_grlevel, ref = "2")) # 7th grade
 ```
 
 
@@ -106,6 +127,15 @@ descrip_table <- descriptives(only_scales) %>%
   rename(c("Scale" = "column"))
 ```
 
+```{r}
+ggplot(d, aes(engage)) + 
+  geom_histogram() # approxiamtes normality, shows one outlier z-score greater than 3.0 or -3.0 (converting to Z-scores)
+
+# extreme outlier were removed from analysis and result did not meaningfully changed. 
+
+d$engage
+```
+
 
 # correlation matrix 
 ```{r}
@@ -126,6 +156,14 @@ m_hwi_1a <- lm(engage ~ hwi_1, d)
 summary(m_hwi_1a) # p = 0.07
 
 m_hwi_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d)
+summary(m_hwi_1b) # p = 0.04 (not completely sure if this is the p-value i should look at?)
+```
+
+```{r}
+m_hwi_1a <- lm(engage ~ hwi_1, d_test)
+summary(m_hwi_1a) # p = 0.07
+
+m_hwi_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d_test)
 summary(m_hwi_1b) # p = 0.04 (not completely sure if this is the p-value i should look at?)
 ```
 
@@ -158,8 +196,8 @@ summary(m_hwi_3b) # p = 0.01
 m_monit_a <- lm(engage ~ monit, d)
 summary(m_monit_a) # p = 0.89
 
-m_monit_a <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + monit, d)
-summary(m_monit_a) # p = 0.61
+m_monit_b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + monit, d)
+summary(m_monit_b) # p = 0.61
 ```
 
 
@@ -322,7 +360,7 @@ summary(m_rels_3b) # p = 0.58 (full model p-value)
       model 4a: what is the multivar effect of structural and relational predictors on the           outcome (1 model,  15 scores simultaneosuly)
 ```{r}
 m_combi_4a <- lm(engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
-summary(m_combi_4a) # p = 0.02 (full model p-value)
+summary(m_combi_4a) # p = 0.02 (full model p-value) HOW COME?
 ```
 
       
@@ -336,6 +374,14 @@ summary(m_demo_4b) # p = 0.89 (full model p-value)
 m_combi_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
 summary(m_combi_4b) # p = 0.06 (full model p-value)
 ```
+
+```{r}
+# Block 0: demo only
+m_demo_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d_test)
+summary(m_demo_4b) # p = 0.89 (full model p-value)
+```
+
+
 # over and above structural 
 ```{r}
 # Block 0: demo only
