@@ -275,3 +275,23 @@ fa.parallel(test_scale_sch, n.obs=NULL, fm="uls", fa="fa", nfactors=1, main="Par
 # 2 factors
 fa(test_scale_sch, nfactors = 2, n.obs = NA, rotate = "quartimin", fm = "uls", cor = "poly")
 ```
+
+
+####################################
+# FROM REGRESSION ANALYSES
+####################################
+
+# 2.3. positive reinforcement to increase HW completion
+m_hwi_3a <- lm(engage ~ hwi_3, d)
+summary(m_hwi_3a) # p = 0.03
+
+m_hwi_3b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_3, d)
+summary(m_hwi_3b) # p = 0.01
+
+
+# 2.4. monitoring
+m_monit_a <- lm(engage ~ monit, d)
+summary(m_monit_a) # p = 0.89
+
+m_monit_b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + monit, d)
+summary(m_monit_b) # p = 0.61

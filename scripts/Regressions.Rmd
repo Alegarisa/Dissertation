@@ -74,8 +74,7 @@ Post secondary ed 7.4
 ```{r}
 d <- read_sav(here("data", "d4 - scales & covariates.sav"))
 
-
-d_test <- d %>%
+d <- d %>%
   mutate(parent_role = factor(parent_role),
          parent_role = relevel(parent_role, ref = "1"), # mom
          parent_ed = factor(parent_ed),
@@ -104,7 +103,10 @@ only_numeric <- function(df) {
 }
 
 # a list with the functions we want
-smry <- list(M = function(x) round(mean(x, na.rm = TRUE), 2), 
+smry <- list(n = function(x) length(x),
+             n_valid = function(x) sum(!is.na(x)),
+             na = function(x) sum(is.na(x)),
+             M = function(x) round(mean(x, na.rm = TRUE), 2), 
              SD = function(x) round(sd(x, na.rm = TRUE), 2),
              Min = function(x) round(min(x, na.rm = TRUE), 2),
              Max = function(x) round(max(x, na.rm = TRUE), 2))
@@ -121,7 +123,7 @@ descriptives <- function(df) {
 
 ```{r}
 only_scales <- d %>%
-  select(108:123)
+  select(108:123, -hwi_3, -monit)
 
 descrip_table <- descriptives(only_scales) %>%
   rename(c("Scale" = "column"))
@@ -154,18 +156,12 @@ rcorr(as.matrix(only_scales), type = "pearson")
 ```{r}
 m_hwi_1a <- lm(engage ~ hwi_1, d)
 summary(m_hwi_1a) # p = 0.07
+arm::display(m_hwi_1a, detail = TRUE)
 
 m_hwi_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d)
 summary(m_hwi_1b) # p = 0.04 (not completely sure if this is the p-value i should look at?)
 ```
 
-```{r}
-m_hwi_1a <- lm(engage ~ hwi_1, d_test)
-summary(m_hwi_1a) # p = 0.07
-
-m_hwi_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d_test)
-summary(m_hwi_1b) # p = 0.04 (not completely sure if this is the p-value i should look at?)
-```
 
 engage predicted by hw1
 
@@ -181,25 +177,6 @@ summary(m_hwi_2a)# p = 0.01
 m_hwi_2b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_2, d)
 summary(m_hwi_2b)# p = 0.01 
 ```
-
-# 2.3. positive reinforcement to increase HW completion
-```{r}
-m_hwi_3a <- lm(engage ~ hwi_3, d)
-summary(m_hwi_3a) # p = 0.03
-
-m_hwi_3b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_3, d)
-summary(m_hwi_3b) # p = 0.01
-```
-
-# 2.4. monitoring
-```{r}
-m_monit_a <- lm(engage ~ monit, d)
-summary(m_monit_a) # p = 0.89
-
-m_monit_b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + monit, d)
-summary(m_monit_b) # p = 0.61
-```
-
 
 # 2.5. structure at home
 ```{r}
@@ -330,72 +307,77 @@ summary(m_rel_2b) # p = 0.41
 # RESEARCH QUESTION 3
 ------------------------------
 
-     model 2a: what is the multivar effect of the structural predictors with th outcome (1          model, 10 composire scores simultaneously)
 ```{r}
-m_structs_2a <- lm(engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
-summary(m_structs_2a) # p = 0.09 (full model p-value)
+# Block 0: demo only
+m_demo <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d)
+summary(m_demo) # p = 0.89 (full model p-value)
 ```
 
 
-     model 2b: what is the multivar effect of the structural predictors with th outcome             adjusting for demo charcr (1 model, 10 composite scores simultaneously + demo vars: block      1 demos, block 2: structural (10 scores))
+     model 2a: what is the multivar effect of the structural predictors with th outcome (1 model, 10 composire scores simultaneously)
 ```{r}
-m_structs_2b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
-summary(m_structs_2b) # p = 0.21 (full model p-value)
+m_structs_2a <- lm(engage ~ hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
+summary(m_structs_2a) # p = 0.10 (full model p-value)
+```
+
+################### Adjusted, Structural only on outcome ######################
+
+     model 2b: what is the multivar effect of the structural predictors with th outcome adjusting for demo charcr (1 model, 10 composite scores simultaneously + demo vars: block 1 demos, block 2: structural (10 scores))
+```{r}
+m_structs_2b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
+summary(m_structs_2b) # p = 0.35 (full model p-value)
 ```
 
 
-     model 3a: what is the multivar effect of the relational predictors with th outcome (1          model, 5 composite scores simultaneously)
+     model 3a: what is the multivar effect of the relational predictors with th outcome (1 model, 5 composite scores simultaneously)
 ```{r}
 m_rels_3a <- lm(engage ~ belong + endorse + value_ed + rel_1 + rel_2, d)
 summary(m_rels_3a) # p = 0.47 (full model p-value)
 ```
 
+################### Adjusted, Relational only on outcome ######################
 
-     model 3b: what is the multivar effect of the relational predictors with th outcome             adjusting for demo charcr (1 model, 5 composite scores simultaneously + demo vars: block 1      demos, block 2: relational (5 scores))
+     model 3b: what is the multivar effect of the relational predictors with th outcome adjusting for demo charcr (1 model, 5 composite scores simultaneously + demo vars: block 1      demos, block 2: relational (5 scores))
 ```{r}
 m_rels_3b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + belong + endorse + value_ed + rel_1 + rel_2, d)
-summary(m_rels_3b) # p = 0.58 (full model p-value)
+summary(m_rels_3b) # p = 0.60 (full model p-value)
 ```
 
-      model 4a: what is the multivar effect of structural and relational predictors on the           outcome (1 model,  15 scores simultaneosuly)
+      model 4a: what is the multivar effect of structural and relational predictors on the outcome (1 model,  15 scores simultaneosuly)
 ```{r}
-m_combi_4a <- lm(engage ~ hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
-summary(m_combi_4a) # p = 0.02 (full model p-value) HOW COME?
+m_combi_4a <- lm(engage ~ hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_combi_4a) # p = 0.03 (full model p-value) HOW COME?
 ```
 
-      
-      model 4b: what is the multivar effect of structural and relational predictors on the           outcome adjusting for demo charcr (1 model,  15 scores simultaneosuly + demo vars: block       1 demos, block 2: structural + block 3: relational; if RQ changes and is that interest is       above and beyond structural)
+################### Adjusted, Combined: Structural + Relational only on outcome ######################
+    
+      model 4b: what is the multivar effect of structural and relational predictors on the outcome adjusting for demo charcr (1 model, 15 scores simultaneosuly + demo vars: block 1 demos, block 2: structural + block 3: relational
 ```{r}
-# Block 0: demo only
-m_demo_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d)
-summary(m_demo_4b) # p = 0.89 (full model p-value)
-
-# Block 1: demo + (combined structural + relational at once)
-m_combi_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
-summary(m_combi_4b) # p = 0.06 (full model p-value)
+# Block: demo + (combined structural + relational at once)
+m_combi_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
+summary(m_combi_4b) # p = 0.09 (full model p-value)
 ```
+
+------------------------------
+# Model comparisons
+------------------------------
+
+Adjusted, structural predictors model:
+m_structs_2b
+
+Adjusted, relational predictors model:
+m_rels_3b
+
+Adjusted, combined (structural + relational) predictors model:
+m_combi_4a
 
 ```{r}
-# Block 0: demo only
-m_demo_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d_test)
-summary(m_demo_4b) # p = 0.89 (full model p-value)
+# sundry::aic_weights(m_structs_2b, m_rels_3b)
+# 
+# sundry::aic_weights(m_rels_3b, m_combi_4a)
 ```
 
 
-# over and above structural 
-```{r}
-# Block 0: demo only
-m_demo_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel, d)
-summary(m_demo_4b) # p = 0.89 (full model p-value)
-
-# block 1: demo + structural
-m_block1_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2, d)
-summary(m_block1_4b) # p = 0.21 (full model p-value)
-
-# block 2: demo + structural + relational (over and above structural)
-m_block2_4b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + hwi_3 + monit + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, d)
-summary(m_block2_4b) # p = 0.06 (full model p-value)
-```
 
      
      
