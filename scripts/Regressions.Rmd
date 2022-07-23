@@ -61,6 +61,7 @@ library(psych)
 library(sjmisc)
 library(MVN)
 library(stats)
+library(AICcmodavg)
 
 theme_set(theme_minimal())
 ```
@@ -156,7 +157,7 @@ rcorr(as.matrix(only_scales), type = "pearson")
 ```{r}
 m_hwi_1a <- lm(engage ~ hwi_1, d)
 summary(m_hwi_1a) # p = 0.07
-arm::display(m_hwi_1a, detail = TRUE)
+#arm::display(m_hwi_1a, detail = TRUE)
 
 m_hwi_1b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d)
 summary(m_hwi_1b) # p = 0.04 (not completely sure if this is the p-value i should look at?)
@@ -186,6 +187,11 @@ summary(m_str_home_a) # p = 0.04
 m_str_home_b <- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + str_home, d)
 summary(m_str_home_b) # p = 0.02
 ```
+
+```{r}
+#effectsize::cohens_f(m_str_home_b, partial = FALSE)
+```
+eta_squared(m, )
 
 
 # 2.6. convos: child beh & school climate
@@ -372,12 +378,71 @@ Adjusted, combined (structural + relational) predictors model:
 m_combi_4a
 
 ```{r}
-# sundry::aic_weights(m_structs_2b, m_rels_3b)
-# 
-# sundry::aic_weights(m_rels_3b, m_combi_4a)
+summary(m_demo) # 11 observations due to missingness 
+summary(m_structs_2b) # 12 observations due to missingness 
+summary(m_rels_3b) # 11 observations due to missingness 
+summary(m_combi_4b) # 12 observations due to missingness 
 ```
 
+```{r}
+anova(m_demo, m_rels_3b) # p = 0.1718
+```
+
+RSS - I think this is the residual sum of squares. "The smaller the residual sum of squares, the better your model fits your data". Although the relational model did reduce the RSS (by 2.5) when compared to the demo only model, this was not significant (p = 0.1718)
+
+```{r}
+anova(m_structs_2b, m_combi_4b) 
+```
+
+the 
+
+```{r}
+summary(m_demo)$r.squared
+summary(m_rels_3b)$r.squared
+summary(m_structs_2b)$r.squared
+summary(m_combi_4b)$r.squared
+```
+#unique variance accounted for by rels
+```{r}
+summary(m_rels_3b)$r.squared - summary(m_demo)$r.squared # 0.10
+```
+#unique variance accounted for by structs
+```{r}
+summary(m_structs_2b)$r.squared - summary(m_demo)$r.squared # 0.18
+```
+
+#AIC weights - the probability that model i is, in fact, the K-L best model for the data
+```{r}
+AIC(m_demo)
+AIC(m_rels_3b)
+AIC(m_structs_2b)
+AIC(m_combi_4b)
+```
+```{r}
+# all models
+sundry::aic_weights(m_demo, m_rels_3b) # weight m1 = 0.58, m2 = 0.42
+sundry::aic_weights(m_demo, m_structs_2b) # weight m1 = 0.26, m2 (str) = 0.74
+sundry::aic_weights(m_rels_3b, m_structs_2b) # weight m1 (rel) = 0.2, m2 (str) = 0.8
+sundry::aic_weights(m_structs_2b, m_combi_4b) # weight m1 = 0.03, m2 = 0.97
+
+##### RQs really are ####
+
+# demo block: 
+AIC(m_demo)# 154.5824
+# then demo plus str
+AIC(m_structs_2b) # 152.5012
+test <- sundry::aic_weights(m_demo, m_structs_2b) # weight m1 = 0.26, m2 (str) = 0.74 
+# then demo plus str plus rels
+AIC(m_combi_4b) # 145.7984
+sundry::aic_weights(m_structs_2b, m_combi_4b) # weight m1 = 0.03, m2 (str) = 0.97
+```
+
+The model that displays the best fit to the data is the adjusted, combined structural plus relational predictors model.
+
+First, the analysis of the proportion of the variance, R^2, accounted for by each of the three models in the outcome indicated that the demographics only model accounted for approximately 6.33% (p-value: 0.8935) of the total variance in the outcome. The demographic plus relational components block of predictors  model  accounted for 16.33% (p-value: 0.5973) of the total variance in the outcome. The demographic plus structural components block of predictors  model  accounted for 24.29% (p-value: 0.3525) of the total variance in the outcome.Finally, the adjusted combined model, of structural plus relational block of predictor accounted for 38.25% (p-value: 0.08717) of the total variance in the outcome. Th elast model is the only one that was closer to reaching significance.
+
+Second, the analysis of variance indicated that including the relational block of predictors to the adjusted structural model significantly reduced the residual variance (p = 0.03329). 
+
+Finally, the AIC weights test of the demographic model and the intervention model indicated that, indisputably, the intervention model had the best possible probability of being the model that best fits the data. On the other hand, the comparison of the AIC weights of the intervention model (parallel slopes) and the interaction model (non-parallel slopes) indicated that the probability of one or the other model providing a better fit to the data was almost 50:50.
 
 
-     
-     

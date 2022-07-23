@@ -248,16 +248,16 @@ describe(scale_4)
 ```
 
 ```{r}
-plots <- split.default(scale_4, names(scale_4)) %>% 
-  map(., setNames, nm = "var") %>% 
-  map(., rownames_to_column) %>%
-  imap(., ~ {
-    ggplot(.x, aes(var)) + 
-      geom_bar() +
-      labs(title = .y)
-    })
-
-plots
+# plots <- split.default(scale_4, names(scale_4)) %>% 
+#   map(., setNames, nm = "var") %>% 
+#   map(., rownames_to_column) %>%
+#   imap(., ~ {
+#     ggplot(.x, aes(var)) + 
+#       geom_bar() +
+#       labs(title = .y)
+#     })
+# 
+# plots
 ```
 
 
@@ -765,6 +765,13 @@ fa(scale_11, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 scale_11.2 <- efa_vars %>%
   select(q41_p1, q43_p1, q50_p1, q62_p1)
 
+# Poly corr matrix
+poly_scale_11.2 <- polychoric(scale_11.2)
+poly_scale_11.2_mat <- data.frame(poly_scale_11.2$rho)
+
+# scree plot
+scree(poly_scale_11.2_mat,factors=TRUE,pc=FALSE,main="Scree plot",hline=NULL,add=FALSE)
+
 # EFA
 fa(scale_11.2, n.obs = NA, rotate = "none", fm = "uls", cor = "poly")
 ```
@@ -983,16 +990,16 @@ scale_4 %>%
 ```
 
 ```{r}
-plots <- split.default(scale_4, names(scale_4)) %>% 
-  map(., setNames, nm = "var") %>% 
-  map(., rownames_to_column) %>%
-  imap(., ~ {
-    ggplot(.x, aes(var)) + 
-      geom_bar() +
-      labs(title = .y)
-    })
-
-plots
+# plots <- split.default(scale_4, names(scale_4)) %>% 
+#   map(., setNames, nm = "var") %>% 
+#   map(., rownames_to_column) %>%
+#   imap(., ~ {
+#     ggplot(.x, aes(var)) + 
+#       geom_bar() +
+#       labs(title = .y)
+#     })
+# 
+# plots
 ```
 
 see univariate and check what is the percenatge of responses in each case to provide argumnet that variables are not "varying"
@@ -1022,16 +1029,16 @@ scale_5 %>%
 ```
 
 ```{r}
-plots2 <- split.default(scale_5, names(scale_5)) %>% 
-  map(., setNames, nm = "var") %>% 
-  map(., rownames_to_column) %>%
-  imap(., ~ {
-    ggplot(.x, aes(var)) + 
-      geom_bar() +
-      labs(title = .y)
-    })
-
-plots2
+# plots2 <- split.default(scale_5, names(scale_5)) %>% 
+#   map(., setNames, nm = "var") %>% 
+#   map(., rownames_to_column) %>%
+#   imap(., ~ {
+#     ggplot(.x, aes(var)) + 
+#       geom_bar() +
+#       labs(title = .y)
+#     })
+# 
+# plots2
 ```
 
 
@@ -1062,16 +1069,16 @@ scale_9 %>%
 ```
 
 ```{r}
-plots4 <- split.default(scale_9, names(scale_9)) %>% 
-  map(., setNames, nm = "var") %>% 
-  map(., rownames_to_column) %>%
-  imap(., ~ {
-    ggplot(.x, aes(var)) + 
-      geom_bar() +
-      labs(title = .y)
-    })
-
-plots4
+# plots4 <- split.default(scale_9, names(scale_9)) %>% 
+#   map(., setNames, nm = "var") %>% 
+#   map(., rownames_to_column) %>%
+#   imap(., ~ {
+#     ggplot(.x, aes(var)) + 
+#       geom_bar() +
+#       labs(title = .y)
+#     })
+# 
+# plots4
 ```
 
 Item 55 and 66 consistently show as ultraheywood cases

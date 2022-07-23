@@ -622,15 +622,9 @@ summary(m_hwi_1a) # p = 0.07</code></pre>
 ##   (1 observation deleted due to missingness)
 ## Multiple R-squared:  0.03441,    Adjusted R-squared:  0.0238 
 ## F-statistic: 3.243 on 1 and 91 DF,  p-value: 0.07505</code></pre>
-<pre class="r"><code>arm::display(m_hwi_1a, detail = TRUE)</code></pre>
-<pre><code>## lm(formula = engage ~ hwi_1, data = d)
-##             coef.est coef.se t value Pr(&gt;|t|)
-## (Intercept)  3.69     0.23   15.70    0.00   
-## hwi_1        0.15     0.08    1.80    0.08   
-## ---
-## n = 93, k = 2
-## residual sd = 0.54, R-Squared = 0.03</code></pre>
-<pre class="r"><code>m_hwi_1b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d)
+<pre class="r"><code>#arm::display(m_hwi_1a, detail = TRUE)
+
+m_hwi_1b &lt;- lm(engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1, d)
 summary(m_hwi_1b) # p = 0.04 (not completely sure if this is the p-value i should look at?)</code></pre>
 <pre><code>## 
 ## Call:
@@ -782,6 +776,8 @@ summary(m_str_home_b) # p = 0.02</code></pre>
 ##   (11 observations deleted due to missingness)
 ## Multiple R-squared:  0.126,  Adjusted R-squared:  -0.009414 
 ## F-statistic: 0.9305 on 11 and 71 DF,  p-value: 0.5168</code></pre>
+<pre class="r"><code>#effectsize::cohens_f(m_str_home_b, partial = FALSE)</code></pre>
+<p>eta_squared(m, )</p>
 </div>
 <div id="convos-child-beh-school-climate" class="section level1">
 <h1>2.6. convos: child beh &amp; school climate</h1>
@@ -1634,9 +1630,286 @@ summary(m_combi_4b) # p = 0.09 (full model p-value)</code></pre>
 <p>Adjusted, relational predictors model: m_rels_3b</p>
 <p>Adjusted, combined (structural + relational) predictors model:
 m_combi_4a</p>
-<pre class="r"><code># sundry::aic_weights(m_structs_2b, m_rels_3b)
-# 
-# sundry::aic_weights(m_rels_3b, m_combi_4a)</code></pre>
+<pre class="r"><code>summary(m_demo) # 11 observations due to missingness </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel, 
+##     data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.71337 -0.33181  0.05714  0.40592  0.96649 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      3.770452   1.838546   2.051   0.0439 *
+## parent_role2     0.082895   0.366575   0.226   0.8217  
+## parent_age      -0.002081   0.012468  -0.167   0.8679  
+## parent_ed1       0.054105   0.173232   0.312   0.7557  
+## parent_ed3       0.020710   0.157970   0.131   0.8961  
+## parent_ed4       0.225585   0.300466   0.751   0.4552  
+## parent_eng_comf -0.045069   0.050689  -0.889   0.3769  
+## youth_age        0.026942   0.148125   0.182   0.8562  
+## youth_gender2    0.195531   0.129624   1.508   0.1358  
+## youth_grlevel1   0.138943   0.210002   0.662   0.5103  
+## youth_grlevel3   0.196362   0.207193   0.948   0.3464  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5705 on 72 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.06331,    Adjusted R-squared:  -0.06679 
+## F-statistic: 0.4866 on 10 and 72 DF,  p-value: 0.8935</code></pre>
+<pre class="r"><code>summary(m_structs_2b) # 12 observations due to missingness </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + 
+##     sbi_1 + sbi_2, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.93930 -0.36196 -0.04453  0.36086  0.87551 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      1.719411   1.984742   0.866   0.3896  
+## parent_role2     0.142093   0.382706   0.371   0.7117  
+## parent_age      -0.004308   0.012456  -0.346   0.7306  
+## parent_ed1      -0.181474   0.191698  -0.947   0.3474  
+## parent_ed3       0.006205   0.169689   0.037   0.9709  
+## parent_ed4       0.127222   0.296680   0.429   0.6695  
+## parent_eng_comf -0.077434   0.052215  -1.483   0.1431  
+## youth_age        0.082538   0.153299   0.538   0.5922  
+## youth_gender2    0.195548   0.131323   1.489   0.1415  
+## youth_grlevel1   0.234102   0.214449   1.092   0.2791  
+## youth_grlevel3   0.255724   0.208115   1.229   0.2237  
+## hwi_1            0.116658   0.125422   0.930   0.3559  
+## hwi_2            0.217357   0.133813   1.624   0.1093  
+## str_home         0.024263   0.234715   0.103   0.9180  
+## convos_1        -0.305766   0.143675  -2.128   0.0372 *
+## convos_2         0.019987   0.126867   0.158   0.8753  
+## convos_3         0.253691   0.148305   1.711   0.0921 .
+## sbi_1            0.188426   0.174900   1.077   0.2854  
+## sbi_2            0.021951   0.158572   0.138   0.8903  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.5482 on 63 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.2429, Adjusted R-squared:  0.02664 
+## F-statistic: 1.123 on 18 and 63 DF,  p-value: 0.3525</code></pre>
+<pre class="r"><code>summary(m_rels_3b) # 11 observations due to missingness </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     belong + endorse + value_ed + rel_1 + rel_2, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.17306 -0.31307  0.00442  0.38335  1.04403 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)      4.903122   1.973645   2.484   0.0155 *
+## parent_role2     0.214270   0.368782   0.581   0.5632  
+## parent_age      -0.004621   0.012820  -0.360   0.7196  
+## parent_ed1       0.081407   0.173408   0.469   0.6403  
+## parent_ed3       0.010786   0.156482   0.069   0.9453  
+## parent_ed4       0.202005   0.311434   0.649   0.5188  
+## parent_eng_comf -0.078299   0.053639  -1.460   0.1490  
+## youth_age       -0.102428   0.161051  -0.636   0.5269  
+## youth_gender2    0.099443   0.133133   0.747   0.4577  
+## youth_grlevel1   0.026928   0.219932   0.122   0.9029  
+## youth_grlevel3   0.393635   0.219536   1.793   0.0775 .
+## belong           0.477283   0.331465   1.440   0.1545  
+## endorse          0.016489   0.306603   0.054   0.9573  
+## value_ed         0.244738   0.177635   1.378   0.1729  
+## rel_1           -0.677842   0.284368  -2.384   0.0200 *
+## rel_2            0.123850   0.261891   0.473   0.6378  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.559 on 67 degrees of freedom
+##   (11 observations deleted due to missingness)
+## Multiple R-squared:  0.1633, Adjusted R-squared:  -0.02402 
+## F-statistic: 0.8718 on 15 and 67 DF,  p-value: 0.5973</code></pre>
+<pre class="r"><code>summary(m_combi_4b) # 12 observations due to missingness </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = engage ~ parent_role + parent_age + parent_ed + 
+##     parent_eng_comf + youth_age + youth_gender + youth_grlevel + 
+##     hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + 
+##     sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2, 
+##     data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.86384 -0.32603 -0.05853  0.30518  0.96881 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)      3.547111   1.998010   1.775  0.08109 . 
+## parent_role2     0.475518   0.373903   1.272  0.20853   
+## parent_age      -0.008617   0.012335  -0.699  0.48762   
+## parent_ed1      -0.224826   0.182642  -1.231  0.22331   
+## parent_ed3      -0.068789   0.162499  -0.423  0.67363   
+## parent_ed4      -0.066521   0.302461  -0.220  0.82670   
+## parent_eng_comf -0.089487   0.051270  -1.745  0.08621 . 
+## youth_age       -0.049475   0.162470  -0.305  0.76182   
+## youth_gender2    0.061332   0.130281   0.471  0.63957   
+## youth_grlevel1   0.119792   0.218151   0.549  0.58503   
+## youth_grlevel3   0.390250   0.211473   1.845  0.07009 . 
+## hwi_1            0.091371   0.123816   0.738  0.46352   
+## hwi_2            0.294746   0.129934   2.268  0.02704 * 
+## str_home        -0.012191   0.244226  -0.050  0.96036   
+## convos_1        -0.355696   0.137718  -2.583  0.01235 * 
+## convos_2         0.072854   0.123899   0.588  0.55881   
+## convos_3         0.231629   0.146050   1.586  0.11819   
+## sbi_1            0.234138   0.175294   1.336  0.18687   
+## sbi_2            0.093202   0.162729   0.573  0.56903   
+## belong           0.228070   0.334165   0.683  0.49764   
+## endorse         -0.037485   0.297946  -0.126  0.90032   
+## value_ed         0.414131   0.198298   2.088  0.04116 * 
+## rel_1           -0.783535   0.273896  -2.861  0.00587 **
+## rel_2            0.051878   0.269091   0.193  0.84780   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.516 on 58 degrees of freedom
+##   (12 observations deleted due to missingness)
+## Multiple R-squared:  0.3825, Adjusted R-squared:  0.1376 
+## F-statistic: 1.562 on 23 and 58 DF,  p-value: 0.08717</code></pre>
+<pre class="r"><code>anova(m_demo, m_rels_3b) # p = 0.1718</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + 
+##     youth_age + youth_gender + youth_grlevel
+## Model 2: engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + 
+##     youth_age + youth_gender + youth_grlevel + belong + endorse + 
+##     value_ed + rel_1 + rel_2
+##   Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+## 1     72 23.435                           
+## 2     67 20.934  5    2.5017 1.6014 0.1718</code></pre>
+<p>RSS - I think this is the residual sum of squares. “The smaller the
+residual sum of squares, the better your model fits your data”. Although
+the relational model did reduce the RSS (by 2.5) when compared to the
+demo only model, this was not significant (p = 0.1718)</p>
+<pre class="r"><code>anova(m_structs_2b, m_combi_4b) </code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + 
+##     youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + 
+##     str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2
+## Model 2: engage ~ parent_role + parent_age + parent_ed + parent_eng_comf + 
+##     youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + 
+##     str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + 
+##     belong + endorse + value_ed + rel_1 + rel_2
+##   Res.Df    RSS Df Sum of Sq      F  Pr(&gt;F)  
+## 1     63 18.931                              
+## 2     58 15.442  5    3.4888 2.6207 0.03329 *
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>the</p>
+<pre class="r"><code>summary(m_demo)$r.squared</code></pre>
+<pre><code>## [1] 0.06330586</code></pre>
+<pre class="r"><code>summary(m_rels_3b)$r.squared</code></pre>
+<pre><code>## [1] 0.1632992</code></pre>
+<pre class="r"><code>summary(m_structs_2b)$r.squared</code></pre>
+<pre><code>## [1] 0.2429447</code></pre>
+<pre class="r"><code>summary(m_combi_4b)$r.squared</code></pre>
+<pre><code>## [1] 0.3824605</code></pre>
+<p>#unique variance accounted for by rels</p>
+<pre class="r"><code>summary(m_rels_3b)$r.squared - summary(m_demo)$r.squared # 0.10</code></pre>
+<pre><code>## [1] 0.09999337</code></pre>
+<p>#unique variance accounted for by structs</p>
+<pre class="r"><code>summary(m_structs_2b)$r.squared - summary(m_demo)$r.squared # 0.18</code></pre>
+<pre><code>## [1] 0.1796388</code></pre>
+<p>#AIC weights - the probability that model i is, in fact, the K-L best
+model for the data</p>
+<pre class="r"><code>AIC(m_demo)</code></pre>
+<pre><code>## [1] 154.5824</code></pre>
+<pre class="r"><code>AIC(m_rels_3b)</code></pre>
+<pre><code>## [1] 155.2125</code></pre>
+<pre class="r"><code>AIC(m_structs_2b)</code></pre>
+<pre><code>## [1] 152.5012</code></pre>
+<pre class="r"><code>AIC(m_combi_4b)</code></pre>
+<pre><code>## [1] 145.7984</code></pre>
+<pre class="r"><code># all models
+sundry::aic_weights(m_demo, m_rels_3b) # weight m1 = 0.58, m2 = 0.42</code></pre>
+<pre><code>##                                                                                                                                        predictors
+## 1                                               parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel
+## 2 parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + belong + endorse + value_ed + rel_1 + rel_2
+##       delta weight
+## 1 0.0000000   0.58
+## 2 0.6301054   0.42</code></pre>
+<pre class="r"><code>sundry::aic_weights(m_demo, m_structs_2b) # weight m1 = 0.26, m2 (str) = 0.74</code></pre>
+<pre><code>##                                                                                                                                                                      predictors
+## 2 parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2
+## 1                                                                             parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel
+##      delta weight
+## 2 0.000000   0.74
+## 1 2.081147   0.26</code></pre>
+<pre class="r"><code>sundry::aic_weights(m_rels_3b, m_structs_2b) # weight m1 (rel) = 0.2, m2 (str) = 0.8</code></pre>
+<pre><code>##                                                                                                                                                                      predictors
+## 2 parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2
+## 1                               parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + belong + endorse + value_ed + rel_1 + rel_2
+##      delta weight
+## 2 0.000000    0.8
+## 1 2.711252    0.2</code></pre>
+<pre class="r"><code>sundry::aic_weights(m_structs_2b, m_combi_4b) # weight m1 = 0.03, m2 = 0.97</code></pre>
+<pre><code>##                                                                                                                                                                                                                    predictors
+## 2 parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2
+## 1                                               parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2
+##      delta weight
+## 2 0.000000   0.97
+## 1 6.702853   0.03</code></pre>
+<pre class="r"><code>##### RQs really are ####
+
+# demo block: 
+AIC(m_demo)# 154.5824</code></pre>
+<pre><code>## [1] 154.5824</code></pre>
+<pre class="r"><code># then demo plus str
+AIC(m_structs_2b) # 152.5012</code></pre>
+<pre><code>## [1] 152.5012</code></pre>
+<pre class="r"><code>test &lt;- sundry::aic_weights(m_demo, m_structs_2b) # weight m1 = 0.26, m2 (str) = 0.74 
+# then demo plus str plus rels
+AIC(m_combi_4b) # 145.7984</code></pre>
+<pre><code>## [1] 145.7984</code></pre>
+<pre class="r"><code>sundry::aic_weights(m_structs_2b, m_combi_4b) # weight m1 = 0.03, m2 (str) = 0.97</code></pre>
+<pre><code>##                                                                                                                                                                                                                    predictors
+## 2 parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2 + belong + endorse + value_ed + rel_1 + rel_2
+## 1                                               parent_role + parent_age + parent_ed + parent_eng_comf + youth_age + youth_gender + youth_grlevel + hwi_1 + hwi_2 + str_home + convos_1 + convos_2 + convos_3 + sbi_1 + sbi_2
+##      delta weight
+## 2 0.000000   0.97
+## 1 6.702853   0.03</code></pre>
+<p>The model that displays the best fit to the data is the adjusted,
+combined structural plus relational predictors model.</p>
+<p>First, the analysis of the proportion of the variance, R^2, accounted
+for by each of the three models in the outcome indicated that the
+demographics only model accounted for approximately 6.33% (p-value:
+0.8935) of the total variance in the outcome. The demographic plus
+relational components block of predictors model accounted for 16.33%
+(p-value: 0.5973) of the total variance in the outcome. The demographic
+plus structural components block of predictors model accounted for
+24.29% (p-value: 0.3525) of the total variance in the outcome.Finally,
+the adjusted combined model, of structural plus relational block of
+predictor accounted for 38.25% (p-value: 0.08717) of the total variance
+in the outcome. Th elast model is the only one that was closer to
+reaching significance.</p>
+<p>Second, the analysis of variance indicated that including the
+relational block of predictors to the adjusted structural model
+significantly reduced the residual variance (p = 0.03329).</p>
+<p>Finally, the AIC weights test of the demographic model and the
+intervention model indicated that, indisputably, the intervention model
+had the best possible probability of being the model that best fits the
+data. On the other hand, the comparison of the AIC weights of the
+intervention model (parallel slopes) and the interaction model
+(non-parallel slopes) indicated that the probability of one or the other
+model providing a better fit to the data was almost 50:50.</p>
 </div>
 </div>
 
